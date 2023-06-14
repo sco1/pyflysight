@@ -19,9 +19,21 @@ classifiers = [
     "Typing :: Typed",
 ]
 
+include = [
+    {path = "./CHANGELOG.md", format = "sdist"}
+]
+
+[tool.poetry.urls]
+"Issue Tracker" = "https://github.com/sco1/pyflysight/issues"
+
+[tool.poetry.scripts]
+pyflysight = "pyflysight.cli:pyflysight_cli"
+
 [tool.poetry.dependencies]
 python = "^3.10"
 polars = "^0.18"
+python-dotenv = "^1.0.0"
+sco1-misc = "^0.1"
 typer = "^0.9"
 
 [tool.poetry.dev-dependencies]

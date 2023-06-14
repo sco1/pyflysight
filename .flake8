@@ -21,3 +21,7 @@ extend-exclude=
     .venv,
 per-file-ignores =
     tests/test_*.py:D103 E501,
+    tests/checks.py: D103,
+extend-immutable-calls =
+    # Typer CLI
+    typer.Option, typer.Argument,
