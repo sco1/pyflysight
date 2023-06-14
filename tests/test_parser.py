@@ -26,7 +26,7 @@ def test_log_parse() -> None:
     TRUTH_DERIVED = polars.DataFrame(
         {
             "time": [truth_dt],
-            "elapsed_time": [dt.timedelta(seconds=0)],
+            "elapsed_time": [0.0],
             "groundspeed": [1.165],
         }
     )

@@ -4,7 +4,7 @@ from pathlib import Path
 import polars
 
 
-def _calc_derived_vals(flight_log: polars.DataFrame) -> polars.DataFrame:
+def _calc_derived_vals(flog: polars.DataFrame) -> polars.DataFrame:
     """
     Calculate derived columns from the provided flight log data.
 
@@ -12,14 +12,14 @@ def _calc_derived_vals(flight_log: polars.DataFrame) -> polars.DataFrame:
         * `elapsed_time`
         * `groundspeed` (m/s)
     """
-    flight_log = flight_log.with_columns(
+    flog = flog.with_columns(
         [
-            (flight_log["time"] - flight_log["time"][0]).alias("elapsed_time"),
-            ((flight_log["velN"] ** 2 + flight_log["velE"] ** 2).pow(1 / 2)).alias("groundspeed"),
+            ((flog["time"] - flog["time"][0]).dt.milliseconds() / 1000).alias("elapsed_time"),
+            ((flog["velN"] ** 2 + flog["velE"] ** 2).pow(1 / 2)).alias("groundspeed"),
         ]
     )
 
-    return flight_log
+    return flog
 
 
 def load_flysight(filepath: Path) -> polars.DataFrame:
