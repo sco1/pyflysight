@@ -14,7 +14,7 @@ def _calc_derived_vals(flog: polars.DataFrame) -> polars.DataFrame:
     """
     flog = flog.with_columns(
         [
-            ((flog["time"] - flog["time"][0]).dt.milliseconds() / 1000).alias("elapsed_time"),
+            ((flog["time"] - flog["time"][0]).dt.total_milliseconds() / 1000).alias("elapsed_time"),
             ((flog["velN"] ** 2 + flog["velE"] ** 2).pow(1 / 2)).alias("groundspeed"),
         ]
     )

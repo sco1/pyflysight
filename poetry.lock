@@ -305,21 +305,6 @@ files = [
 colors = ["colorama (>=0.4.6)"]
 
 [[package]]
-name = "kaleido"
-version = "0.2.1"
-description = "Static image export for web-based visualization libraries with zero dependencies"
-optional = false
-python-versions = "*"
-files = [
-    {file = "kaleido-0.2.1-py2.py3-none-macosx_10_11_x86_64.whl", hash = "sha256:ca6f73e7ff00aaebf2843f73f1d3bacde1930ef5041093fe76b83a15785049a7"},
-    {file = "kaleido-0.2.1-py2.py3-none-macosx_11_0_arm64.whl", hash = "sha256:bb9a5d1f710357d5d432ee240ef6658a6d124c3e610935817b4b42da9c787c05"},
-    {file = "kaleido-0.2.1-py2.py3-none-manylinux1_x86_64.whl", hash = "sha256:aa21cf1bf1c78f8fa50a9f7d45e1003c387bd3d6fe0a767cfbbf344b95bdc3a8"},
-    {file = "kaleido-0.2.1-py2.py3-none-manylinux2014_aarch64.whl", hash = "sha256:845819844c8082c9469d9c17e42621fbf85c2b237ef8a86ec8a8527f98b6512a"},
-    {file = "kaleido-0.2.1-py2.py3-none-win32.whl", hash = "sha256:ecc72635860be616c6b7161807a65c0dbd9b90c6437ac96965831e2e24066552"},
-    {file = "kaleido-0.2.1-py2.py3-none-win_amd64.whl", hash = "sha256:4670985f28913c2d063c5734d125ecc28e40810141bdb0a46f15b76c1d45f23c"},
-]
-
-[[package]]
 name = "markdown-it-py"
 version = "3.0.0"
 description = "Python port of markdown-it. Markdown parsing, done right!"
@@ -475,21 +460,6 @@ test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=7.4.3)", "pytest-
 type = ["mypy (>=1.8)"]
 
 [[package]]
-name = "plotly"
-version = "5.21.0"
-description = "An open-source, interactive data visualization library for Python"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "plotly-5.21.0-py3-none-any.whl", hash = "sha256:a33f41fd5922e45b2b253f795b200d14452eb625790bb72d0a72cf1328a6abbf"},
-    {file = "plotly-5.21.0.tar.gz", hash = "sha256:69243f8c165d4be26c0df1c6f0b7b258e2dfeefe032763404ad7e7fb7d7c2073"},
-]
-
-[package.dependencies]
-packaging = "*"
-tenacity = ">=6.2.0"
-
-[[package]]
 name = "pluggy"
 version = "1.5.0"
 description = "plugin and hook calling mechanisms for python"
@@ -506,18 +476,21 @@ testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
 name = "polars"
-version = "0.20.22"
+version = "0.20.23"
 description = "Blazingly fast DataFrame library"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "polars-0.20.22-cp38-abi3-macosx_10_12_x86_64.whl", hash = "sha256:d211aed6ae34845e1a9766e3b487f73ee9d5044927cc748f7498a72a5a0c8805"},
-    {file = "polars-0.20.22-cp38-abi3-macosx_11_0_arm64.whl", hash = "sha256:15d8807828f9c3ddbab60b4aa17ea1dea7743a3dddebfd1c6186826257a687ca"},
-    {file = "polars-0.20.22-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:2f7b08e1725d1a7c522aa316304e8ddb835c69b579577249764c7fa4eeb97305"},
-    {file = "polars-0.20.22-cp38-abi3-manylinux_2_24_aarch64.whl", hash = "sha256:08ee57946f34e2de3ebfc7853d21a14eb92e3993e71d788a6aaaa0757e7bd3e2"},
-    {file = "polars-0.20.22-cp38-abi3-win_amd64.whl", hash = "sha256:abc5da1f6f7e2ee15bdab74cd19939948a0910799b27ee3eb0768bb95f0e9aff"},
-    {file = "polars-0.20.22.tar.gz", hash = "sha256:ceeb767bb944605539db63c528fe074708f0e23ece2f78f3dfc5132ac2e84d64"},
+    {file = "polars-0.20.23-cp38-abi3-macosx_10_12_x86_64.whl", hash = "sha256:9b1001a29e785126f0e189786223c45bf9c7696ed3d221a61dd629ff5e8229d3"},
+    {file = "polars-0.20.23-cp38-abi3-macosx_11_0_arm64.whl", hash = "sha256:7de724f9b7f94c76008023b1ef9319e7dccada97e98d48d548be487be8dc2ea6"},
+    {file = "polars-0.20.23-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f109512a456f9f8bdc20e5b19e5794471d4a1a507f99daf1afe1b41eb3227c41"},
+    {file = "polars-0.20.23-cp38-abi3-manylinux_2_24_aarch64.whl", hash = "sha256:bfd10ffabafecba3bb836f9e267405abc8259da5fb8d5e74096d46eea802a295"},
+    {file = "polars-0.20.23-cp38-abi3-win_amd64.whl", hash = "sha256:de69adcfe4a92821f28c0223b801e56a36682a7aac32df8e860e6df7678f4c8a"},
+    {file = "polars-0.20.23.tar.gz", hash = "sha256:4503c446c7771d5b52d5bff4f2dbf2e999a87a1cc3c89931db255cff43218436"},
 ]
+
+[package.dependencies]
+tzdata = {version = "*", optional = true, markers = "platform_system == \"Windows\" and extra == \"timezone\""}
 
 [package.extras]
 adbc = ["adbc-driver-manager", "adbc-driver-sqlite"]
@@ -525,7 +498,7 @@ all = ["polars[adbc,async,cloudpickle,connectorx,deltalake,fastexcel,fsspec,geve
 async = ["nest-asyncio"]
 cloudpickle = ["cloudpickle"]
 connectorx = ["connectorx (>=0.3.2)"]
-deltalake = ["deltalake (>=0.14.0)"]
+deltalake = ["deltalake (>=0.15.0)"]
 fastexcel = ["fastexcel (>=0.9)"]
 fsspec = ["fsspec"]
 gevent = ["gevent"]
@@ -618,23 +591,23 @@ testing = ["covdefaults (>=2.3)", "pytest (>=7.4)", "pytest-cov (>=4.1)", "pytes
 
 [[package]]
 name = "pytest"
-version = "8.1.2"
+version = "8.2.0"
 description = "pytest: simple powerful testing with Python"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pytest-8.1.2-py3-none-any.whl", hash = "sha256:6c06dc309ff46a05721e6fd48e492a775ed8165d2ecdf57f156a80c7e95bb142"},
-    {file = "pytest-8.1.2.tar.gz", hash = "sha256:f3c45d1d5eed96b01a2aea70dee6a4a366d51d38f9957768083e4fecfc77f3ef"},
+    {file = "pytest-8.2.0-py3-none-any.whl", hash = "sha256:1733f0620f6cda4095bbf0d9ff8022486e91892245bb9e7d5542c018f612f233"},
+    {file = "pytest-8.2.0.tar.gz", hash = "sha256:d507d4482197eac0ba2bae2e9babf0672eb333017bcedaa5fb1a3d42c1174b3f"},
 ]
 
 [package.dependencies]
 colorama = {version = "*", markers = "sys_platform == \"win32\""}
 iniconfig = "*"
 packaging = "*"
-pluggy = ">=1.4,<2.0"
+pluggy = ">=1.5,<2.0"
 
 [package.extras]
-testing = ["argcomplete", "attrs (>=19.2)", "hypothesis (>=3.56)", "mock", "pygments (>=2.7.2)", "requests", "setuptools", "xmlschema"]
+dev = ["argcomplete", "attrs (>=19.2)", "hypothesis (>=3.56)", "mock", "pygments (>=2.7.2)", "requests", "setuptools", "xmlschema"]
 
 [[package]]
 name = "pytest-check"
@@ -831,20 +804,6 @@ files = [
 ]
 
 [[package]]
-name = "tenacity"
-version = "8.2.3"
-description = "Retry code until it succeeds"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "tenacity-8.2.3-py3-none-any.whl", hash = "sha256:ce510e327a630c9e1beaf17d42e6ffacc88185044ad85cf74c0a8887c6a0f88c"},
-    {file = "tenacity-8.2.3.tar.gz", hash = "sha256:5398ef0d78e63f40007c1fb4c0bff96e1911394d2fa8d194f77619c05ff6cc8a"},
-]
-
-[package.extras]
-doc = ["reno", "sphinx", "tornado (>=4.5)"]
-
-[[package]]
 name = "tox"
 version = "4.15.0"
 description = "tox is a generic virtualenv management and test command line tool"
@@ -899,6 +858,17 @@ files = [
 ]
 
 [[package]]
+name = "tzdata"
+version = "2024.1"
+description = "Provider of IANA time zone data"
+optional = false
+python-versions = ">=2"
+files = [
+    {file = "tzdata-2024.1-py2.py3-none-any.whl", hash = "sha256:9068bc196136463f5245e51efda838afa15aaeca9903f49050dfa2679db4d252"},
+    {file = "tzdata-2024.1.tar.gz", hash = "sha256:2674120f8d891909751c38abcdfd386ac0a5a1127954fbc332af6b5ceae07efd"},
+]
+
+[[package]]
 name = "virtualenv"
 version = "20.26.0"
 description = "Virtual Python Environment builder"
@@ -921,4 +891,4 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "f452852b4036cf2ffee99226b18a03158389c4a65f26409dcabae28c3c0ead92"
+content-hash = "c580ec1d2a35cd3e48b2b074570988a0a847e630eb828d02abddd3c9a3a90a20"
