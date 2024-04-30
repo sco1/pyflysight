@@ -1,11 +1,14 @@
 from textwrap import dedent
 
+import polars
 import pytest
 
 from pyflysight.flysight_proc import (
+    FlysightV2,
     SensorInfo,
     _parse_header,
     _partition_sensor_data,
+    _raw_data_to_dataframe,
     _split_v2_sensor_data,
 )
 
@@ -156,3 +159,47 @@ def test_sensor_data_partition_multi_line() -> None:
 
     assert len(sensor_data["BARO"]) == 1
     assert sensor_data["BARO"][0] == pytest.approx([3, 4])
+
+
+DEVICE_INFO_NO_TIMESTAMP = FlysightV2(
+    firmware_version="abc123",
+    device_id="abc123",
+    session_id="abc123",
+    sensor_info={"BARO": TRUTH_SENSOR_INFO},
+)
+
+SAMPLE_GROUPED_DATA = {"BARO": [[1.0, 2.0, 3.0]]}
+
+
+def test_dataframe_conversion_no_timestamp_raises() -> None:
+    with pytest.raises(ValueError, match="timestamp"):
+        _raw_data_to_dataframe(SAMPLE_GROUPED_DATA, DEVICE_INFO_NO_TIMESTAMP)
+
+
+DEVICE_INFO_WITH_TIMESTAMP = FlysightV2(
+    firmware_version="abc123",
+    device_id="abc123",
+    session_id="abc123",
+    sensor_info={"BARO": TRUTH_SENSOR_INFO},
+    first_timestamp=0.5,
+)
+
+
+def test_dataframe_conversion_mismatch_column_headers_raises() -> None:
+    sample_data = {"BARO": [[1.0, 2.0, 3.0, 4.0]]}
+    with pytest.raises(ValueError, match="Number of column headers"):
+        _raw_data_to_dataframe(sample_data, DEVICE_INFO_WITH_TIMESTAMP)
+
+
+def test_dataframe_conversion_no_column_headers_raises() -> None:
+    sample_data = {"abcd": [[1.0, 2.0, 3.0]]}
+    with pytest.raises(ValueError, match="Could not locate"):
+        _raw_data_to_dataframe(sample_data, DEVICE_INFO_WITH_TIMESTAMP)
+
+
+def test_dataframe_elapsed_time_derived() -> None:
+    parsed_sensor_data = _raw_data_to_dataframe(SAMPLE_GROUPED_DATA, DEVICE_INFO_WITH_TIMESTAMP)
+    assert "elapsed_time" in parsed_sensor_data["BARO"].columns
+    assert parsed_sensor_data["BARO"].select(
+        polars.col("elapsed_time").first()
+    ).item() == pytest.approx(0.5)

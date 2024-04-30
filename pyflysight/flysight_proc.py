@@ -7,6 +7,9 @@ import polars
 
 HEADER_PARTITION_KEYWORD = "$DATA"
 
+GroupedSensorData: t.TypeAlias = dict[str, list[list[float]]]
+SensorDataFrames: t.TypeAlias = dict[str, polars.DataFrame]
+
 
 def _calc_derived_vals(flog: polars.DataFrame) -> polars.DataFrame:
     """
@@ -45,7 +48,8 @@ def load_flysight(filepath: Path) -> polars.DataFrame:
 
 
 def batch_load_flysight(
-    top_dir: Path, pattern: str = r"*.CSV"
+    top_dir: Path,
+    pattern: str = r"*.CSV",
 ) -> dict[str, dict[str, polars.DataFrame]]:
     """
     Batch parse a directory of FlySight logs into a dictionary of `DataFrame`s.
@@ -70,7 +74,8 @@ def batch_load_flysight(
 
 
 def _split_v2_sensor_data(
-    data_lines: t.Sequence[str], partition_keyword: str = HEADER_PARTITION_KEYWORD
+    data_lines: t.Sequence[str],
+    partition_keyword: str = HEADER_PARTITION_KEYWORD,
 ) -> tuple[list[str], list[str]]:
     """
     Split the provided data lines into their corresponding header & data sections.
@@ -107,6 +112,8 @@ class FlysightV2:
     device_id: str
     session_id: str
     sensor_info: dict[str, SensorInfo]
+
+    first_timestamp: float | None = None
 
 
 def _parse_header(header_lines: t.Sequence[str]) -> FlysightV2:
@@ -151,21 +158,17 @@ def _parse_header(header_lines: t.Sequence[str]) -> FlysightV2:
                 session_id = value
 
     if not firmware_version:
-        raise ValueError(
-            "Could not locate device firmware version, please check data file for issues."
-        )
+        raise ValueError("Could not locate device firmware version.")
 
     if not device_id:
-        raise ValueError("Could not locate device ID, please check data file for issues.")
+        raise ValueError("Could not locate device ID.")
 
     if not session_id:
-        raise ValueError("Could not locate session ID, please check data file for issues.")
+        raise ValueError("Could not locate session ID.")
 
     sensor_lines = deque(header_lines[idx:])
     if (len(sensor_lines) % 2) != 0:
-        raise ValueError(
-            "At least one sensor type lacks column or unit information, please check data file for issues."  # noqa: E501
-        )
+        raise ValueError("At least one sensor type lacks column or unit information.")
 
     sensor_info = {}
     while sensor_lines:
@@ -188,9 +191,7 @@ def _parse_header(header_lines: t.Sequence[str]) -> FlysightV2:
     return flysight
 
 
-def _partition_sensor_data(
-    data_lines: t.Sequence[str],
-) -> tuple[dict[str, list[list[float]]], float]:
+def _partition_sensor_data(data_lines: t.Sequence[str]) -> tuple[GroupedSensorData, float]:
     """
     Group the provided sensor log record rows by their corresponding sensor identifier.
 
@@ -221,24 +222,56 @@ def _partition_sensor_data(
     return sensor_data, initial_timestamp
 
 
-def parse_v2_sensor_data(
-    data_lines: t.Sequence[str],
-) -> tuple[FlysightV2, dict[str, polars.DataFrame]]:
-    header, sensor_data = _split_v2_sensor_data(data_lines)
-    device_info = _parse_header(header)
-    grouped_sensor_data, first_timestamp = _partition_sensor_data(sensor_data)
+def _raw_data_to_dataframe(
+    sensor_data: GroupedSensorData,
+    device_info: FlysightV2,
+) -> SensorDataFrames:
+    """
+    Convert the provided grouped sensor data into their corresponding `DataFrame`s.
+
+    Headers are replaced using the device's metadata. It is assumed that all `DataFrame`s contain a
+    `time` column, and a normalized `elapsed_time` column will be derived using the device's first
+    encountered timestamp.
+    """
+    if device_info.first_timestamp is None:
+        raise ValueError("First timestamp for logging session not specified.")
 
     parsed_sensor_data: dict[str, polars.DataFrame] = {}
-    for sensor in grouped_sensor_data.keys():
-        df = polars.DataFrame(grouped_sensor_data[sensor], orient="row")
+    for sensor in sensor_data.keys():
+        df = polars.DataFrame(sensor_data[sensor], orient="row")
 
         try:
             df.columns = device_info.sensor_info[sensor].columns
-        except polars.ShapeError:
-            ...
-        except KeyError:
-            ...
+        except polars.ShapeError as e:
+            n_headers = len(device_info.sensor_info[sensor].columns)
+            raise ValueError(
+                f"Number of column headers for {sensor} do not match the number of data columns present (expected: {df.width}, received: {n_headers})."  # noqa: E501
+            ) from e
+        except KeyError as e:
+            raise ValueError(
+                f"Could not locate column header information for {sensor} sensor."
+            ) from e
 
-        ...
+        df = df.with_columns(
+            [
+                ((df["time"] - device_info.first_timestamp)).alias("elapsed_time"),
+            ]
+        )
 
-    return device_info, parsed_sensor_data
+        parsed_sensor_data[sensor] = df
+
+    return parsed_sensor_data
+
+
+def parse_v2_sensor_data(log_filepath: Path) -> tuple[SensorDataFrames, FlysightV2]:
+    """Data parsing pipeline for a Flysight V2 sensor log CSV file."""
+    data_lines = log_filepath.read_text().splitlines()
+
+    header, sensor_data = _split_v2_sensor_data(data_lines)
+    device_info = _parse_header(header)
+    grouped_sensor_data, first_timestamp = _partition_sensor_data(sensor_data)
+    device_info.first_timestamp = first_timestamp
+
+    parsed_sensor_data = _raw_data_to_dataframe(grouped_sensor_data, device_info)
+
+    return parsed_sensor_data, device_info
