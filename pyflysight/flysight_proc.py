@@ -106,6 +106,13 @@ class FlysightV2:
 
     Sensor information is provided as a dictionary keyed by a sensor ID, assumed to be shared
     between the unit information contained in the header and each row of the sensor's records.
+
+    `first_timestamp` refers to the `time` value of the first data record & used to calculate the
+    running `elapsed_time` column during the parsing pipeline. This timestamp value must be set &
+    should be set later by the provided parsing pipeline.
+
+    `ground_pressure_pa` is the atmospheric pressure at ground level, in Pascals, used by some
+    pressure altitude calculations. This defaults to standard day sea level pressure.
     """
 
     firmware_version: str
@@ -114,6 +121,7 @@ class FlysightV2:
     sensor_info: dict[str, SensorInfo]
 
     first_timestamp: float | None = None
+    ground_pressure_pa: int | float = 101_325
 
 
 def _parse_header(header_lines: t.Sequence[str]) -> FlysightV2:
@@ -222,6 +230,35 @@ def _partition_sensor_data(data_lines: t.Sequence[str]) -> tuple[GroupedSensorDa
     return sensor_data, initial_timestamp
 
 
+def _calculate_derived_columns(
+    df: polars.DataFrame,
+    sensor: str,
+    device_info: FlysightV2,
+) -> polars.DataFrame:
+    """
+    Calculate sensor-specific derived quantities for the provided `DataFrame`.
+
+    The following columns are derived:
+        * Baro
+            * `pressure_altitude` - calculated as ...
+
+    If no specific calculations are required, the `DataFrame` is passed through unchanged.
+    """
+    if sensor == "BARO":
+        # Can we do these in a single call?
+        df = df.with_columns(
+            [
+                (
+                    44_330 * (1 - (df["pressure"] / device_info.ground_pressure_pa).pow(1 / 5.225))
+                ).alias("press_alt_m"),
+            ]
+        )
+
+        df = df.with_columns([(df["press_alt_m"] * 3.2808).alias("press_alt_ft")])
+
+    return df
+
+
 def _raw_data_to_dataframe(
     sensor_data: GroupedSensorData,
     device_info: FlysightV2,
@@ -252,11 +289,13 @@ def _raw_data_to_dataframe(
                 f"Could not locate column header information for {sensor} sensor."
             ) from e
 
+        # All sensor DataFrames get elapsed time, then we can dispatch further by sensor type
         df = df.with_columns(
             [
                 ((df["time"] - device_info.first_timestamp)).alias("elapsed_time"),
             ]
         )
+        df = _calculate_derived_columns(df=df, sensor=sensor, device_info=device_info)
 
         parsed_sensor_data[sensor] = df
 
