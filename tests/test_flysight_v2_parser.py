@@ -6,6 +6,7 @@ import pytest
 from pyflysight.flysight_proc import (
     FlysightV2,
     SensorInfo,
+    _calculate_derived_columns,
     _parse_header,
     _partition_sensor_data,
     _raw_data_to_dataframe,
@@ -118,6 +119,23 @@ def test_header_partial_missing_sensor_info_raises() -> None:
         _parse_header(SAMPLE_HEADER_MISMATCHED_SENSOR_INFO)
 
 
+SAMPLE_HEADER_GNSS_INFO = dedent(
+    """\
+    $FLYS,1
+    $VAR,FIRMWARE_VER,v2023.09.22
+    $VAR,DEVICE_ID,003f0033484e501420353131
+    $VAR,SESSION_ID,7e67d0e71a53d9d6486b0114
+    $COL,GNSS,time,lat,lon,hMSL,velN,velE,velD,hAcc,vAcc,sAcc,numSV
+    $UNIT,GNSS,,deg,deg,m,m/s,m/s,m/s,m,m,m/s,
+    """
+).splitlines()
+
+
+def test_header_gnss_datetime_unit_fill() -> None:
+    flysight = _parse_header(SAMPLE_HEADER_GNSS_INFO)
+    assert "datetime" in flysight.sensor_info["GNSS"].units
+
+
 SAMPLE_SENSOR_DATA_SINGLE_LINES = dedent(
     """\
     $IMU,1,2,3,4
@@ -199,7 +217,25 @@ def test_dataframe_conversion_no_column_headers_raises() -> None:
 
 def test_dataframe_elapsed_time_derived() -> None:
     parsed_sensor_data = _raw_data_to_dataframe(SAMPLE_GROUPED_DATA, DEVICE_INFO_WITH_TIMESTAMP)
-    assert "elapsed_time" in parsed_sensor_data["BARO"].columns
-    assert parsed_sensor_data["BARO"].select(
-        polars.col("elapsed_time").first()
-    ).item() == pytest.approx(0.5)
+    df = parsed_sensor_data["BARO"]
+
+    assert "elapsed_time" in df.columns
+    assert df.select(polars.col("elapsed_time").first()).item() == pytest.approx(0.5)
+
+
+def test_dataframe_pressure_altitude_from_baro() -> None:
+    parsed_sensor_data = _raw_data_to_dataframe(SAMPLE_GROUPED_DATA, DEVICE_INFO_WITH_TIMESTAMP)
+    df = parsed_sensor_data["BARO"]
+
+    assert "press_alt_m" in df.columns
+    assert df.select(polars.col("press_alt_m").first()).item() == pytest.approx(38_754.55)
+
+    assert "press_alt_ft" in df.columns
+    assert df.select(polars.col("press_alt_ft").first()).item() == pytest.approx(127_145.96)
+
+
+def test_dataframe_no_derived_passthrough() -> None:
+    # Just need a dummy df for this, passthrough shouldn't need any specific device info
+    df = polars.DataFrame({"a": [1, 2], "b": [3, 4]})
+    passthrough = _calculate_derived_columns(df, "abcd", DEVICE_INFO_WITH_TIMESTAMP)
+    polars.testing.assert_frame_equal(df, passthrough)
