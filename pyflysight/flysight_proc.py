@@ -1,10 +1,18 @@
-from collections import defaultdict
+import datetime as dt
+import typing as t
+from collections import defaultdict, deque
+from dataclasses import dataclass
 from pathlib import Path
 
 import polars
 
+HEADER_PARTITION_KEYWORD = "$DATA"
 
-def _calc_derived_vals(flog: polars.DataFrame) -> polars.DataFrame:
+GroupedSensorData: t.TypeAlias = dict[str, list[list[float]]]
+SensorDataFrames: t.TypeAlias = dict[str, polars.DataFrame]
+
+
+def _calc_derived_track_vals(flog: polars.DataFrame) -> polars.DataFrame:
     """
     Calculate derived columns from the provided flight log data.
 
@@ -13,10 +21,8 @@ def _calc_derived_vals(flog: polars.DataFrame) -> polars.DataFrame:
         * `groundspeed` (m/s)
     """
     flog = flog.with_columns(
-        [
-            ((flog["time"] - flog["time"][0]).dt.milliseconds() / 1000).alias("elapsed_time"),
-            ((flog["velN"] ** 2 + flog["velE"] ** 2).pow(1 / 2)).alias("groundspeed"),
-        ]
+        elapsed_time=((flog["time"] - flog["time"][0]).dt.total_milliseconds() / 1000),
+        groundspeed=((flog["velN"] ** 2 + flog["velE"] ** 2).pow(1 / 2)),
     )
 
     return flog
@@ -35,13 +41,14 @@ def load_flysight(filepath: Path) -> polars.DataFrame:
     """
     flight_log = polars.read_csv(filepath, skip_rows_after_header=1)
     flight_log = flight_log.with_columns(flight_log["time"].str.to_datetime())
-    flight_log = _calc_derived_vals(flight_log)
+    flight_log = _calc_derived_track_vals(flight_log)
 
     return flight_log
 
 
 def batch_load_flysight(
-    top_dir: Path, pattern: str = r"*.CSV"
+    top_dir: Path,
+    pattern: str = r"*.CSV",
 ) -> dict[str, dict[str, polars.DataFrame]]:
     """
     Batch parse a directory of FlySight logs into a dictionary of `DataFrame`s.
@@ -63,3 +70,324 @@ def batch_load_flysight(
         parsed_logs[log_date][log_file.stem] = load_flysight(log_file)
 
     return parsed_logs
+
+
+def _split_v2_sensor_data(
+    data_lines: t.Sequence[str],
+    partition_keyword: str = HEADER_PARTITION_KEYWORD,
+) -> tuple[list[str], list[str]]:
+    """
+    Split the provided data lines into their corresponding header & data sections.
+
+    Sections are assumed to be delimited by `partition_keyword` (`"$DATA"`, by default).
+    """
+    for idx, d in enumerate(data_lines):
+        if d.startswith(partition_keyword):
+            return list(data_lines[:idx]), list(data_lines[idx + 1 :])  # noqa: E203
+
+    raise ValueError(
+        f"Could not locate line containing '{partition_keyword}', please check data file for issues."  # noqa: E501
+    )
+
+
+class SensorInfo(t.NamedTuple):
+    """Store sensor record column & unit information, assumed to be of equal length."""
+
+    columns: list[str]
+    units: list[str]
+    id_: str = ""
+
+
+@dataclass
+class FlysightV2:
+    """
+    Store device metadata for a corresponding FLysight V2 data logger.
+
+    Sensor information is provided as a dictionary keyed by a sensor ID, assumed to be shared
+    between the unit information contained in the header and each row of the sensor's records.
+
+    `first_timestamp` refers to the `time` value of the first data record & used to calculate the
+    running `elapsed_time` column during the parsing pipeline. This timestamp value must be set &
+    should be set later by the provided parsing pipeline.
+
+    `ground_pressure_pa` is the atmospheric pressure at ground level, in Pascals, used by some
+    pressure altitude calculations. This defaults to standard day sea level pressure.
+    """
+
+    firmware_version: str
+    device_id: str
+    session_id: str
+    sensor_info: dict[str, SensorInfo]
+
+    first_timestamp: float | None = None
+    ground_pressure_pa: int | float = 101_325
+
+
+def _parse_header(header_lines: t.Sequence[str]) -> FlysightV2:
+    """
+    Parse the provided flysight header lines into a `FlysightV2` device info instance.
+
+    Flysight's V2 CSV data log headers are assumed to begin with a series of device metadata
+    followed by pairs of rows for sensor information.
+
+    Device metadata is prefixed by `$VAR`, and we retain the following information:
+        * `FIRMWARE_VER`
+        * `DEVICE_ID`
+        * `SESSION_ID`
+
+    All other metadata is ignored.
+
+    Following the device metadata are a series of pairs of rows describing the format of each
+    sensors' record, e.g.:
+
+    ```
+    $COL,BARO,time,pressure,temperature
+    $UNIT,BARO,s,Pa,deg C
+    ```
+
+    Sensor information is extracted and keyed by the sensor ID, assumed to be the second column of
+    each corresponding row.
+    """
+    firmware_version = ""
+    device_id = ""
+    session_id = ""
+    for idx, line in enumerate(header_lines):  # noqa: B007
+        if line.startswith("$COL"):
+            break
+
+        if line.startswith("$VAR"):
+            _, name, value = line.split(",")
+            if name == "FIRMWARE_VER":
+                firmware_version = value
+            elif name == "DEVICE_ID":
+                device_id = value
+            elif name == "SESSION_ID":  # pragma: no branch
+                session_id = value
+
+    if not firmware_version:
+        raise ValueError("Could not locate device firmware version.")
+
+    if not device_id:
+        raise ValueError("Could not locate device ID.")
+
+    if not session_id:
+        raise ValueError("Could not locate session ID.")
+
+    sensor_lines = deque(header_lines[idx:])
+    if (len(sensor_lines) % 2) != 0:
+        raise ValueError("At least one sensor type lacks column or unit information.")
+
+    sensor_info = {}
+    while sensor_lines:
+        sensor_header, sensor_units = [sensor_lines.popleft() for _ in range(2)]
+        _, sensor_id, *column_strings = sensor_header.split(",")
+        _, _, *unit_strings = sensor_units.split(",")
+
+        # The Flysight V2 track file does not appear to provide a unit string for its time column,
+        # which is a datetime string rather than a float that the other sensor records utilize
+        if sensor_id == "GNSS" and not unit_strings[0]:
+            unit_strings[0] = "datetime"
+
+        sensor_info[sensor_id] = SensorInfo(
+            columns=column_strings,
+            units=unit_strings,
+            id_=sensor_id,
+        )
+
+    flysight = FlysightV2(
+        firmware_version=firmware_version,
+        device_id=device_id,
+        session_id=session_id,
+        sensor_info=sensor_info,
+    )
+    return flysight
+
+
+def _partition_sensor_data(data_lines: t.Sequence[str]) -> tuple[GroupedSensorData, float]:
+    """
+    Group the provided sensor log record rows by their corresponding sensor identifier.
+
+    Sensor records are assumed to be prefixed by their sensor identifier, located in the first
+    column, e.g.:
+
+    ```
+    $IMU,59970.528,-0.427,-0.183,-0.488,0.01074,-0.01464,0.98144,25.66
+    $BARO,59970.575,91839.73,26.47
+    $MAG,59970.581,-0.778,0.741,-1.450,24.0
+    ```
+
+    Recorded values for each sensor are converted to float and each row is appended to a list in the
+    order encountered in the log file.
+
+    The value of the first row's timestamp is assumed to be the lowest time value for the data set
+    and is returned to assist with calculation of elapsed logging time.
+    """
+    _, rts, *_ = data_lines[0].split(",")
+    initial_timestamp = float(rts)
+
+    sensor_data = defaultdict(list)
+    for line in data_lines:
+        key, *data = line.split(",")
+        key = key.removeprefix("$")
+        sensor_data[key].append([float(v) for v in data])
+
+    return sensor_data, initial_timestamp
+
+
+def _calculate_derived_columns(
+    df: polars.DataFrame,
+    sensor: str,
+    device_info: FlysightV2,
+) -> polars.DataFrame:
+    """
+    Calculate sensor-specific derived quantities for the provided `DataFrame`.
+
+    The following columns are derived:
+        * Baro
+            * `pressure_altitude` - calculated as ...
+
+    If no specific calculations are required, the `DataFrame` is passed through unchanged.
+    """
+    if sensor == "BARO":
+        press_alt_m = (
+            44_330 * (1 - (df["pressure"] / device_info.ground_pressure_pa).pow(1 / 5.225))
+        ).alias("press_alt_m")
+        press_alt_ft = (press_alt_m * 3.2808).alias("press_alt_ft")
+
+        df = df.hstack([press_alt_m, press_alt_ft])
+
+    return df
+
+
+def _raw_data_to_dataframe(
+    sensor_data: GroupedSensorData,
+    device_info: FlysightV2,
+) -> SensorDataFrames:
+    """
+    Convert the provided grouped sensor data into their corresponding `DataFrame`s.
+
+    Headers are replaced using the device's metadata. It is assumed that all `DataFrame`s contain a
+    `time` column, and a normalized `elapsed_time` column will be derived using the device's first
+    encountered timestamp.
+    """
+    if device_info.first_timestamp is None:
+        raise ValueError("First timestamp for logging session not specified.")
+
+    parsed_sensor_data: dict[str, polars.DataFrame] = {}
+    for sensor in sensor_data.keys():
+        df = polars.DataFrame(sensor_data[sensor], orient="row")
+
+        try:
+            df.columns = device_info.sensor_info[sensor].columns
+        except polars.ShapeError as e:
+            n_headers = len(device_info.sensor_info[sensor].columns)
+            raise ValueError(
+                f"Number of column headers for {sensor} do not match the number of data columns present (expected: {df.width}, received: {n_headers})."  # noqa: E501
+            ) from e
+        except KeyError as e:
+            raise ValueError(
+                f"Could not locate column header information for {sensor} sensor."
+            ) from e
+
+        # All sensor DataFrames get elapsed time, then we can dispatch further by sensor type
+        df = df.with_columns(elapsed_time=((df["time"] - device_info.first_timestamp)))
+        df = _calculate_derived_columns(df=df, sensor=sensor, device_info=device_info)
+
+        parsed_sensor_data[sensor] = df
+
+    return parsed_sensor_data
+
+
+def parse_v2_sensor_data(log_filepath: Path) -> tuple[SensorDataFrames, FlysightV2]:
+    """
+    Data parsing pipeline for a Flysight V2 sensor log CSV file.
+
+    Sensor data files should come off the Flysight as `SENSOR.CSV`.
+    """
+    data_lines = log_filepath.read_text().splitlines()
+
+    header, sensor_data = _split_v2_sensor_data(data_lines)
+    device_info = _parse_header(header)
+    grouped_sensor_data, first_timestamp = _partition_sensor_data(sensor_data)
+    device_info.first_timestamp = first_timestamp
+
+    parsed_sensor_data = _raw_data_to_dataframe(grouped_sensor_data, device_info)
+
+    return parsed_sensor_data, device_info
+
+
+def _raw_v2_track_to_dataframe(
+    sensor_data: t.Iterable[str], device_info: FlysightV2
+) -> polars.DataFrame:
+    """
+    Convert raw GNSS track information into its corresponding `DataFrame`.
+
+    Data is assumed to be an iterable of the raw string lines from the Flysight V2's track CSV file.
+
+    Headers are replaced using the device's metadata. It is assumed that the first column is a UTC
+    datetime, and a normalized `elapsed_time` column will be derived using the device's first
+    encountered timestamp.
+
+    A `groundspeed` column is also derived from the provided track's GPS velocity vectors.
+    """
+    split_log_lines = []
+    for line in sensor_data:
+        _, raw_timestamp, *rest, raw_n_satellites = line.split(",")
+        split_log_lines.append(
+            [
+                dt.datetime.fromisoformat(raw_timestamp),
+                *(float(n) for n in rest),
+                int(raw_n_satellites),
+            ]
+        )
+
+    df = polars.DataFrame(split_log_lines, orient="row")
+    df.columns = device_info.sensor_info["GNSS"].columns
+    df = _calc_derived_track_vals(df)
+
+    return df
+
+
+def parse_v2_track_data(log_filepath: Path) -> tuple[polars.DataFrame, FlysightV2]:
+    """
+    Data parsing pipeline for a Flysight V2 track log CSV file.
+
+    Sensor data files should come off the Flysight as `TRACK.CSV`.
+    """
+    data_lines = log_filepath.read_text().splitlines()
+    header, sensor_data = _split_v2_sensor_data(data_lines)
+    device_info = _parse_header(header)
+    parsed_sensor_data = _raw_v2_track_to_dataframe(sensor_data, device_info)
+
+    return parsed_sensor_data, device_info
+
+
+class FlysightV2FlightLog(t.NamedTuple):  # noqa: D101
+    track_data: polars.DataFrame
+    sensor_data: SensorDataFrames
+    device_info: FlysightV2
+
+
+def parse_v2_log_directory(log_directory: Path) -> FlysightV2FlightLog:
+    """
+    Data parsing pipeline for a directory of Flysight V2 logs.
+
+    The Flysight V2 outputs a timestamped (`YY-mm-DD/HH-MM-SS/*`) directory of files:
+        * `EVENT.CSV` - Debugging output, optionally present based on firmware version
+        * `RAW.UBX` - Raw UBlox sensor output
+        * `SENSOR.CSV` - Onboard sensor data
+        * `TRACK.CSV` - GPS sensor data
+    """
+    sensor_filepath = log_directory / "SENSOR.CSV"
+    if not sensor_filepath.exists():
+        raise ValueError(f"Could not locate 'SENSOR.CSV` in directory: '{log_directory}'")
+
+    track_filepath = log_directory / "TRACK.CSV"
+    if not track_filepath.exists():
+        raise ValueError(f"Could not locate 'TRACK.CSV` in directory: '{log_directory}'")
+
+    sensor_data, device_info = parse_v2_sensor_data(sensor_filepath)
+    track_data, _ = parse_v2_track_data(track_filepath)
+    return FlysightV2FlightLog(
+        track_data=track_data, sensor_data=sensor_data, device_info=device_info
+    )
