@@ -360,3 +360,34 @@ def parse_v2_track_data(log_filepath: Path) -> tuple[polars.DataFrame, FlysightV
     parsed_sensor_data = _raw_v2_track_to_dataframe(sensor_data, device_info)
 
     return parsed_sensor_data, device_info
+
+
+class FlysightV2FlightLog(t.NamedTuple):  # noqa: D101
+    track_data: polars.DataFrame
+    sensor_data: SensorDataFrames
+    device_info: FlysightV2
+
+
+def parse_v2_log_directory(log_directory: Path) -> FlysightV2FlightLog:
+    """
+    Data parsing pipeline for a directory of Flysight V2 logs.
+
+    The Flysight V2 outputs a timestamped (`YY-mm-DD/HH-MM-SS/*`) directory of files:
+        * `EVENT.CSV` - Debugging output, optionally present based on firmware version
+        * `RAW.UBX` - Raw UBlox sensor output
+        * `SENSOR.CSV` - Onboard sensor data
+        * `TRACK.CSV` - GPS sensor data
+    """
+    sensor_filepath = log_directory / "SENSOR.CSV"
+    if not sensor_filepath.exists():
+        raise ValueError(f"Could not locate 'SENSOR.CSV` in directory: '{log_directory}'")
+
+    track_filepath = log_directory / "TRACK.CSV"
+    if not track_filepath.exists():
+        raise ValueError(f"Could not locate 'TRACK.CSV` in directory: '{log_directory}'")
+
+    sensor_data, device_info = parse_v2_sensor_data(sensor_filepath)
+    track_data, _ = parse_v2_track_data(track_filepath)
+    return FlysightV2FlightLog(
+        track_data=track_data, sensor_data=sensor_data, device_info=device_info
+    )
