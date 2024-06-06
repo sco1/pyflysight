@@ -1,7 +1,9 @@
+from pathlib import Path
 from textwrap import dedent
 
 import polars
 import pytest
+from polars.testing import assert_frame_equal
 
 from pyflysight.flysight_proc import (
     FlysightV2,
@@ -11,7 +13,12 @@ from pyflysight.flysight_proc import (
     _partition_sensor_data,
     _raw_data_to_dataframe,
     _split_v2_sensor_data,
+    parse_v2_log_directory,
+    parse_v2_sensor_data,
+    parse_v2_track_data,
 )
+
+SAMPLE_DATA_DIR = Path(__file__).parent / "sample_data"
 
 SAMPLE_SPLIT_FILE = dedent(
     """\
@@ -238,4 +245,46 @@ def test_dataframe_no_derived_passthrough() -> None:
     # Just need a dummy df for this, passthrough shouldn't need any specific device info
     df = polars.DataFrame({"a": [1, 2], "b": [3, 4]})
     passthrough = _calculate_derived_columns(df, "abcd", DEVICE_INFO_WITH_TIMESTAMP)
-    polars.testing.assert_frame_equal(df, passthrough)
+    assert_frame_equal(df, passthrough)
+
+
+def test_v2_sensor_file_parsing() -> None:
+    sensor_filepath = SAMPLE_DATA_DIR / "24-04-20/04-20-00/SENSOR.CSV"
+    sensor_data, device_info = parse_v2_sensor_data(sensor_filepath)
+
+    # Actual parsing already tested upstream, don't need to repeat
+    assert "IMU" in sensor_data
+    assert device_info.device_id == "003e0038484e501420353131"
+
+
+def test_v2_track_file_parsing() -> None:
+    track_filepath = SAMPLE_DATA_DIR / "24-04-20/04-20-00/TRACK.CSV"
+    track_data, device_info = parse_v2_track_data(track_filepath)
+
+    # Actual parsing already tested upstream, don't need to repeat
+    assert track_data.shape == (1, 13)
+    assert device_info.device_id == "003e0038484e501420353131"
+
+
+def test_directory_pipeline_no_sensor_raises(tmp_path: Path) -> None:
+    track_log = tmp_path / "TRACK.CSV"
+    track_log.write_text("")
+    with pytest.raises(ValueError, match="SENSOR.CSV"):
+        parse_v2_log_directory(tmp_path)
+
+
+def test_directory_pipeline_no_track_raises(tmp_path: Path) -> None:
+    track_log = tmp_path / "SENSOR.CSV"
+    track_log.write_text("")
+    with pytest.raises(ValueError, match="TRACK.CSV"):
+        parse_v2_log_directory(tmp_path)
+
+
+def test_directory_pipeline() -> None:
+    data_directory = SAMPLE_DATA_DIR / "24-04-20/04-20-00"
+    data_log = parse_v2_log_directory(data_directory)
+
+    # Actual parsing already tested upstream, don't need to repeat
+    assert data_log.track_data.shape == (1, 13)
+    assert "IMU" in data_log.sensor_data
+    assert data_log.device_info.device_id == "003e0038484e501420353131"
