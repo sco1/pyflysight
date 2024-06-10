@@ -374,6 +374,24 @@ class FlysightV2FlightLog(t.NamedTuple):  # noqa: D101
     sensor_data: SensorDataFrames
     device_info: FlysightV2
 
+    def to_csv(self, base_dir: Path) -> None:
+        """
+        Output logged data to a collection of CSV files relative to the provided base directory.
+
+        Sensor data is named by sensor name & nested under `base_dir`:
+        `base_dir/device_id/session_id/*`. Note that any existing data in this directory will be
+        overwritten.
+        """
+        out_dir = base_dir / f"{self.device_info.device_id}/{self.device_info.session_id}"
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        out_filepath = out_dir / "TRACK.CSV"
+        self.track_data.write_csv(out_filepath)
+
+        for sensor_name, sensor_data in self.sensor_data.items():
+            out_filepath = out_dir / f"{sensor_name}.CSV"
+            sensor_data.write_csv(out_filepath)
+
 
 def parse_v2_log_directory(
     log_directory: Path, sensor_filename: str = "SENSOR.CSV", track_filename: str = "TRACK.CSV"
