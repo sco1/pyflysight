@@ -6,6 +6,8 @@ from pathlib import Path
 
 import polars
 
+from pyflysight import FlysightType
+
 HEADER_PARTITION_KEYWORD = "$DATA"
 
 GroupedSensorData: t.TypeAlias = dict[str, list[list[float]]]
@@ -72,22 +74,27 @@ def batch_load_flysight(
     return parsed_logs
 
 
-def _split_v2_sensor_data(
+def _split_sensor_data(
     data_lines: t.Sequence[str],
+    hardware_type: FlysightType = FlysightType.VERSION_2,
     partition_keyword: str = HEADER_PARTITION_KEYWORD,
 ) -> tuple[list[str], list[str]]:
     """
     Split the provided data lines into their corresponding header & data sections.
 
-    Sections are assumed to be delimited by `partition_keyword` (`"$DATA"`, by default).
+    Flysight V1 sections do not have a partition keyword, but are assumed to have just 2 data lines.
+    Flysight V2 sections are assumed to be delimited by `partition_keyword` (`"$DATA"`, by default).
     """
-    for idx, d in enumerate(data_lines):
-        if d.startswith(partition_keyword):
-            return list(data_lines[:idx]), list(data_lines[idx + 1 :])  # noqa: E203
+    if hardware_type == FlysightType.VERSION_1:
+        return list(data_lines[:2]), list(data_lines[2::])
+    else:
+        for idx, d in enumerate(data_lines):
+            if d.startswith(partition_keyword):
+                return list(data_lines[:idx]), list(data_lines[idx + 1 :])  # noqa: E203
 
-    raise ValueError(
-        f"Could not locate line containing '{partition_keyword}', please check data file for issues."  # noqa: E501
-    )
+        raise ValueError(
+            f"Could not locate line containing '{partition_keyword}', please check data file for issues."  # noqa: E501
+        )
 
 
 class SensorInfo(t.NamedTuple):
@@ -306,7 +313,7 @@ def parse_v2_sensor_data(log_filepath: Path) -> tuple[SensorDataFrames, Flysight
     """
     data_lines = log_filepath.read_text().splitlines()
 
-    header, sensor_data = _split_v2_sensor_data(data_lines)
+    header, sensor_data = _split_sensor_data(data_lines)
     device_info = _parse_header(header)
     grouped_sensor_data, first_timestamp = _partition_sensor_data(sensor_data)
     device_info.first_timestamp = first_timestamp
@@ -355,7 +362,7 @@ def parse_v2_track_data(log_filepath: Path) -> tuple[polars.DataFrame, FlysightV
     Sensor data files should come off the Flysight as `TRACK.CSV`.
     """
     data_lines = log_filepath.read_text().splitlines()
-    header, sensor_data = _split_v2_sensor_data(data_lines)
+    header, sensor_data = _split_sensor_data(data_lines)
     device_info = _parse_header(header)
     parsed_sensor_data = _raw_v2_track_to_dataframe(sensor_data, device_info)
 
@@ -368,7 +375,9 @@ class FlysightV2FlightLog(t.NamedTuple):  # noqa: D101
     device_info: FlysightV2
 
 
-def parse_v2_log_directory(log_directory: Path) -> FlysightV2FlightLog:
+def parse_v2_log_directory(
+    log_directory: Path, sensor_filename: str = "SENSOR.CSV", track_filename: str = "TRACK.CSV"
+) -> FlysightV2FlightLog:
     """
     Data parsing pipeline for a directory of Flysight V2 logs.
 
@@ -378,11 +387,11 @@ def parse_v2_log_directory(log_directory: Path) -> FlysightV2FlightLog:
         * `SENSOR.CSV` - Onboard sensor data
         * `TRACK.CSV` - GPS sensor data
     """
-    sensor_filepath = log_directory / "SENSOR.CSV"
+    sensor_filepath = log_directory / sensor_filename
     if not sensor_filepath.exists():
         raise ValueError(f"Could not locate 'SENSOR.CSV` in directory: '{log_directory}'")
 
-    track_filepath = log_directory / "TRACK.CSV"
+    track_filepath = log_directory / track_filename
     if not track_filepath.exists():
         raise ValueError(f"Could not locate 'TRACK.CSV` in directory: '{log_directory}'")
 

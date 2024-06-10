@@ -1,10 +1,11 @@
 import datetime as dt
 from pathlib import Path
+from textwrap import dedent
 
 import polars
 from polars.testing import assert_frame_equal
 
-from pyflysight import flysight_proc
+from pyflysight import FlysightType, flysight_proc
 from tests import checks
 
 SAMPLE_DATA_DIR = Path(__file__).parent / "sample_data"
@@ -42,3 +43,20 @@ def test_batch_log_parse() -> None:
 
     # Check that the log files are loaded & keyed correctly
     assert set(flight_logs["sample_data"]) == BATCH_LOG_STEMS
+
+
+SAMPLE_DATA_TO_SPLIT = dedent(
+    """\
+    a,b,c
+    d,e,f
+    1,2,3
+    """
+)
+
+
+def test_v1_data_split() -> None:
+    header, data = flysight_proc._split_sensor_data(
+        SAMPLE_DATA_TO_SPLIT.splitlines(), hardware_type=FlysightType.VERSION_1
+    )
+    assert header == ["a,b,c", "d,e,f"]
+    assert data == ["1,2,3"]

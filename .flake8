@@ -4,7 +4,7 @@ import-order-style=pycharm
 application-import-names=pyflysight,tests
 extend-ignore=
     # pycodestyle
-    E226,
+    E203,E226,
     # flake8-annotations
     ANN002,ANN003,ANN101,ANN102,ANN204,ANN206,
 extend-exclude=
