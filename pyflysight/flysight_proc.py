@@ -125,6 +125,7 @@ class FlysightV2:
     device_id: str
     session_id: str
     sensor_info: dict[str, SensorInfo]
+    flysight_type: FlysightType = FlysightType.VERSION_2
 
     first_timestamp: float | None = None
     ground_pressure_pa: int | float = 101_325
@@ -374,6 +375,9 @@ class FlysightV2FlightLog(t.NamedTuple):  # noqa: D101
     sensor_data: SensorDataFrames
     device_info: FlysightV2
 
+    sensor_filepath: Path
+    track_filepath: Path
+
     def to_csv(self, base_dir: Path) -> None:
         """
         Output logged data to a collection of CSV files relative to the provided base directory.
@@ -416,5 +420,9 @@ def parse_v2_log_directory(
     sensor_data, device_info = parse_v2_sensor_data(sensor_filepath)
     track_data, _ = parse_v2_track_data(track_filepath)
     return FlysightV2FlightLog(
-        track_data=track_data, sensor_data=sensor_data, device_info=device_info
+        track_data=track_data,
+        sensor_data=sensor_data,
+        device_info=device_info,
+        sensor_filepath=sensor_filepath,
+        track_filepath=track_filepath,
     )

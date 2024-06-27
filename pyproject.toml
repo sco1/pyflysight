@@ -31,7 +31,8 @@ pyflysight = "pyflysight.cli:pyflysight_cli"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-polars = {version = "^0.20", extras = ["plot", "timezone"]}
+matplotlib-window = "^1.0"
+polars = {version = "^0.20", extras = ["timezone"]}
 python-dotenv = "^1.0.0"
 sco1-misc = "^0.1"
 typer-slim = "^0.12"

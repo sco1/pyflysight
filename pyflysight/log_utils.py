@@ -1,7 +1,9 @@
 import typing as t
 from pathlib import Path
 
-from pyflysight import FlysightType
+import polars
+
+from pyflysight import FlysightType, NUMERIC_T
 from pyflysight.flysight_proc import HEADER_PARTITION_KEYWORD, _split_sensor_data
 
 
@@ -45,3 +47,13 @@ def trim_data_file(
         f.write("\n")
 
     return out_filepath
+
+
+def get_idx(log_data: polars.DataFrame, query: NUMERIC_T, ref_col: str = "elapsed_time") -> int:
+    delta = (log_data[ref_col] - query).abs()
+    min_idx = delta.arg_min()
+
+    if min_idx is None:
+        raise ValueError(f"Could not locate closest value, is the '{ref_col}' column empty?")
+
+    return min_idx
