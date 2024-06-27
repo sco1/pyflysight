@@ -3,8 +3,7 @@ from pathlib import Path
 
 from matplotlib_window.window import flexible_window
 
-from pyflysight.flysight_proc import parse_v2_log_directory
-from pyflysight.log_utils import get_idx, trim_data_file
+from pyflysight.flysight_proc import FlysightV2FlightLog, parse_v2_log_directory
 
 
 class TrimBy(StrEnum):  # noqa: D101
@@ -12,7 +11,14 @@ class TrimBy(StrEnum):  # noqa: D101
     TRACK = "track"
 
 
-def windowtrim_flight_log(log_dir: Path, trim_by: TrimBy = TrimBy.PRESSURE_ALTITUDE) -> None:
+def windowtrim_flight_log(
+    log_dir: Path, trim_by: TrimBy = TrimBy.PRESSURE_ALTITUDE, write_csv: bool = False
+) -> FlysightV2FlightLog:
+    """
+    Interactively window the log data from the provided log directory.
+
+    Trimmed data may be optionally exported to CSV by setting the `write_csv` flag to `True`.
+    """
     flight_log = parse_v2_log_directory(log_dir)
 
     if trim_by == TrimBy.PRESSURE_ALTITUDE:
@@ -25,21 +31,9 @@ def windowtrim_flight_log(log_dir: Path, trim_by: TrimBy = TrimBy.PRESSURE_ALTIT
         raise ValueError(f"Unsupported trim by data source specified: '{trim_by}'")
 
     l_bound, r_bound = flexible_window(x_data=xdata, y_data=ydata, position=10, window_width=20)
+    flight_log.trim_log(elapsed_start=l_bound, elapsed_end=r_bound)
 
-    sensor_l_idx = get_idx(df, l_bound)
-    sensor_r_idx = get_idx(df, r_bound)
-    trim_data_file(
-        source_filepath=flight_log.sensor_filepath,
-        start_idx=sensor_l_idx,
-        end_idx=sensor_r_idx,
-        hardware_type=flight_log.device_info.flysight_type,
-    )
+    if write_csv:
+        flight_log.to_csv(log_dir)
 
-    track_l_idx = get_idx(flight_log.track_data, l_bound)
-    track_r_idx = get_idx(flight_log.track_data, r_bound)
-    trim_data_file(
-        source_filepath=flight_log.track_filepath,
-        start_idx=track_l_idx,
-        end_idx=track_r_idx,
-        hardware_type=flight_log.device_info.flysight_type,
-    )
+    return flight_log

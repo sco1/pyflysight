@@ -6,7 +6,8 @@ from pathlib import Path
 
 import polars
 
-from pyflysight import FlysightType
+from pyflysight import FlysightType, NUMERIC_T
+from pyflysight.log_utils import get_idx
 
 HEADER_PARTITION_KEYWORD = "$DATA"
 
@@ -370,13 +371,13 @@ def parse_v2_track_data(log_filepath: Path) -> tuple[polars.DataFrame, FlysightV
     return parsed_sensor_data, device_info
 
 
-class FlysightV2FlightLog(t.NamedTuple):  # noqa: D101
+@dataclass
+class FlysightV2FlightLog:  # noqa: D101
     track_data: polars.DataFrame
     sensor_data: SensorDataFrames
     device_info: FlysightV2
 
-    sensor_filepath: Path
-    track_filepath: Path
+    _is_trimmed: bool = False  # If True, then device_info.first_timestamp is likely out of sync
 
     def to_csv(self, base_dir: Path) -> None:
         """
@@ -395,6 +396,34 @@ class FlysightV2FlightLog(t.NamedTuple):  # noqa: D101
         for sensor_name, sensor_data in self.sensor_data.items():
             out_filepath = out_dir / f"{sensor_name}.CSV"
             sensor_data.write_csv(out_filepath)
+
+    def trim_log(self, elapsed_start: NUMERIC_T, elapsed_end: NUMERIC_T) -> None:
+        """
+        Trim the sensor & track logs to data between the provided start and end elapsed times.
+
+        NOTE: The elapsed time column is re-normalized to the provided trim window.
+        """
+        for sensor, df in self.sensor_data.items():
+            l_idx = get_idx(df, elapsed_start)
+            r_idx = get_idx(df, elapsed_end)
+            self.sensor_data[sensor] = df[l_idx:r_idx]
+
+            # Re-normalize elapsed time
+            new_elapsed_start = self.sensor_data[sensor]["elapsed_time"][0]
+            new_time = self.sensor_data[sensor]["elapsed_time"] - new_elapsed_start
+            self.sensor_data[sensor] = self.sensor_data[sensor].with_columns(elapsed_time=new_time)
+
+        # Trim track data since it's stored separately
+        l_idx = get_idx(self.track_data, elapsed_start)
+        r_idx = get_idx(self.track_data, elapsed_end)
+        self.track_data = self.track_data[l_idx:r_idx]
+
+        # Re-normalize elapsed time
+        new_elapsed_start = self.track_data["elapsed_time"][0]
+        new_time = self.track_data["elapsed_time"] - new_elapsed_start
+        self.track_data = self.track_data.with_columns(elapsed_time=new_time)
+
+        self._is_trimmed = True
 
 
 def parse_v2_log_directory(
@@ -423,6 +452,4 @@ def parse_v2_log_directory(
         track_data=track_data,
         sensor_data=sensor_data,
         device_info=device_info,
-        sensor_filepath=sensor_filepath,
-        track_filepath=track_filepath,
     )
