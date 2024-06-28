@@ -12,13 +12,12 @@ from pyflysight.flysight_proc import (
     _parse_header,
     _partition_sensor_data,
     _raw_data_to_dataframe,
-    _split_v2_sensor_data,
+    _split_sensor_data,
     parse_v2_log_directory,
     parse_v2_sensor_data,
     parse_v2_track_data,
 )
-
-SAMPLE_DATA_DIR = Path(__file__).parent / "sample_data"
+from tests import SAMPLE_DATA_DIR
 
 SAMPLE_SPLIT_FILE = dedent(
     """\
@@ -29,15 +28,15 @@ SAMPLE_SPLIT_FILE = dedent(
 ).splitlines()
 
 
-def test_data_split() -> None:
-    header, data = _split_v2_sensor_data(SAMPLE_SPLIT_FILE)
+def test_v2_data_split() -> None:
+    header, data = _split_sensor_data(SAMPLE_SPLIT_FILE)
     assert header == ["$UNIT,VBAT,s,volt"]
     assert data == ["$IMU,59970.376,-0.427,1.770,1.953,-0.01464,-0.00732,0.94287,25.64"]
 
 
 def test_data_split_no_partition_raises() -> None:
     with pytest.raises(ValueError, match="HELLO"):
-        _ = _split_v2_sensor_data(SAMPLE_SPLIT_FILE, partition_keyword="$HELLO")
+        _ = _split_sensor_data(SAMPLE_SPLIT_FILE, partition_keyword="$HELLO")
 
 
 SAMPLE_HEADER_ONE_SENSOR = dedent(
