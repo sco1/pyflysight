@@ -17,8 +17,7 @@ from pyflysight.flysight_proc import (
     parse_v2_sensor_data,
     parse_v2_track_data,
 )
-
-SAMPLE_DATA_DIR = Path(__file__).parent / "sample_data"
+from tests import SAMPLE_DATA_DIR
 
 SAMPLE_SPLIT_FILE = dedent(
     """\

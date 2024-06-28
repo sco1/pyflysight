@@ -1,14 +1,12 @@
 import datetime as dt
-from pathlib import Path
 from textwrap import dedent
 
 import polars
 from polars.testing import assert_frame_equal
 
 from pyflysight import FlysightType, flysight_proc
-from tests import checks
+from tests import SAMPLE_DATA_DIR, checks
 
-SAMPLE_DATA_DIR = Path(__file__).parent / "sample_data"
 BATCH_LOG_STEMS = {
     "21-04-20",
     "21-05-20",
