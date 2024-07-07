@@ -8,6 +8,7 @@ from dataclasses import asdict, dataclass, fields
 from pathlib import Path
 
 import polars
+from polars.exceptions import ShapeError
 
 from pyflysight import FlysightType, NUMERIC_T
 from pyflysight.log_utils import get_idx
@@ -317,7 +318,7 @@ def _raw_data_to_dataframe(
 
         try:
             df.columns = device_info.sensor_info[sensor].columns
-        except polars.ShapeError as e:
+        except ShapeError as e:
             n_headers = len(device_info.sensor_info[sensor].columns)
             raise ValueError(
                 f"Number of column headers for {sensor} do not match the number of data columns present (expected: {df.width}, received: {n_headers})."  # noqa: E501
