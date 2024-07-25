@@ -1,6 +1,13 @@
 # Changelog
 Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (`<major>`.`<minor>`.`<patch>`)
 
+## [v0.3.0]
+### Changed
+* (Internal) Bump to Polars v1.x
+
+### Added
+* #18 Add helper for classifying Flysight hardware rev
+
 ## [v0.2.0]
 ### Added
 * Add parsing pipelines for Flysight V1 track data files
