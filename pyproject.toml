@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "pyflysight"
 version = "0.3.0"
-description = "It's a Python project template!"
+description = "Helper library for processing FlySight GPS flight logs."
 authors = ["sco1 <sco1.git@gmail.com>"]
 
 readme = "README.md"
