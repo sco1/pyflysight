@@ -1,0 +1,35 @@
+; FlySight - http://flysight.ca
+
+; Firmware version
+
+FUS_Ver:      1.2.0
+Stack_Ver:    1.17.2
+Firmware_Ver: v2024.05.25.pairing_request
+
+; Device information
+
+Device_ID:    abc123
+Session_ID:   def456
+
+; Persistent state
+
+Config_File:
+Temp_Folder:  0003
+
+; Charging
+
+Charging:     2 ; 0 = No charging
+                ; 1 = 100 mA
+                ; 2 = 200 mA (recommended)
+                ; 3 = 300 mA
+
+; Bluetooth
+
+Enable_BLE:   1
+Reset_BLE:    0
+Device_Name:  FlySight
+
+; Bootloader public key
+
+Pubkey_X:     ghi789
+Pubkey_Y:     jkl123

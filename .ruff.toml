@@ -54,6 +54,9 @@ ignore = [
 "tests/test_*.py" = [
     "D103",
 ]
+"pyflysight/config_params.py" = [
+    "D101",
+]
 
 [lint.flake8-bugbear]
 extend-immutable-calls = [
