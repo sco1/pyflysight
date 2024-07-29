@@ -240,6 +240,31 @@ def test_dataframe_pressure_altitude_from_baro() -> None:
     assert df.select(polars.col("press_alt_ft").first()).item() == pytest.approx(127_145.96)
 
 
+IMU_SENSOR_INFO = SensorInfo(
+    columns=["time", "wx", "wy", "wz", "ax", "ay", "az", "temperature"],
+    units=["s", "deg/s", "deg/s", "deg/s", "g", "g", "g", "deg C"],
+    id_="IMU",
+)
+
+IMU_INFO_WITH_TIMESTAMP = FlysightV2(
+    firmware_version="abc123",
+    device_id="abc123",
+    session_id="abc123",
+    sensor_info={"IMU": IMU_SENSOR_INFO},
+    first_timestamp=0.5,
+)
+
+SAMPLE_IMU_DATA = {"IMU": [[0.01, 0, 0, 0, 1, 2, 3, 26.26]]}
+
+
+def test_dataframe_derived_imu_data() -> None:
+    parsed_sensor_data = _raw_data_to_dataframe(SAMPLE_IMU_DATA, IMU_INFO_WITH_TIMESTAMP)
+    df = parsed_sensor_data["IMU"]
+
+    assert "total_accel" in df.columns
+    assert df.select(polars.col("total_accel").first()).item() == pytest.approx(14 ** (1 / 2))
+
+
 def test_dataframe_no_derived_passthrough() -> None:
     # Just need a dummy df for this, passthrough shouldn't need any specific device info
     df = polars.DataFrame({"a": [1, 2], "b": [3, 4]})

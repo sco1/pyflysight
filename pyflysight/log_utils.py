@@ -39,3 +39,25 @@ def classify_log_dir(log_dir: Path) -> FlysightType:
         return FlysightType.VERSION_2
     else:
         return FlysightType.VERSION_1
+
+
+def locate_log_subdir(top_dir: Path, flysight_type: FlysightType) -> Path:
+    """
+    Resolve the child log directory contained under the provided top level directory.
+
+    NOTE: It is assumed that the provided `top_dir` contains only one valid directory of log files.
+
+    NOTE: Directories containing trimmed log data are currently not considered.
+    """
+    if flysight_type == FlysightType.VERSION_1:
+        query = "*.CSV"
+    elif flysight_type == FlysightType.VERSION_2:  # pragma: no branch
+        query = "SENSOR.CSV"
+
+    found_files = tuple(top_dir.rglob(query))
+    if not found_files:
+        raise ValueError("No log files found in directory or its children.")
+    elif len(found_files) > 1:
+        raise ValueError(f"Multiple matching log directories found. Found: {len(found_files)}")
+
+    return found_files[0].parent
