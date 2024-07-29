@@ -4,7 +4,7 @@ import polars
 import pytest
 
 from pyflysight import FlysightType, NUMERIC_T
-from pyflysight.log_utils import classify_log_dir, get_idx, locate_log_subdir
+from pyflysight.log_utils import classify_log_dir, get_idx, iter_log_dirs, locate_log_subdir
 
 SAMPLE_DATAFRAME = polars.DataFrame(
     {
@@ -98,3 +98,32 @@ def test_locate_log_dir(tmp_path: Path, dir_structure: str, truth_parent_path: s
     truth_parent = tmp_path / truth_parent_path
     assert locate_log_subdir(tmp_path, FlysightType.VERSION_1) == truth_parent
     assert locate_log_subdir(tmp_path, FlysightType.VERSION_2) == truth_parent
+
+
+ITER_DIR_STRUCTURE = {
+    "24-04-20": ("04-20-00.CSV",),
+    "12-34-00": ("RAW.UBX", "SENSOR.CSV", "TRACK.CSV"),
+    "abc123": ("BARO.CSV", "IMU.CSV", "TRACK.CSV", "device_info.json"),
+}
+
+ITER_DIR_TEST_CASES = (
+    (None, {"24-04-20", "12-34-00"}),
+    (FlysightType.VERSION_1, {"24-04-20"}),
+    (FlysightType.VERSION_2, {"12-34-00"}),
+)
+
+
+@pytest.mark.parametrize(("hw_type", "truth_parent_dirnames"), ITER_DIR_TEST_CASES)
+def test_iter_dir(
+    tmp_path: Path, hw_type: FlysightType | None, truth_parent_dirnames: set[str]
+) -> None:
+    for log_dirname, filenames in ITER_DIR_STRUCTURE.items():
+        log_dir = tmp_path / log_dirname
+        log_dir.mkdir()
+
+        for name in filenames:
+            (log_dir / name).touch()
+
+    found_dirs = iter_log_dirs(top_dir=tmp_path, flysight_type=hw_type)
+    found_dirnames = {ld.log_dir.name for ld in found_dirs}
+    assert found_dirnames == truth_parent_dirnames

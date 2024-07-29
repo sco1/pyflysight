@@ -1,3 +1,5 @@
+import typing as t
+from collections import abc
 from pathlib import Path
 
 import polars
@@ -61,3 +63,35 @@ def locate_log_subdir(top_dir: Path, flysight_type: FlysightType) -> Path:
         raise ValueError(f"Multiple matching log directories found. Found: {len(found_files)}")
 
     return found_files[0].parent
+
+
+class LogDir(t.NamedTuple):  # noqa: D101
+    log_dir: Path
+    flysight_type: FlysightType
+
+
+def iter_log_dirs(
+    top_dir: Path, flysight_type: FlysightType | None = None
+) -> abc.Generator[LogDir, None, None]:
+    """
+    Iterate through children of the specified top level directory & yield log directories.
+
+    A specific Flysight hardware revision can be targeted using the `flysight_type` argument; if
+    specified as `None`, both hardware types will be searched for.
+
+    NOTE: Order of yielded directories is not guaranteed.
+
+    NOTE: Directories containing trimmed log data are currently not considered.
+    """
+    possible_parents = {f.parent for f in top_dir.rglob("*.CSV")}
+
+    for p in possible_parents:
+        filenames = {f.name for f in p.glob("*") if f.is_file()}
+
+        # For now, filter out trimmed log directories
+        if "device_info.json" in filenames:
+            continue
+
+        inferred_type = classify_log_dir(p)
+        if (flysight_type is None) or (inferred_type == flysight_type):
+            yield LogDir(p, inferred_type)
