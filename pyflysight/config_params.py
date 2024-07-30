@@ -1,7 +1,28 @@
-from dataclasses import dataclass
+import io
+from dataclasses import dataclass, fields
 from enum import IntEnum
 
 # NOTE: All dataclass field names should match the values expected by FlySight's config parser
+
+
+@dataclass
+class FlysightSetting:
+    _header: str = ""
+    _header_text: str | None = None
+
+    def to_buffer(self, buff: io.StringIO) -> None:
+        """
+        Dump the class' fields to the provided string buffer.
+
+        NOTE: Fields with a leading underscore are ignored.
+        """
+        for param in fields(self):
+            if param.name.startswith("_"):
+                continue
+
+            val = getattr(self, param.name)
+            buff.write(f"{param.name}: {val}\n")
+
 
 FILE_HEADER = """\
 ; FlySight - http://flysight.ca
@@ -16,6 +37,9 @@ FILE_HEADER = """\
 ;       See:
 ;           https://flysight.ca/wiki/index.php?title=Configuring_FlySight
 ;           https://github.com/flysight/flysight
+;
+; NOTE: Defaults are as of time of writing & may change based on firmware
+;       version
 """
 
 
@@ -32,18 +56,15 @@ class GPSModel(IntEnum):
 
 
 @dataclass
-class GPSSettings:
+class GPSSettings(FlysightSetting):
     Model: GPSModel = GPSModel.AIRBORNE_LT_1G
     Rate: int = 200  # milliseconds
 
-    _header: str = "GPS settings"
-    _header_text: str | None = None
+    _header: str = "; GPS settings"
 
 
 # IMU settings
 IMU_HEADER = """\
-; IMU settings
-
 ; NOTE: Configuring away from default IMU values currently requires installation
 ;       of beta firmware, which can be found at:
 ;
@@ -51,9 +72,6 @@ IMU_HEADER = """\
 ;
 ; NOTE: Currently not possible to achieve full logging rate for the
 ;       accelerometer and gyro; the currently known maximum is ~1666 Hz
-;
-; NOTE: Defaults are as of time of writing & may change based on firmware
-;       version
 """
 
 
@@ -126,7 +144,7 @@ class GyroFS(IntEnum):
 
 
 @dataclass
-class IMUSettings:
+class IMUSettings(FlysightSetting):
     Baro_ODR: BaroODR = BaroODR.HZ_10
     Hum_ODR: HumODR = HumODR.HZ_1
     Mag_ODR: MagODR = MagODR.HZ_10
@@ -135,7 +153,7 @@ class IMUSettings:
     Gyro_ODR: GyroODR = GyroODR.HZ_12_5
     Gyro_FS: GyroFS = GyroFS.DEG_S_2000
 
-    _header: str = "IMU settings"
+    _header: str = "; IMU settings"
     _header_text: str | None = IMU_HEADER
 
 
@@ -169,24 +187,22 @@ class ToneVolume(IntEnum):
 
 
 @dataclass
-class ToneSettings:
+class ToneSettings(FlysightSetting):
     Mode: ToneMeasurementMode = ToneMeasurementMode.GLIDE_RATIO
     Min: int = 0
     Max: int = 300
     Limits: ToneLimits = ToneLimits.MIN_MAX_TONE
     Volume: ToneVolume = ToneVolume.MORE_LOUDER
 
-    _header: str = "Tone settings"
-    _header_text: str | None = None
+    _header: str = "; Tone settings"
 
 
 @dataclass
-class ThresholdSettings:
+class ThresholdSettings(FlysightSetting):
     V_Thresh: int = 1000
     H_Thresh: int = 0
 
-    _header: str = "Thresholds"
-    _header_text: str | None = None
+    _header: str = "; Thresholds"
 
 
 # Rate settings
@@ -207,7 +223,7 @@ class FlatLine(IntEnum):
 
 
 @dataclass
-class RateSettings:
+class RateSettings(FlysightSetting):
     Mode_2: Mode2 = Mode2.CHANGE_VALUE_1
     Min_Val_2: int = 300
     Max_Val_2: int = 1500
@@ -215,8 +231,7 @@ class RateSettings:
     Max_Rate: int = 500
     Flatline: FlatLine = FlatLine.NO
 
-    _header: str = "Rate settings"
-    _header_text: str | None = None
+    _header: str = "; Rate settings"
 
 
 # Speech settings
@@ -248,15 +263,14 @@ class SpeechUnits(IntEnum):
 
 
 @dataclass
-class SpeechSettings:
+class SpeechSettings(FlysightSetting):
     Sp_Rate: int = 0
     Sp_Volume: SpeechVolume = SpeechVolume.MORE_LOUDER
     Sp_Mode: SpeechMode = SpeechMode.GLIDE_RATIO
     Sp_Units: SpeechUnits = SpeechUnits.MPH_F
     Sp_Dec: int = 1
 
-    _header: str = "Speech settings"
-    _header_text: str | None = None
+    _header: str = "; Speech settings"
 
 
 # Miscellaneous settings
@@ -266,12 +280,11 @@ class UseSAS(IntEnum):
 
 
 @dataclass
-class MiscellaneousSettings:
+class MiscellaneousSettings(FlysightSetting):
     Use_SAS: UseSAS = UseSAS.YES
     TZ_Offset: int = 0
 
-    _header: str = "Miscellaneous"
-    _header_text: str | None = None
+    _header: str = "; Miscellaneous"
 
 
 # Initialization settings
@@ -290,11 +303,11 @@ class InitMode(IntEnum):
 
 
 @dataclass
-class InitializationSettings:
+class InitializationSettings(FlysightSetting):
     Init_Mode: InitMode = InitMode.DO_NOTHING
     Init_File: int = 0
 
-    _header: str = "Initialization"
+    _header: str = "; Initialization"
     _header_text: str | None = INITIALIZATION_HEADER
 
 
@@ -320,7 +333,7 @@ class AlarmType(IntEnum):
 
 
 @dataclass
-class AlarmSettings:
+class AlarmSettings(FlysightSetting):
     Win_Above: int = 0
     Win_Below: int = 0
     DZ_Elev: int = 0
@@ -328,7 +341,7 @@ class AlarmSettings:
     Alarm_Type: AlarmType = AlarmType.NO_ALARM
     Alarm_File: int = 0
 
-    _header: str = "Alarm settings"
+    _header: str = "; Alarm settings"
     _header_text: str | None = ALARM_HEADER
 
 
@@ -349,11 +362,11 @@ class AltUnits(IntEnum):
 
 
 @dataclass
-class AltitudeSettings:
+class AltitudeSettings(FlysightSetting):
     Alt_Units: AltUnits = AltUnits.FEET
     Alt_Step: int = 0
 
-    _header: str = "Altitude mode settings"
+    _header: str = "; Altitude mode settings"
     _header_text: str | None = ALTITUDE_HEADER
 
 
@@ -370,9 +383,24 @@ SILENCE_WINDOW_HEADER = """\
 
 
 @dataclass
-class SilenceWindowSettings:
+class SilenceWindowSettings(FlysightSetting):
     Win_Top: int = 0
     Win_Bottom: int = 0
 
-    _header: str = "Silence windows"
+    _header: str = "; Silence windows"
     _header_text: str | None = SILENCE_WINDOW_HEADER
+
+
+ALL_SETTINGS = (
+    GPSSettings,
+    IMUSettings,
+    ToneSettings,
+    ThresholdSettings,
+    RateSettings,
+    SpeechSettings,
+    MiscellaneousSettings,
+    InitializationSettings,
+    AlarmSettings,
+    AltitudeSettings,
+    SilenceWindowSettings,
+)

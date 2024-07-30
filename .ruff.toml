@@ -52,6 +52,7 @@ ignore = [
 
 [lint.per-file-ignores]
 "tests/test_*.py" = [
+    "D101",
     "D103",
 ]
 "pyflysight/config_params.py" = [
