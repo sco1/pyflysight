@@ -5,6 +5,7 @@ from pathlib import Path
 
 import psutil
 
+from pyflysight import FlysightType
 from pyflysight.config_utils import FlysightConfig
 
 
@@ -106,3 +107,25 @@ def write_config(device_root: Path, config: FlysightConfig, backup_existing: boo
         shutil.copy(flysight_config_filepath, backup_filepath)
 
     config.to_file(flysight_config_filepath)
+
+
+def classify_hardware_type(device_root: Path) -> FlysightType:
+    """
+    Classify the most likely FlySight type for the provided drive.
+
+    Classification is made based on the contents of the FlySight's `FLYSIGHT.TXT` state information
+    file, located at the root of the device. Based on the firmware source code for each hardware
+    iteration, it appears that the contents & structure of this file differs significantly enough
+    between the two hardware revisions to reliably make an accurate distinction.
+    """
+    state_file = device_root / "FLYSIGHT.TXT"
+    if not state_file.exists():
+        raise ValueError("Could not locate FLYSIGHT.TXT in the provided directory.")
+
+    device_state = state_file.read_text()
+    if "FUS_Ver" in device_state:
+        return FlysightType.VERSION_2
+    elif "Firmware version" in device_state:
+        return FlysightType.VERSION_1
+    else:
+        raise ValueError("Could not identify hardware type.")
