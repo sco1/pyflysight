@@ -10,6 +10,8 @@ class FlysightSetting:
     _header: str = ""
     _header_text: str | None = None
 
+    _multi: bool = False
+
     def to_buffer(self, buff: io.StringIO) -> None:
         """
         Dump the class' fields to the provided string buffer.
@@ -36,7 +38,8 @@ FILE_HEADER = """\
 ;
 ;       See:
 ;           https://flysight.ca/wiki/index.php?title=Configuring_FlySight
-;           https://github.com/flysight/flysight
+;           https://github.com/flysight/flysight (Hardware V1)
+;           https://github.com/flysight/flysight-2-firmware (Hardware V2)
 ;
 ; NOTE: Defaults are as of time of writing & may change based on firmware
 ;       version
@@ -337,12 +340,20 @@ class AlarmSettings(FlysightSetting):
     Win_Above: int = 0
     Win_Below: int = 0
     DZ_Elev: int = 0
+
+    _header: str = "; Alarm settings"
+    _header_text: str | None = ALARM_HEADER
+
+
+@dataclass
+class AlarmWindowSettings(FlysightSetting):
     Alarm_Elev: int = 0
     Alarm_Type: AlarmType = AlarmType.NO_ALARM
     Alarm_File: int = 0
 
-    _header: str = "; Alarm settings"
-    _header_text: str | None = ALARM_HEADER
+    _header: str = "; Alarm windows"
+    _header_text: str | None = None
+    _multi: bool = True
 
 
 # Altitude mode settings
@@ -389,6 +400,7 @@ class SilenceWindowSettings(FlysightSetting):
 
     _header: str = "; Silence windows"
     _header_text: str | None = SILENCE_WINDOW_HEADER
+    _multi: bool = True
 
 
 ALL_SETTINGS = (
@@ -401,6 +413,7 @@ ALL_SETTINGS = (
     MiscellaneousSettings,
     InitializationSettings,
     AlarmSettings,
+    AlarmWindowSettings,
     AltitudeSettings,
     SilenceWindowSettings,
 )
