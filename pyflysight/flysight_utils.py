@@ -1,8 +1,11 @@
+import shutil
 import time
 from collections import abc
 from pathlib import Path
 
 import psutil
+
+from pyflysight.config_utils import FlysightConfig
 
 
 def iter_flysight_drives() -> abc.Generator[Path, None, None]:
@@ -83,3 +86,23 @@ def wait_for_flysight(
             print(timeout_s)
 
     return flysight_drives
+
+
+def write_config(device_root: Path, config: FlysightConfig, backup_existing: bool = True) -> None:
+    """
+    Write the provided FlySight configuration to the provided directory.
+
+    The configuration is written to `device_root/CONFIG.TXT`, if an existing configuration is
+    present and `backup_existing` is true, the existing file will be renamed to `CONFIG_OLD.TXT`
+    prior to writing of the new configuration; any existing configuration backup will be
+    overwritten.
+    """
+    if (not device_root.is_dir()) or (not device_root.exists()):
+        raise ValueError("Device root must be the root directory of a connected FlySight device.")
+
+    flysight_config_filepath = device_root / "CONFIG.TXT"
+    if flysight_config_filepath.exists() and backup_existing:
+        backup_filepath = device_root / "CONFIG_OLD.TXT"
+        shutil.copy(flysight_config_filepath, backup_filepath)
+
+    config.to_file(flysight_config_filepath)
