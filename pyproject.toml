@@ -33,7 +33,7 @@ pyflysight = "pyflysight.cli:pyflysight_cli"
 python = "^3.11"
 matplotlib-window = "^1.0"
 polars = {version = "^1.1", extras = ["timezone"]}
-python-dotenv = "^1.0"
+psutil = "^5.9"
 sco1-misc = "^0.1"
 typer-slim = "^0.12"
 
