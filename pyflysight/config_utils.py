@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import io
-from dataclasses import dataclass, field, fields
+import json
+from dataclasses import asdict, dataclass, field, fields
 from pathlib import Path
 
 from pyflysight import config_params as cp
@@ -44,8 +45,12 @@ class FlysightConfig:  # noqa: D101
         # A little around-fuckery to ensure only one trailing newline
         filepath.write_text(buff.getvalue().removesuffix("\n"))
 
+    def to_json(self, filepath: Path) -> None:  # noqa: D102
+        with filepath.open("w") as f:
+            json.dump(asdict(self), f, indent=4)
 
-@dataclass
+
+@dataclass(slots=True)
 class FlysightV2Config(FlysightConfig):
     """
     Helper representation for the FlySight Hardware Version 2 configuration parameters.
@@ -84,8 +89,22 @@ class FlysightV2Config(FlysightConfig):
         default_factory=_init_silence_window_settings
     )
 
+    @classmethod
+    def from_json(cls, filepath: Path) -> FlysightV2Config:
+        """
+        Create a new instance from a previously serialized configuration.
 
-@dataclass
+        NOTE: Configuration files serialized from a V1 device configuration will return a valid
+        instance, where any V2-specific parameters (e.g. IMU settings) will be set to their
+        default values.
+        """
+        with filepath.open("r") as f:
+            config_d = json.load(f)
+
+        return cls(**config_d)
+
+
+@dataclass(slots=True)
 class FlysightV1Config(FlysightConfig):
     """
     Helper representation for the FlySight Hardware Version 1 configuration parameters.
@@ -122,3 +141,16 @@ class FlysightV1Config(FlysightConfig):
     silence_windows: list[cp.SilenceWindowSettings] = field(
         default_factory=_init_silence_window_settings
     )
+
+    @classmethod
+    def from_json(cls, filepath: Path) -> FlysightV1Config:
+        """
+        Create a new instance from a previously serialized configuration.
+
+        NOTE: Configuration files generated for a V2 device will raise a `TypeError` due to the
+        extra configuration parameters present.
+        """
+        with filepath.open("r") as f:
+            config_d = json.load(f)
+
+        return cls(**config_d)
