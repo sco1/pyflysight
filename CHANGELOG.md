@@ -7,7 +7,7 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (`<ma
 * Add `pyflysight.log_utils.locate_log_subdir` helper for resolving child log directory from a given top-level directory
 * Add `pyflysight.log_utils.iter_log_dirs` helper for iterating through child log directories of a given top-level directory
 * #19 Add `pyflysight.config_utils` for config file generation
-* Add `pyflysight.flysight_utils` with helper utilities for working with connected FlySight devices
+* #19 Add `pyflysight.flysight_utils` with helper utilities for working with connected FlySight devices
 
 ## [v0.3.0]
 ### Changed
