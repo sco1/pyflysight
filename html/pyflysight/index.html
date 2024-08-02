@@ -71,12 +71,14 @@ hljs.highlightAll();
 <span>(</span><span>*args, **kwds)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Enum where members are also (and must be) ints</p></div>
+<div class="desc"><p>Enumerate expected FlySight hardware revisions.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class FlysightType(IntEnum):  # noqa: D101
+<pre><code class="python">class FlysightType(IntEnum):
+    &#34;&#34;&#34;Enumerate expected FlySight hardware revisions.&#34;&#34;&#34;
+
     VERSION_1 = 1
     VERSION_2 = 2</code></pre>
 </details>

@@ -30,38 +30,14 @@ Options:
   --help  Show this message and exit.
 
 Commands:
-  batch   Batch flight log processing pipeline.
-  single  Single flight log processing pipeline.
+  device
+  logs
+  trim
 ```
 <!-- [[[end]]] -->
 
 ## CLI Usage
 🚨 **NOTE:** CLI functionality is currently still under development. 🚨
-
-### Environment Variables
-The following environment variables are provided to help customize pipeline behaviors.
-
-| Variable Name      | Description                       | Default      |
-|--------------------|-----------------------------------|--------------|
-| `PROMPT_START_DIR` | Start path for UI file/dir prompt | `'.'`        |
-
-### `pyflysight single`
-Process a single FlySight log file.
-#### Input Parameters
-| Parameter              | Description                    | Type         | Default    |
-|------------------------|--------------------------------|--------------|------------|
-| `--log-filepath`       | Path to FlySight log to parse. | `Path\|None` | GUI Prompt |
-
-### `pyflysight batch`
-Batch process a directory of FlySight log files.
-#### Input Parameters
-| Parameter              | Description                                   | Type         | Default    |
-|------------------------|-----------------------------------------------|--------------|------------|
-| `--log-dir`            | Path to FlySight log directory to parse.      | `Path\|None` | GUI Prompt |
-| `--log-pattern`        | FlySight log file glob pattern.<sup>1,2</sup> | `str`        | `"*.CSV"`  |
-
-1. Case sensitivity is deferred to the host OS
-2. Recursive globbing requires manual specification (e.g. `**/*.CSV`)
 
 ## Internal Data Representation
 See: [Data Format](/doc/data_format.md) for a more detailed breakdown of the expected data file formats.
