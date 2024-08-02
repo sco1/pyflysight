@@ -4,17 +4,23 @@ import pytest
 
 from pyflysight import FlysightType
 from pyflysight.config_utils import FlysightV2Config
-from pyflysight.flysight_utils import classify_hardware_type, write_config
+from pyflysight.flysight_utils import (
+    NoDeviceStateError,
+    UnknownDeviceError,
+    classify_hardware_type,
+    copy_logs,
+    write_config,
+)
 
 
 def test_hardware_type_no_file_raises(tmp_path: Path) -> None:
-    with pytest.raises(ValueError, match="Could not locate"):
+    with pytest.raises(NoDeviceStateError):
         classify_hardware_type(tmp_path)
 
 
 def test_hardware_type_no_data_raises(tmp_path: Path) -> None:
     (tmp_path / "FLYSIGHT.TXT").touch()
-    with pytest.raises(ValueError, match="Could not identify"):
+    with pytest.raises(UnknownDeviceError):
         classify_hardware_type(tmp_path)
 
 
@@ -83,3 +89,107 @@ def test_write_config_overwrite_existing(tmp_path: Path) -> None:
 
     backup_config_filepath = tmp_path / "CONFIG_OLD.TXT"
     assert not backup_config_filepath.exists()
+
+
+FLYSIGHT_V1_FILE_STRUCTURE = {
+    "23-04-21": ("04-20-00.CSV",),
+    "24-04-21": ("04-20-00.CSV",),
+}
+
+
+def test_copy_v1_logs(tmp_path: Path) -> None:
+    flysight_device = tmp_path / "flysight"
+    flysight_device.mkdir()
+    (flysight_device / "FLYSIGHT.TXT").write_text(SAMPLE_V1_STATE)
+    for d, fnames in FLYSIGHT_V1_FILE_STRUCTURE.items():
+        log_dir = flysight_device / d
+        log_dir.mkdir()
+        for f in fnames:
+            (log_dir / f).touch()
+
+    dest = tmp_path / "copied"
+    copy_logs(device_root=flysight_device, dest=dest)
+
+    log_filenames = {f.name for f in flysight_device.rglob("*.CSV")}
+    copied_filenames = {f.name for f in dest.rglob("*.CSV")}
+    assert copied_filenames == log_filenames
+
+
+FLYSIGHT_V2_FILE_STRUCTURE = (
+    "23-04-20/04-20-00",
+    "24-04-20/04-20-00",
+)
+
+
+def test_copy_v2_logs(tmp_path: Path) -> None:
+    flysight_device = tmp_path / "flysight"
+    flysight_device.mkdir()
+    (flysight_device / "FLYSIGHT.TXT").write_text(SAMPLE_V2_STATE)
+    for d in FLYSIGHT_V2_FILE_STRUCTURE:
+        log_dir = flysight_device / d
+        log_dir.mkdir(parents=True)
+        for f in ("RAW.UBX", "SENSOR.CSV", "TRACK.CSV"):
+            (log_dir / f).touch()
+
+    dest = tmp_path / "copied"
+    copy_logs(device_root=flysight_device, dest=dest)
+
+    log_filenames = {f.name for f in flysight_device.rglob("*.CSV")}
+    copied_filenames = {f.name for f in dest.rglob("*.CSV")}
+    assert copied_filenames == log_filenames
+
+
+def sample_filter(log_dir: Path) -> bool:
+    if log_dir.parent.name.startswith("23"):
+        return False
+    else:
+        return True
+
+
+def test_copy_logs_with_filter(tmp_path: Path) -> None:
+    flysight_device = tmp_path / "flysight"
+    flysight_device.mkdir()
+    (flysight_device / "FLYSIGHT.TXT").write_text(SAMPLE_V2_STATE)
+    for d in FLYSIGHT_V2_FILE_STRUCTURE:
+        log_dir = flysight_device / d
+        log_dir.mkdir(parents=True)
+        for f in ("RAW.UBX", "SENSOR.CSV", "TRACK.CSV"):
+            (log_dir / f).touch()
+
+    dest = tmp_path / "copied"
+    copy_logs(device_root=flysight_device, dest=dest, filter_func=sample_filter)
+    assert len(list(dest.glob("*"))) == 1
+
+
+def test_copy_logs_remove_after(tmp_path: Path) -> None:
+    flysight_device = tmp_path / "flysight"
+    flysight_device.mkdir()
+    (flysight_device / "FLYSIGHT.TXT").write_text(SAMPLE_V2_STATE)
+    for d in FLYSIGHT_V2_FILE_STRUCTURE:
+        log_dir = flysight_device / d
+        log_dir.mkdir(parents=True)
+        for f in ("RAW.UBX", "SENSOR.CSV", "TRACK.CSV"):
+            (log_dir / f).touch()
+
+    dest = tmp_path / "copied"
+    copy_logs(device_root=flysight_device, dest=dest, remove_after=True)
+
+    log_files = tuple(flysight_device.rglob("*.CSV"))
+    assert len(log_files) == 0
+
+
+def test_copy_logs_with_filter_remove_after(tmp_path: Path) -> None:
+    flysight_device = tmp_path / "flysight"
+    flysight_device.mkdir()
+    (flysight_device / "FLYSIGHT.TXT").write_text(SAMPLE_V2_STATE)
+    for d in FLYSIGHT_V2_FILE_STRUCTURE:
+        log_dir = flysight_device / d
+        log_dir.mkdir(parents=True)
+        for f in ("RAW.UBX", "SENSOR.CSV", "TRACK.CSV"):
+            (log_dir / f).touch()
+
+    dest = tmp_path / "copied"
+    copy_logs(device_root=flysight_device, dest=dest, filter_func=sample_filter, remove_after=True)
+
+    log_filenames = tuple(flysight_device.rglob("*.CSV"))
+    assert len(log_filenames) == 2

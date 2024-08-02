@@ -7,6 +7,13 @@ import psutil
 
 from pyflysight import FlysightType
 from pyflysight.config_utils import FlysightConfig
+from pyflysight.log_utils import iter_log_dirs
+
+
+class NoDeviceStateError(ValueError): ...  # noqa: D101
+
+
+class UnknownDeviceError(ValueError): ...  # noqa: D101
 
 
 def iter_flysight_drives() -> abc.Generator[Path, None, None]:
@@ -120,7 +127,7 @@ def classify_hardware_type(device_root: Path) -> FlysightType:
     """
     state_file = device_root / "FLYSIGHT.TXT"
     if not state_file.exists():
-        raise ValueError("Could not locate FLYSIGHT.TXT in the provided directory.")
+        raise NoDeviceStateError("Could not locate FLYSIGHT.TXT in the provided directory.")
 
     device_state = state_file.read_text()
     if "FUS_Ver" in device_state:
@@ -128,4 +135,45 @@ def classify_hardware_type(device_root: Path) -> FlysightType:
     elif "Firmware version" in device_state:
         return FlysightType.VERSION_1
     else:
-        raise ValueError("Could not identify hardware type.")
+        raise UnknownDeviceError("Could not identify hardware type.")
+
+
+def copy_logs(
+    device_root: Path,
+    dest: Path,
+    filter_func: abc.Callable[[Path], bool] | None = None,
+    exist_ok: bool = True,
+    remove_after: bool = False,
+) -> None:
+    """
+    Copy the log file tree from the provided device root to the specified destination directory.
+
+    A filtering function may be optionally specified as a callable that accepts a path to a single
+    directory of log files and returns `False` if the directory should not be copied.
+
+    If `exist_ok` is `False`, an exception will be raised if the target directory already exists in
+    the destination.
+
+    If `remove_after` is `True`, the log directory will be deleted from the FlySight device after
+    log data is copied to the destination.
+
+    WARNING: `exist_ok=True` and `remove_after=True` are both destructive operations. Overwritten
+    and/or deleted data will be lost permanently.
+    """
+    flysight_type = classify_hardware_type(device_root)
+    for ld in iter_log_dirs(top_dir=device_root, flysight_type=flysight_type):
+        if filter_func is not None:
+            if not filter_func(ld.log_dir):
+                continue
+
+        # Since our iterator only yields the bottom-most directory, generate the parent structure so
+        # we're not just dumping the log files into one big blob
+        if flysight_type == FlysightType.VERSION_1:
+            log_dest = dest / ld.log_dir.name
+        elif flysight_type == FlysightType.VERSION_2:  # pragma: no branch
+            log_dest = dest / "/".join(ld.log_dir.parts[-2:])
+
+        shutil.copytree(ld.log_dir, log_dest, dirs_exist_ok=exist_ok)
+
+        if remove_after:
+            shutil.rmtree(ld.log_dir)
