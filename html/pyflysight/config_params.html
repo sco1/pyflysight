@@ -1,0 +1,2067 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.1">
+<title>pyflysight.config_params API documentation</title>
+<meta name="description" content="">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pyflysight.config_params</code></h1>
+</header>
+<section id="section-intro">
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pyflysight.config_params.AccelFS"><code class="flex name class">
+<span>class <span class="ident">AccelFS</span></span>
+<span>(</span><span>*args, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enum where members are also (and must be) ints</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AccelFS(IntEnum):
+    GEE_2 = 0
+    GEE_16 = 1
+    GEE_4 = 2
+    GEE_8 = 3</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.ReprEnum</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.AccelFS.GEE_16"><code class="name">var <span class="ident">GEE_16</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.AccelFS.GEE_2"><code class="name">var <span class="ident">GEE_2</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.AccelFS.GEE_4"><code class="name">var <span class="ident">GEE_4</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.AccelFS.GEE_8"><code class="name">var <span class="ident">GEE_8</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="pyflysight.config_params.AccelODR"><code class="flex name class">
+<span>class <span class="ident">AccelODR</span></span>
+<span>(</span><span>*args, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enum where members are also (and must be) ints</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AccelODR(IntEnum):
+    DISABLE = 0
+    HZ_12_5 = 1
+    HZ_26 = 2
+    HZ_52 = 3
+    HZ_104 = 4
+    HZ_208 = 5
+    HZ_416 = 6
+    HZ_833 = 7
+    HZ_1666 = 8
+    HZ_3333 = 9
+    HZ_6666 = 10
+    HZ_1_6 = 11</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.ReprEnum</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.AccelODR.DISABLE"><code class="name">var <span class="ident">DISABLE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.AccelODR.HZ_104"><code class="name">var <span class="ident">HZ_104</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.AccelODR.HZ_12_5"><code class="name">var <span class="ident">HZ_12_5</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.AccelODR.HZ_1666"><code class="name">var <span class="ident">HZ_1666</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.AccelODR.HZ_1_6"><code class="name">var <span class="ident">HZ_1_6</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.AccelODR.HZ_208"><code class="name">var <span class="ident">HZ_208</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.AccelODR.HZ_26"><code class="name">var <span class="ident">HZ_26</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.AccelODR.HZ_3333"><code class="name">var <span class="ident">HZ_3333</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.AccelODR.HZ_416"><code class="name">var <span class="ident">HZ_416</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.AccelODR.HZ_52"><code class="name">var <span class="ident">HZ_52</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.AccelODR.HZ_6666"><code class="name">var <span class="ident">HZ_6666</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.AccelODR.HZ_833"><code class="name">var <span class="ident">HZ_833</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="pyflysight.config_params.AlarmSettings"><code class="flex name class">
+<span>class <span class="ident">AlarmSettings</span></span>
+<span>(</span><span>Win_Above: int = 0, Win_Below: int = 0, DZ_Elev: int = 0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>AlarmSettings(_header: str = '; Alarm settings', _header_text: str | None = '; NOTE: Alarms may be set for multiple altitudes by specifying repeated blocks\n;
+of configuration information. See the FlySight support wiki for\n;
+examples &amp; instructions on selecting alarm files:\n;\n;
+<a href="https://flysight.ca/wiki/index.php?title=Configuring_FlySight#Speech_alarms\n;\n;">https://flysight.ca/wiki/index.php?title=Configuring_FlySight#Speech_alarms\n;\n;</a> NOTE: Altitudes are specified relative to ground elevation, as specified by\n;
+Dz_Elev.\n', _multi: bool = False, Win_Above: int = 0, Win_Below: int = 0, DZ_Elev: int = 0)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class AlarmSettings(FlysightSetting):
+    Win_Above: int = 0
+    Win_Below: int = 0
+    DZ_Elev: int = 0
+
+    _header: str = &#34;; Alarm settings&#34;
+    _header_text: str | None = ALARM_HEADER</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.AlarmSettings.DZ_Elev"><code class="name">var <span class="ident">DZ_Elev</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.AlarmSettings.Win_Above"><code class="name">var <span class="ident">Win_Above</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.AlarmSettings.Win_Below"><code class="name">var <span class="ident">Win_Below</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pyflysight.config_params.FlysightSetting.to_buffer" href="#pyflysight.config_params.FlysightSetting.to_buffer">to_buffer</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pyflysight.config_params.AlarmType"><code class="flex name class">
+<span>class <span class="ident">AlarmType</span></span>
+<span>(</span><span>*args, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enum where members are also (and must be) ints</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AlarmType(IntEnum):
+    NO_ALARM = 0
+    BEEP = 1
+    CHIRP_UP = 2
+    CHIRP_DOWN = 3
+    PLAY_FILE = 4</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.ReprEnum</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.AlarmType.BEEP"><code class="name">var <span class="ident">BEEP</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.AlarmType.CHIRP_DOWN"><code class="name">var <span class="ident">CHIRP_DOWN</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.AlarmType.CHIRP_UP"><code class="name">var <span class="ident">CHIRP_UP</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.AlarmType.NO_ALARM"><code class="name">var <span class="ident">NO_ALARM</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.AlarmType.PLAY_FILE"><code class="name">var <span class="ident">PLAY_FILE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="pyflysight.config_params.AlarmWindowSettings"><code class="flex name class">
+<span>class <span class="ident">AlarmWindowSettings</span></span>
+<span>(</span><span>Alarm_Elev: int = 0, Alarm_Type: <a title="pyflysight.config_params.AlarmType" href="#pyflysight.config_params.AlarmType">AlarmType</a> = 0, Alarm_File: int = 0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>AlarmWindowSettings(_header: str = '; Alarm windows', _header_text: str | None = None, _multi: bool = True, Alarm_Elev: int = 0, Alarm_Type: pyflysight.config_params.AlarmType = <AlarmType.NO_ALARM: 0>, Alarm_File: int = 0)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class AlarmWindowSettings(FlysightSetting):
+    Alarm_Elev: int = 0
+    Alarm_Type: AlarmType = AlarmType.NO_ALARM
+    Alarm_File: int = 0
+
+    _header: str = &#34;; Alarm windows&#34;
+    _header_text: str | None = None
+    _multi: bool = True</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.AlarmWindowSettings.Alarm_Elev"><code class="name">var <span class="ident">Alarm_Elev</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.AlarmWindowSettings.Alarm_File"><code class="name">var <span class="ident">Alarm_File</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.AlarmWindowSettings.Alarm_Type"><code class="name">var <span class="ident">Alarm_Type</span> : <a title="pyflysight.config_params.AlarmType" href="#pyflysight.config_params.AlarmType">AlarmType</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pyflysight.config_params.FlysightSetting.to_buffer" href="#pyflysight.config_params.FlysightSetting.to_buffer">to_buffer</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pyflysight.config_params.AltUnits"><code class="flex name class">
+<span>class <span class="ident">AltUnits</span></span>
+<span>(</span><span>*args, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enum where members are also (and must be) ints</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AltUnits(IntEnum):
+    METERS = 0
+    FEET = 1</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.ReprEnum</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.AltUnits.FEET"><code class="name">var <span class="ident">FEET</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.AltUnits.METERS"><code class="name">var <span class="ident">METERS</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="pyflysight.config_params.AltitudeSettings"><code class="flex name class">
+<span>class <span class="ident">AltitudeSettings</span></span>
+<span>(</span><span>Alt_Units: <a title="pyflysight.config_params.AltUnits" href="#pyflysight.config_params.AltUnits">AltUnits</a> = 1, Alt_Step: int = 0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>AltitudeSettings(_header: str = '; Altitude mode settings', _header_text: str | None = '; NOTE: Altitudes are specified relative to ground elevation, as specified by\n;
+Dz_Elev. Altitude mode will not function below 1500m AGL.\n;\n; NOTE: Altitude is called out when the FlySight first receives a GPS fix in\n;
+order to verify DZ_Elev is set properly. If correctly configured\n;
+this altitude should be within 10 meters of zero.\n', _multi: bool = False, Alt_Units: pyflysight.config_params.AltUnits = <AltUnits.FEET: 1>, Alt_Step: int = 0)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class AltitudeSettings(FlysightSetting):
+    Alt_Units: AltUnits = AltUnits.FEET
+    Alt_Step: int = 0
+
+    _header: str = &#34;; Altitude mode settings&#34;
+    _header_text: str | None = ALTITUDE_HEADER</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.AltitudeSettings.Alt_Step"><code class="name">var <span class="ident">Alt_Step</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.AltitudeSettings.Alt_Units"><code class="name">var <span class="ident">Alt_Units</span> : <a title="pyflysight.config_params.AltUnits" href="#pyflysight.config_params.AltUnits">AltUnits</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pyflysight.config_params.FlysightSetting.to_buffer" href="#pyflysight.config_params.FlysightSetting.to_buffer">to_buffer</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pyflysight.config_params.BaroODR"><code class="flex name class">
+<span>class <span class="ident">BaroODR</span></span>
+<span>(</span><span>*args, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enum where members are also (and must be) ints</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class BaroODR(IntEnum):
+    DISABLE = 0
+    HZ_1 = 1
+    HZ_10 = 2
+    HZ_25 = 3
+    HZ_50 = 4
+    HZ_75 = 5
+    HZ_100 = 6
+    HZ_200 = 7</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.ReprEnum</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.BaroODR.DISABLE"><code class="name">var <span class="ident">DISABLE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.BaroODR.HZ_1"><code class="name">var <span class="ident">HZ_1</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.BaroODR.HZ_10"><code class="name">var <span class="ident">HZ_10</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.BaroODR.HZ_100"><code class="name">var <span class="ident">HZ_100</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.BaroODR.HZ_200"><code class="name">var <span class="ident">HZ_200</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.BaroODR.HZ_25"><code class="name">var <span class="ident">HZ_25</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.BaroODR.HZ_50"><code class="name">var <span class="ident">HZ_50</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.BaroODR.HZ_75"><code class="name">var <span class="ident">HZ_75</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="pyflysight.config_params.FlatLine"><code class="flex name class">
+<span>class <span class="ident">FlatLine</span></span>
+<span>(</span><span>*args, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enum where members are also (and must be) ints</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FlatLine(IntEnum):
+    NO = 0
+    YES = 1</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.ReprEnum</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.FlatLine.NO"><code class="name">var <span class="ident">NO</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.FlatLine.YES"><code class="name">var <span class="ident">YES</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="pyflysight.config_params.FlysightSetting"><code class="flex name class">
+<span>class <span class="ident">FlysightSetting</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>FlysightSetting(_header: str = '', _header_text: str | None = None, _multi: bool = False)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class FlysightSetting:
+    _header: str = &#34;&#34;
+    _header_text: str | None = None
+
+    _multi: bool = False
+
+    def to_buffer(self, buff: io.StringIO) -&gt; None:
+        &#34;&#34;&#34;
+        Dump the class&#39; fields to the provided string buffer.
+
+        NOTE: Fields with a leading underscore are ignored.
+        &#34;&#34;&#34;
+        for param in fields(self):
+            if param.name.startswith(&#34;_&#34;):
+                continue
+
+            val = getattr(self, param.name)
+            buff.write(f&#34;{param.name}: {val}\n&#34;)</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="pyflysight.config_params.AlarmSettings" href="#pyflysight.config_params.AlarmSettings">AlarmSettings</a></li>
+<li><a title="pyflysight.config_params.AlarmWindowSettings" href="#pyflysight.config_params.AlarmWindowSettings">AlarmWindowSettings</a></li>
+<li><a title="pyflysight.config_params.AltitudeSettings" href="#pyflysight.config_params.AltitudeSettings">AltitudeSettings</a></li>
+<li><a title="pyflysight.config_params.GPSSettings" href="#pyflysight.config_params.GPSSettings">GPSSettings</a></li>
+<li><a title="pyflysight.config_params.IMUSettings" href="#pyflysight.config_params.IMUSettings">IMUSettings</a></li>
+<li><a title="pyflysight.config_params.InitializationSettings" href="#pyflysight.config_params.InitializationSettings">InitializationSettings</a></li>
+<li><a title="pyflysight.config_params.MiscellaneousSettings" href="#pyflysight.config_params.MiscellaneousSettings">MiscellaneousSettings</a></li>
+<li><a title="pyflysight.config_params.RateSettings" href="#pyflysight.config_params.RateSettings">RateSettings</a></li>
+<li><a title="pyflysight.config_params.SilenceWindowSettings" href="#pyflysight.config_params.SilenceWindowSettings">SilenceWindowSettings</a></li>
+<li><a title="pyflysight.config_params.SpeechSettings" href="#pyflysight.config_params.SpeechSettings">SpeechSettings</a></li>
+<li><a title="pyflysight.config_params.ThresholdSettings" href="#pyflysight.config_params.ThresholdSettings">ThresholdSettings</a></li>
+<li><a title="pyflysight.config_params.ToneSettings" href="#pyflysight.config_params.ToneSettings">ToneSettings</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="pyflysight.config_params.FlysightSetting.to_buffer"><code class="name flex">
+<span>def <span class="ident">to_buffer</span></span>(<span>self, buff: _io.StringIO) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Dump the class' fields to the provided string buffer.</p>
+<p>NOTE: Fields with a leading underscore are ignored.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="pyflysight.config_params.GPSModel"><code class="flex name class">
+<span>class <span class="ident">GPSModel</span></span>
+<span>(</span><span>*args, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enum where members are also (and must be) ints</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GPSModel(IntEnum):
+    PORTABLE = 0
+    STATIONARY = 2
+    PEDESTRIAN = 3
+    AUTOMOTIVE = 4
+    SEA = 5
+    AIRBORNE_LT_1G = 6
+    AIRBORNE_LT_2G = 7
+    AIRBORNE_LT_4G = 8</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.ReprEnum</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.GPSModel.AIRBORNE_LT_1G"><code class="name">var <span class="ident">AIRBORNE_LT_1G</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.GPSModel.AIRBORNE_LT_2G"><code class="name">var <span class="ident">AIRBORNE_LT_2G</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.GPSModel.AIRBORNE_LT_4G"><code class="name">var <span class="ident">AIRBORNE_LT_4G</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.GPSModel.AUTOMOTIVE"><code class="name">var <span class="ident">AUTOMOTIVE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.GPSModel.PEDESTRIAN"><code class="name">var <span class="ident">PEDESTRIAN</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.GPSModel.PORTABLE"><code class="name">var <span class="ident">PORTABLE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.GPSModel.SEA"><code class="name">var <span class="ident">SEA</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.GPSModel.STATIONARY"><code class="name">var <span class="ident">STATIONARY</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="pyflysight.config_params.GPSSettings"><code class="flex name class">
+<span>class <span class="ident">GPSSettings</span></span>
+<span>(</span><span>Model: <a title="pyflysight.config_params.GPSModel" href="#pyflysight.config_params.GPSModel">GPSModel</a> = 6, Rate: int = 200)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>GPSSettings(_header: str = '; GPS settings', _header_text: str | None = None, _multi: bool = False, Model: pyflysight.config_params.GPSModel = <GPSModel.AIRBORNE_LT_1G: 6>, Rate: int = 200)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class GPSSettings(FlysightSetting):
+    Model: GPSModel = GPSModel.AIRBORNE_LT_1G
+    Rate: int = 200  # milliseconds
+
+    _header: str = &#34;; GPS settings&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.GPSSettings.Model"><code class="name">var <span class="ident">Model</span> : <a title="pyflysight.config_params.GPSModel" href="#pyflysight.config_params.GPSModel">GPSModel</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.GPSSettings.Rate"><code class="name">var <span class="ident">Rate</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pyflysight.config_params.FlysightSetting.to_buffer" href="#pyflysight.config_params.FlysightSetting.to_buffer">to_buffer</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pyflysight.config_params.GyroFS"><code class="flex name class">
+<span>class <span class="ident">GyroFS</span></span>
+<span>(</span><span>*args, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enum where members are also (and must be) ints</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GyroFS(IntEnum):
+    DEG_S_250 = 0
+    DEG_S_500 = 1
+    DEG_S_1000 = 2
+    DEG_S_2000 = 3</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.ReprEnum</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.GyroFS.DEG_S_1000"><code class="name">var <span class="ident">DEG_S_1000</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.GyroFS.DEG_S_2000"><code class="name">var <span class="ident">DEG_S_2000</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.GyroFS.DEG_S_250"><code class="name">var <span class="ident">DEG_S_250</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.GyroFS.DEG_S_500"><code class="name">var <span class="ident">DEG_S_500</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="pyflysight.config_params.GyroODR"><code class="flex name class">
+<span>class <span class="ident">GyroODR</span></span>
+<span>(</span><span>*args, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enum where members are also (and must be) ints</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GyroODR(IntEnum):
+    DISABLE = 0
+    HZ_12_5 = 1
+    HZ_26 = 2
+    HZ_52 = 3
+    HZ_104 = 4
+    HZ_208 = 5
+    HZ_416 = 6
+    HZ_833 = 7
+    HZ_1666 = 8
+    HZ_3333 = 9
+    HZ_6666 = 10</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.ReprEnum</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.GyroODR.DISABLE"><code class="name">var <span class="ident">DISABLE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.GyroODR.HZ_104"><code class="name">var <span class="ident">HZ_104</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.GyroODR.HZ_12_5"><code class="name">var <span class="ident">HZ_12_5</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.GyroODR.HZ_1666"><code class="name">var <span class="ident">HZ_1666</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.GyroODR.HZ_208"><code class="name">var <span class="ident">HZ_208</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.GyroODR.HZ_26"><code class="name">var <span class="ident">HZ_26</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.GyroODR.HZ_3333"><code class="name">var <span class="ident">HZ_3333</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.GyroODR.HZ_416"><code class="name">var <span class="ident">HZ_416</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.GyroODR.HZ_52"><code class="name">var <span class="ident">HZ_52</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.GyroODR.HZ_6666"><code class="name">var <span class="ident">HZ_6666</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.GyroODR.HZ_833"><code class="name">var <span class="ident">HZ_833</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="pyflysight.config_params.HumODR"><code class="flex name class">
+<span>class <span class="ident">HumODR</span></span>
+<span>(</span><span>*args, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enum where members are also (and must be) ints</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class HumODR(IntEnum):
+    DISABLE = 0
+    HZ_1 = 1
+    HZ_7 = 2
+    HZ_12_5 = 3</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.ReprEnum</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.HumODR.DISABLE"><code class="name">var <span class="ident">DISABLE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.HumODR.HZ_1"><code class="name">var <span class="ident">HZ_1</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.HumODR.HZ_12_5"><code class="name">var <span class="ident">HZ_12_5</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.HumODR.HZ_7"><code class="name">var <span class="ident">HZ_7</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="pyflysight.config_params.IMUSettings"><code class="flex name class">
+<span>class <span class="ident">IMUSettings</span></span>
+<span>(</span><span>Baro_ODR: <a title="pyflysight.config_params.BaroODR" href="#pyflysight.config_params.BaroODR">BaroODR</a> = 2, Hum_ODR: <a title="pyflysight.config_params.HumODR" href="#pyflysight.config_params.HumODR">HumODR</a> = 1, Mag_ODR: <a title="pyflysight.config_params.MagODR" href="#pyflysight.config_params.MagODR">MagODR</a> = 0, Accel_ODR: <a title="pyflysight.config_params.AccelODR" href="#pyflysight.config_params.AccelODR">AccelODR</a> = 1, Accel_FS: <a title="pyflysight.config_params.AccelFS" href="#pyflysight.config_params.AccelFS">AccelFS</a> = 1, Gyro_ODR: <a title="pyflysight.config_params.GyroODR" href="#pyflysight.config_params.GyroODR">GyroODR</a> = 1, Gyro_FS: <a title="pyflysight.config_params.GyroFS" href="#pyflysight.config_params.GyroFS">GyroFS</a> = 3)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>IMUSettings(_header: str = '; IMU settings', _header_text: str | None = '; NOTE: Configuring away from default IMU values currently requires installation\n;
+of beta firmware, which can be found at:\n;\n;
+<a href="https://flysight.ca/firmware/?include_beta=true\n;\n;">https://flysight.ca/firmware/?include_beta=true\n;\n;</a> NOTE: Currently not possible to achieve full logging rate for the\n;
+accelerometer and gyro; the currently known maximum is ~1666 Hz\n', _multi: bool = False, Baro_ODR: pyflysight.config_params.BaroODR = <BaroODR.HZ_10: 2>, Hum_ODR: pyflysight.config_params.HumODR = <HumODR.HZ_1: 1>, Mag_ODR: pyflysight.config_params.MagODR = <MagODR.HZ_10: 0>, Accel_ODR: pyflysight.config_params.AccelODR = <AccelODR.HZ_12_5: 1>, Accel_FS: pyflysight.config_params.AccelFS = <AccelFS.GEE_16: 1>, Gyro_ODR: pyflysight.config_params.GyroODR = <GyroODR.HZ_12_5: 1>, Gyro_FS: pyflysight.config_params.GyroFS = <GyroFS.DEG_S_2000: 3>)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class IMUSettings(FlysightSetting):
+    Baro_ODR: BaroODR = BaroODR.HZ_10
+    Hum_ODR: HumODR = HumODR.HZ_1
+    Mag_ODR: MagODR = MagODR.HZ_10
+    Accel_ODR: AccelODR = AccelODR.HZ_12_5
+    Accel_FS: AccelFS = AccelFS.GEE_16
+    Gyro_ODR: GyroODR = GyroODR.HZ_12_5
+    Gyro_FS: GyroFS = GyroFS.DEG_S_2000
+
+    _header: str = &#34;; IMU settings&#34;
+    _header_text: str | None = IMU_HEADER</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.IMUSettings.Accel_FS"><code class="name">var <span class="ident">Accel_FS</span> : <a title="pyflysight.config_params.AccelFS" href="#pyflysight.config_params.AccelFS">AccelFS</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.IMUSettings.Accel_ODR"><code class="name">var <span class="ident">Accel_ODR</span> : <a title="pyflysight.config_params.AccelODR" href="#pyflysight.config_params.AccelODR">AccelODR</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.IMUSettings.Baro_ODR"><code class="name">var <span class="ident">Baro_ODR</span> : <a title="pyflysight.config_params.BaroODR" href="#pyflysight.config_params.BaroODR">BaroODR</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.IMUSettings.Gyro_FS"><code class="name">var <span class="ident">Gyro_FS</span> : <a title="pyflysight.config_params.GyroFS" href="#pyflysight.config_params.GyroFS">GyroFS</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.IMUSettings.Gyro_ODR"><code class="name">var <span class="ident">Gyro_ODR</span> : <a title="pyflysight.config_params.GyroODR" href="#pyflysight.config_params.GyroODR">GyroODR</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.IMUSettings.Hum_ODR"><code class="name">var <span class="ident">Hum_ODR</span> : <a title="pyflysight.config_params.HumODR" href="#pyflysight.config_params.HumODR">HumODR</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.IMUSettings.Mag_ODR"><code class="name">var <span class="ident">Mag_ODR</span> : <a title="pyflysight.config_params.MagODR" href="#pyflysight.config_params.MagODR">MagODR</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pyflysight.config_params.FlysightSetting.to_buffer" href="#pyflysight.config_params.FlysightSetting.to_buffer">to_buffer</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pyflysight.config_params.InitMode"><code class="flex name class">
+<span>class <span class="ident">InitMode</span></span>
+<span>(</span><span>*args, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enum where members are also (and must be) ints</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class InitMode(IntEnum):
+    DO_NOTHING = 0
+    TEST_SPEECH = 1
+    PLAY_FILE = 2</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.ReprEnum</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.InitMode.DO_NOTHING"><code class="name">var <span class="ident">DO_NOTHING</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.InitMode.PLAY_FILE"><code class="name">var <span class="ident">PLAY_FILE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.InitMode.TEST_SPEECH"><code class="name">var <span class="ident">TEST_SPEECH</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="pyflysight.config_params.InitializationSettings"><code class="flex name class">
+<span>class <span class="ident">InitializationSettings</span></span>
+<span>(</span><span>Init_Mode: <a title="pyflysight.config_params.InitMode" href="#pyflysight.config_params.InitMode">InitMode</a> = 0, Init_File: int = 0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>InitializationSettings(_header: str = '; Initialization', _header_text: str | None = '; NOTE: Consult the FlySight support wiki for instructions on how to select the\n;
+initialization audio file:\n;\n;
+<a href="https://flysight.ca/wiki/index.php?title=Configuring_FlySight#Selectable_configurations\n',">https://flysight.ca/wiki/index.php?title=Configuring_FlySight#Selectable_configurations\n',</a> _multi: bool = False, Init_Mode: pyflysight.config_params.InitMode = <InitMode.DO_NOTHING: 0>, Init_File: int = 0)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class InitializationSettings(FlysightSetting):
+    Init_Mode: InitMode = InitMode.DO_NOTHING
+    Init_File: int = 0
+
+    _header: str = &#34;; Initialization&#34;
+    _header_text: str | None = INITIALIZATION_HEADER</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.InitializationSettings.Init_File"><code class="name">var <span class="ident">Init_File</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.InitializationSettings.Init_Mode"><code class="name">var <span class="ident">Init_Mode</span> : <a title="pyflysight.config_params.InitMode" href="#pyflysight.config_params.InitMode">InitMode</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pyflysight.config_params.FlysightSetting.to_buffer" href="#pyflysight.config_params.FlysightSetting.to_buffer">to_buffer</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pyflysight.config_params.MagODR"><code class="flex name class">
+<span>class <span class="ident">MagODR</span></span>
+<span>(</span><span>*args, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enum where members are also (and must be) ints</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MagODR(IntEnum):
+    HZ_10 = 0
+    HZ_20 = 1
+    HZ_50 = 2
+    HZ_100 = 3</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.ReprEnum</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.MagODR.HZ_10"><code class="name">var <span class="ident">HZ_10</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.MagODR.HZ_100"><code class="name">var <span class="ident">HZ_100</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.MagODR.HZ_20"><code class="name">var <span class="ident">HZ_20</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.MagODR.HZ_50"><code class="name">var <span class="ident">HZ_50</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="pyflysight.config_params.MiscellaneousSettings"><code class="flex name class">
+<span>class <span class="ident">MiscellaneousSettings</span></span>
+<span>(</span><span>Use_SAS: <a title="pyflysight.config_params.UseSAS" href="#pyflysight.config_params.UseSAS">UseSAS</a> = 1, TZ_Offset: int = 0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>MiscellaneousSettings(_header: str = '; Miscellaneous', _header_text: str | None = None, _multi: bool = False, Use_SAS: pyflysight.config_params.UseSAS = <UseSAS.YES: 1>, TZ_Offset: int = 0)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class MiscellaneousSettings(FlysightSetting):
+    Use_SAS: UseSAS = UseSAS.YES
+    TZ_Offset: int = 0
+
+    _header: str = &#34;; Miscellaneous&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.MiscellaneousSettings.TZ_Offset"><code class="name">var <span class="ident">TZ_Offset</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.MiscellaneousSettings.Use_SAS"><code class="name">var <span class="ident">Use_SAS</span> : <a title="pyflysight.config_params.UseSAS" href="#pyflysight.config_params.UseSAS">UseSAS</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pyflysight.config_params.FlysightSetting.to_buffer" href="#pyflysight.config_params.FlysightSetting.to_buffer">to_buffer</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pyflysight.config_params.Mode2"><code class="flex name class">
+<span>class <span class="ident">Mode2</span></span>
+<span>(</span><span>*args, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enum where members are also (and must be) ints</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Mode2(IntEnum):
+    HORIZONTAL_SPEED = 0
+    VERTICAL_SPEED = 1
+    GLIDE_RATIO = 2
+    INVERSE_GLIDE_RATIO = 3
+    TOTAL_SPEED = 4
+    MAG_VALUE_1 = 8
+    CHANGE_VALUE_1 = 9
+    DIVE_ANGLE = 11</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.ReprEnum</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.Mode2.CHANGE_VALUE_1"><code class="name">var <span class="ident">CHANGE_VALUE_1</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.Mode2.DIVE_ANGLE"><code class="name">var <span class="ident">DIVE_ANGLE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.Mode2.GLIDE_RATIO"><code class="name">var <span class="ident">GLIDE_RATIO</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.Mode2.HORIZONTAL_SPEED"><code class="name">var <span class="ident">HORIZONTAL_SPEED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.Mode2.INVERSE_GLIDE_RATIO"><code class="name">var <span class="ident">INVERSE_GLIDE_RATIO</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.Mode2.MAG_VALUE_1"><code class="name">var <span class="ident">MAG_VALUE_1</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.Mode2.TOTAL_SPEED"><code class="name">var <span class="ident">TOTAL_SPEED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.Mode2.VERTICAL_SPEED"><code class="name">var <span class="ident">VERTICAL_SPEED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="pyflysight.config_params.RateSettings"><code class="flex name class">
+<span>class <span class="ident">RateSettings</span></span>
+<span>(</span><span>Mode_2: <a title="pyflysight.config_params.Mode2" href="#pyflysight.config_params.Mode2">Mode2</a> = 9, Min_Val_2: int = 300, Max_Val_2: int = 1500, Min_Rate: int = 100, Max_Rate: int = 500, Flatline: <a title="pyflysight.config_params.FlatLine" href="#pyflysight.config_params.FlatLine">FlatLine</a> = 0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>RateSettings(_header: str = '; Rate settings', _header_text: str | None = None, _multi: bool = False, Mode_2: pyflysight.config_params.Mode2 = <Mode2.CHANGE_VALUE_1: 9>, Min_Val_2: int = 300, Max_Val_2: int = 1500, Min_Rate: int = 100, Max_Rate: int = 500, Flatline: pyflysight.config_params.FlatLine = <FlatLine.NO: 0>)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class RateSettings(FlysightSetting):
+    Mode_2: Mode2 = Mode2.CHANGE_VALUE_1
+    Min_Val_2: int = 300
+    Max_Val_2: int = 1500
+    Min_Rate: int = 100
+    Max_Rate: int = 500
+    Flatline: FlatLine = FlatLine.NO
+
+    _header: str = &#34;; Rate settings&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.RateSettings.Flatline"><code class="name">var <span class="ident">Flatline</span> : <a title="pyflysight.config_params.FlatLine" href="#pyflysight.config_params.FlatLine">FlatLine</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.RateSettings.Max_Rate"><code class="name">var <span class="ident">Max_Rate</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.RateSettings.Max_Val_2"><code class="name">var <span class="ident">Max_Val_2</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.RateSettings.Min_Rate"><code class="name">var <span class="ident">Min_Rate</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.RateSettings.Min_Val_2"><code class="name">var <span class="ident">Min_Val_2</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.RateSettings.Mode_2"><code class="name">var <span class="ident">Mode_2</span> : <a title="pyflysight.config_params.Mode2" href="#pyflysight.config_params.Mode2">Mode2</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pyflysight.config_params.FlysightSetting.to_buffer" href="#pyflysight.config_params.FlysightSetting.to_buffer">to_buffer</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pyflysight.config_params.SilenceWindowSettings"><code class="flex name class">
+<span>class <span class="ident">SilenceWindowSettings</span></span>
+<span>(</span><span>Win_Top: int = 0, Win_Bottom: int = 0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>SilenceWindowSettings(_header: str = '; Silence windows', _header_text: str | None = '; NOTE: Multiple silence windows may be specified to silence tones during the\n;
+window elevation; only alarms will be audible.\n;\n; NOTE: Altitudes are specified relative to ground elevation, as specified by\n;
+Dz_Elev.\n;\n; NOTE: Silence windows are currently not detailed in the FlySight support wiki.\n', _multi: bool = True, Win_Top: int = 0, Win_Bottom: int = 0)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class SilenceWindowSettings(FlysightSetting):
+    Win_Top: int = 0
+    Win_Bottom: int = 0
+
+    _header: str = &#34;; Silence windows&#34;
+    _header_text: str | None = SILENCE_WINDOW_HEADER
+    _multi: bool = True</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.SilenceWindowSettings.Win_Bottom"><code class="name">var <span class="ident">Win_Bottom</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.SilenceWindowSettings.Win_Top"><code class="name">var <span class="ident">Win_Top</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pyflysight.config_params.FlysightSetting.to_buffer" href="#pyflysight.config_params.FlysightSetting.to_buffer">to_buffer</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pyflysight.config_params.SpeechMode"><code class="flex name class">
+<span>class <span class="ident">SpeechMode</span></span>
+<span>(</span><span>*args, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enum where members are also (and must be) ints</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SpeechMode(IntEnum):
+    HORIZONTAL_SPEED = 0
+    VERTICAL_SPEED = 1
+    GLIDE_RATIO = 2
+    INVERSE_GLIDE_RATIO = 3
+    TOTAL_SPEED = 4
+    ALTITUDE_ABOVE_DZ = 5
+    DIVE_ANGLE = 11</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.ReprEnum</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.SpeechMode.ALTITUDE_ABOVE_DZ"><code class="name">var <span class="ident">ALTITUDE_ABOVE_DZ</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.SpeechMode.DIVE_ANGLE"><code class="name">var <span class="ident">DIVE_ANGLE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.SpeechMode.GLIDE_RATIO"><code class="name">var <span class="ident">GLIDE_RATIO</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.SpeechMode.HORIZONTAL_SPEED"><code class="name">var <span class="ident">HORIZONTAL_SPEED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.SpeechMode.INVERSE_GLIDE_RATIO"><code class="name">var <span class="ident">INVERSE_GLIDE_RATIO</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.SpeechMode.TOTAL_SPEED"><code class="name">var <span class="ident">TOTAL_SPEED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.SpeechMode.VERTICAL_SPEED"><code class="name">var <span class="ident">VERTICAL_SPEED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="pyflysight.config_params.SpeechSettings"><code class="flex name class">
+<span>class <span class="ident">SpeechSettings</span></span>
+<span>(</span><span>Sp_Rate: int = 0, Sp_Volume: <a title="pyflysight.config_params.SpeechVolume" href="#pyflysight.config_params.SpeechVolume">SpeechVolume</a> = 6, Sp_Mode: <a title="pyflysight.config_params.SpeechMode" href="#pyflysight.config_params.SpeechMode">SpeechMode</a> = 2, Sp_Units: <a title="pyflysight.config_params.SpeechUnits" href="#pyflysight.config_params.SpeechUnits">SpeechUnits</a> = 1, Sp_Dec: int = 1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>SpeechSettings(_header: str = '; Speech settings', _header_text: str | None = None, _multi: bool = False, Sp_Rate: int = 0, Sp_Volume: pyflysight.config_params.SpeechVolume = <SpeechVolume.MORE_LOUDER: 6>, Sp_Mode: pyflysight.config_params.SpeechMode = <SpeechMode.GLIDE_RATIO: 2>, Sp_Units: pyflysight.config_params.SpeechUnits = <SpeechUnits.MPH_F: 1>, Sp_Dec: int = 1)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class SpeechSettings(FlysightSetting):
+    Sp_Rate: int = 0
+    Sp_Volume: SpeechVolume = SpeechVolume.MORE_LOUDER
+    Sp_Mode: SpeechMode = SpeechMode.GLIDE_RATIO
+    Sp_Units: SpeechUnits = SpeechUnits.MPH_F
+    Sp_Dec: int = 1
+
+    _header: str = &#34;; Speech settings&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.SpeechSettings.Sp_Dec"><code class="name">var <span class="ident">Sp_Dec</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.SpeechSettings.Sp_Mode"><code class="name">var <span class="ident">Sp_Mode</span> : <a title="pyflysight.config_params.SpeechMode" href="#pyflysight.config_params.SpeechMode">SpeechMode</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.SpeechSettings.Sp_Rate"><code class="name">var <span class="ident">Sp_Rate</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.SpeechSettings.Sp_Units"><code class="name">var <span class="ident">Sp_Units</span> : <a title="pyflysight.config_params.SpeechUnits" href="#pyflysight.config_params.SpeechUnits">SpeechUnits</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.SpeechSettings.Sp_Volume"><code class="name">var <span class="ident">Sp_Volume</span> : <a title="pyflysight.config_params.SpeechVolume" href="#pyflysight.config_params.SpeechVolume">SpeechVolume</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pyflysight.config_params.FlysightSetting.to_buffer" href="#pyflysight.config_params.FlysightSetting.to_buffer">to_buffer</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pyflysight.config_params.SpeechUnits"><code class="flex name class">
+<span>class <span class="ident">SpeechUnits</span></span>
+<span>(</span><span>*args, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enum where members are also (and must be) ints</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SpeechUnits(IntEnum):
+    KMH_M = 0
+    MPH_F = 1</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.ReprEnum</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.SpeechUnits.KMH_M"><code class="name">var <span class="ident">KMH_M</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.SpeechUnits.MPH_F"><code class="name">var <span class="ident">MPH_F</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="pyflysight.config_params.SpeechVolume"><code class="flex name class">
+<span>class <span class="ident">SpeechVolume</span></span>
+<span>(</span><span>*args, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enum where members are also (and must be) ints</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SpeechVolume(IntEnum):
+    QUIETEST = 0
+    EVEN_MORE_QUIETER = 1
+    MORE_QUIETER = 2
+    QUIETER = 3
+    MIDDLE = 4
+    LOUDER = 5
+    MORE_LOUDER = 6
+    EVEN_MORE_LOUDER = 7
+    LOUDEST = 8</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.ReprEnum</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.SpeechVolume.EVEN_MORE_LOUDER"><code class="name">var <span class="ident">EVEN_MORE_LOUDER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.SpeechVolume.EVEN_MORE_QUIETER"><code class="name">var <span class="ident">EVEN_MORE_QUIETER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.SpeechVolume.LOUDER"><code class="name">var <span class="ident">LOUDER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.SpeechVolume.LOUDEST"><code class="name">var <span class="ident">LOUDEST</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.SpeechVolume.MIDDLE"><code class="name">var <span class="ident">MIDDLE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.SpeechVolume.MORE_LOUDER"><code class="name">var <span class="ident">MORE_LOUDER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.SpeechVolume.MORE_QUIETER"><code class="name">var <span class="ident">MORE_QUIETER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.SpeechVolume.QUIETER"><code class="name">var <span class="ident">QUIETER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.SpeechVolume.QUIETEST"><code class="name">var <span class="ident">QUIETEST</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="pyflysight.config_params.ThresholdSettings"><code class="flex name class">
+<span>class <span class="ident">ThresholdSettings</span></span>
+<span>(</span><span>V_Thresh: int = 1000, H_Thresh: int = 0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>ThresholdSettings(_header: str = '; Thresholds', _header_text: str | None = None, _multi: bool = False, V_Thresh: int = 1000, H_Thresh: int = 0)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class ThresholdSettings(FlysightSetting):
+    V_Thresh: int = 1000
+    H_Thresh: int = 0
+
+    _header: str = &#34;; Thresholds&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.ThresholdSettings.H_Thresh"><code class="name">var <span class="ident">H_Thresh</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.ThresholdSettings.V_Thresh"><code class="name">var <span class="ident">V_Thresh</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pyflysight.config_params.FlysightSetting.to_buffer" href="#pyflysight.config_params.FlysightSetting.to_buffer">to_buffer</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pyflysight.config_params.ToneLimits"><code class="flex name class">
+<span>class <span class="ident">ToneLimits</span></span>
+<span>(</span><span>*args, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enum where members are also (and must be) ints</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ToneLimits(IntEnum):
+    NO_TONE = 0
+    MIN_MAX_TONE = 1
+    CHIRP_UP_DOWN = 2
+    CHIRP_DOWN_UP = 3</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.ReprEnum</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.ToneLimits.CHIRP_DOWN_UP"><code class="name">var <span class="ident">CHIRP_DOWN_UP</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.ToneLimits.CHIRP_UP_DOWN"><code class="name">var <span class="ident">CHIRP_UP_DOWN</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.ToneLimits.MIN_MAX_TONE"><code class="name">var <span class="ident">MIN_MAX_TONE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.ToneLimits.NO_TONE"><code class="name">var <span class="ident">NO_TONE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="pyflysight.config_params.ToneMeasurementMode"><code class="flex name class">
+<span>class <span class="ident">ToneMeasurementMode</span></span>
+<span>(</span><span>*args, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enum where members are also (and must be) ints</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ToneMeasurementMode(IntEnum):
+    HORIZONTAL_SPEED = 0
+    VERTICAL_SPEED = 1
+    GLIDE_RATIO = 2
+    INVERSE_GLIDE_RATIO = 3
+    TOTAL_SPEED = 4
+    DIVE_ANGLE = 11</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.ReprEnum</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.ToneMeasurementMode.DIVE_ANGLE"><code class="name">var <span class="ident">DIVE_ANGLE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.ToneMeasurementMode.GLIDE_RATIO"><code class="name">var <span class="ident">GLIDE_RATIO</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.ToneMeasurementMode.HORIZONTAL_SPEED"><code class="name">var <span class="ident">HORIZONTAL_SPEED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.ToneMeasurementMode.INVERSE_GLIDE_RATIO"><code class="name">var <span class="ident">INVERSE_GLIDE_RATIO</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.ToneMeasurementMode.TOTAL_SPEED"><code class="name">var <span class="ident">TOTAL_SPEED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.ToneMeasurementMode.VERTICAL_SPEED"><code class="name">var <span class="ident">VERTICAL_SPEED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="pyflysight.config_params.ToneSettings"><code class="flex name class">
+<span>class <span class="ident">ToneSettings</span></span>
+<span>(</span><span>Mode: <a title="pyflysight.config_params.ToneMeasurementMode" href="#pyflysight.config_params.ToneMeasurementMode">ToneMeasurementMode</a> = 2, Min: int = 0, Max: int = 300, Limits: <a title="pyflysight.config_params.ToneLimits" href="#pyflysight.config_params.ToneLimits">ToneLimits</a> = 1, Volume: <a title="pyflysight.config_params.ToneVolume" href="#pyflysight.config_params.ToneVolume">ToneVolume</a> = 6)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>ToneSettings(_header: str = '; Tone settings', _header_text: str | None = None, _multi: bool = False, Mode: pyflysight.config_params.ToneMeasurementMode = <ToneMeasurementMode.GLIDE_RATIO: 2>, Min: int = 0, Max: int = 300, Limits: pyflysight.config_params.ToneLimits = <ToneLimits.MIN_MAX_TONE: 1>, Volume: pyflysight.config_params.ToneVolume = <ToneVolume.MORE_LOUDER: 6>)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class ToneSettings(FlysightSetting):
+    Mode: ToneMeasurementMode = ToneMeasurementMode.GLIDE_RATIO
+    Min: int = 0
+    Max: int = 300
+    Limits: ToneLimits = ToneLimits.MIN_MAX_TONE
+    Volume: ToneVolume = ToneVolume.MORE_LOUDER
+
+    _header: str = &#34;; Tone settings&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.ToneSettings.Limits"><code class="name">var <span class="ident">Limits</span> : <a title="pyflysight.config_params.ToneLimits" href="#pyflysight.config_params.ToneLimits">ToneLimits</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.ToneSettings.Max"><code class="name">var <span class="ident">Max</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.ToneSettings.Min"><code class="name">var <span class="ident">Min</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.ToneSettings.Mode"><code class="name">var <span class="ident">Mode</span> : <a title="pyflysight.config_params.ToneMeasurementMode" href="#pyflysight.config_params.ToneMeasurementMode">ToneMeasurementMode</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.ToneSettings.Volume"><code class="name">var <span class="ident">Volume</span> : <a title="pyflysight.config_params.ToneVolume" href="#pyflysight.config_params.ToneVolume">ToneVolume</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pyflysight.config_params.FlysightSetting.to_buffer" href="#pyflysight.config_params.FlysightSetting.to_buffer">to_buffer</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pyflysight.config_params.ToneVolume"><code class="flex name class">
+<span>class <span class="ident">ToneVolume</span></span>
+<span>(</span><span>*args, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enum where members are also (and must be) ints</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ToneVolume(IntEnum):
+    QUIETEST = 0
+    EVEN_MORE_QUIETER = 1
+    MORE_QUIETER = 2
+    QUIETER = 3
+    MIDDLE = 4
+    LOUDER = 5
+    MORE_LOUDER = 6
+    EVEN_MORE_LOUDER = 7
+    LOUDEST = 8</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.ReprEnum</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.ToneVolume.EVEN_MORE_LOUDER"><code class="name">var <span class="ident">EVEN_MORE_LOUDER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.ToneVolume.EVEN_MORE_QUIETER"><code class="name">var <span class="ident">EVEN_MORE_QUIETER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.ToneVolume.LOUDER"><code class="name">var <span class="ident">LOUDER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.ToneVolume.LOUDEST"><code class="name">var <span class="ident">LOUDEST</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.ToneVolume.MIDDLE"><code class="name">var <span class="ident">MIDDLE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.ToneVolume.MORE_LOUDER"><code class="name">var <span class="ident">MORE_LOUDER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.ToneVolume.MORE_QUIETER"><code class="name">var <span class="ident">MORE_QUIETER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.ToneVolume.QUIETER"><code class="name">var <span class="ident">QUIETER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.ToneVolume.QUIETEST"><code class="name">var <span class="ident">QUIETEST</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="pyflysight.config_params.UseSAS"><code class="flex name class">
+<span>class <span class="ident">UseSAS</span></span>
+<span>(</span><span>*args, **kwds)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Enum where members are also (and must be) ints</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class UseSAS(IntEnum):
+    NO = 0
+    YES = 1</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.IntEnum</li>
+<li>builtins.int</li>
+<li>enum.ReprEnum</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.config_params.UseSAS.NO"><code class="name">var <span class="ident">NO</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.config_params.UseSAS.YES"><code class="name">var <span class="ident">YES</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pyflysight" href="index.html">pyflysight</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pyflysight.config_params.AccelFS" href="#pyflysight.config_params.AccelFS">AccelFS</a></code></h4>
+<ul class="">
+<li><code><a title="pyflysight.config_params.AccelFS.GEE_16" href="#pyflysight.config_params.AccelFS.GEE_16">GEE_16</a></code></li>
+<li><code><a title="pyflysight.config_params.AccelFS.GEE_2" href="#pyflysight.config_params.AccelFS.GEE_2">GEE_2</a></code></li>
+<li><code><a title="pyflysight.config_params.AccelFS.GEE_4" href="#pyflysight.config_params.AccelFS.GEE_4">GEE_4</a></code></li>
+<li><code><a title="pyflysight.config_params.AccelFS.GEE_8" href="#pyflysight.config_params.AccelFS.GEE_8">GEE_8</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.AccelODR" href="#pyflysight.config_params.AccelODR">AccelODR</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pyflysight.config_params.AccelODR.DISABLE" href="#pyflysight.config_params.AccelODR.DISABLE">DISABLE</a></code></li>
+<li><code><a title="pyflysight.config_params.AccelODR.HZ_104" href="#pyflysight.config_params.AccelODR.HZ_104">HZ_104</a></code></li>
+<li><code><a title="pyflysight.config_params.AccelODR.HZ_12_5" href="#pyflysight.config_params.AccelODR.HZ_12_5">HZ_12_5</a></code></li>
+<li><code><a title="pyflysight.config_params.AccelODR.HZ_1666" href="#pyflysight.config_params.AccelODR.HZ_1666">HZ_1666</a></code></li>
+<li><code><a title="pyflysight.config_params.AccelODR.HZ_1_6" href="#pyflysight.config_params.AccelODR.HZ_1_6">HZ_1_6</a></code></li>
+<li><code><a title="pyflysight.config_params.AccelODR.HZ_208" href="#pyflysight.config_params.AccelODR.HZ_208">HZ_208</a></code></li>
+<li><code><a title="pyflysight.config_params.AccelODR.HZ_26" href="#pyflysight.config_params.AccelODR.HZ_26">HZ_26</a></code></li>
+<li><code><a title="pyflysight.config_params.AccelODR.HZ_3333" href="#pyflysight.config_params.AccelODR.HZ_3333">HZ_3333</a></code></li>
+<li><code><a title="pyflysight.config_params.AccelODR.HZ_416" href="#pyflysight.config_params.AccelODR.HZ_416">HZ_416</a></code></li>
+<li><code><a title="pyflysight.config_params.AccelODR.HZ_52" href="#pyflysight.config_params.AccelODR.HZ_52">HZ_52</a></code></li>
+<li><code><a title="pyflysight.config_params.AccelODR.HZ_6666" href="#pyflysight.config_params.AccelODR.HZ_6666">HZ_6666</a></code></li>
+<li><code><a title="pyflysight.config_params.AccelODR.HZ_833" href="#pyflysight.config_params.AccelODR.HZ_833">HZ_833</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.AlarmSettings" href="#pyflysight.config_params.AlarmSettings">AlarmSettings</a></code></h4>
+<ul class="">
+<li><code><a title="pyflysight.config_params.AlarmSettings.DZ_Elev" href="#pyflysight.config_params.AlarmSettings.DZ_Elev">DZ_Elev</a></code></li>
+<li><code><a title="pyflysight.config_params.AlarmSettings.Win_Above" href="#pyflysight.config_params.AlarmSettings.Win_Above">Win_Above</a></code></li>
+<li><code><a title="pyflysight.config_params.AlarmSettings.Win_Below" href="#pyflysight.config_params.AlarmSettings.Win_Below">Win_Below</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.AlarmType" href="#pyflysight.config_params.AlarmType">AlarmType</a></code></h4>
+<ul class="">
+<li><code><a title="pyflysight.config_params.AlarmType.BEEP" href="#pyflysight.config_params.AlarmType.BEEP">BEEP</a></code></li>
+<li><code><a title="pyflysight.config_params.AlarmType.CHIRP_DOWN" href="#pyflysight.config_params.AlarmType.CHIRP_DOWN">CHIRP_DOWN</a></code></li>
+<li><code><a title="pyflysight.config_params.AlarmType.CHIRP_UP" href="#pyflysight.config_params.AlarmType.CHIRP_UP">CHIRP_UP</a></code></li>
+<li><code><a title="pyflysight.config_params.AlarmType.NO_ALARM" href="#pyflysight.config_params.AlarmType.NO_ALARM">NO_ALARM</a></code></li>
+<li><code><a title="pyflysight.config_params.AlarmType.PLAY_FILE" href="#pyflysight.config_params.AlarmType.PLAY_FILE">PLAY_FILE</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.AlarmWindowSettings" href="#pyflysight.config_params.AlarmWindowSettings">AlarmWindowSettings</a></code></h4>
+<ul class="">
+<li><code><a title="pyflysight.config_params.AlarmWindowSettings.Alarm_Elev" href="#pyflysight.config_params.AlarmWindowSettings.Alarm_Elev">Alarm_Elev</a></code></li>
+<li><code><a title="pyflysight.config_params.AlarmWindowSettings.Alarm_File" href="#pyflysight.config_params.AlarmWindowSettings.Alarm_File">Alarm_File</a></code></li>
+<li><code><a title="pyflysight.config_params.AlarmWindowSettings.Alarm_Type" href="#pyflysight.config_params.AlarmWindowSettings.Alarm_Type">Alarm_Type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.AltUnits" href="#pyflysight.config_params.AltUnits">AltUnits</a></code></h4>
+<ul class="">
+<li><code><a title="pyflysight.config_params.AltUnits.FEET" href="#pyflysight.config_params.AltUnits.FEET">FEET</a></code></li>
+<li><code><a title="pyflysight.config_params.AltUnits.METERS" href="#pyflysight.config_params.AltUnits.METERS">METERS</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.AltitudeSettings" href="#pyflysight.config_params.AltitudeSettings">AltitudeSettings</a></code></h4>
+<ul class="">
+<li><code><a title="pyflysight.config_params.AltitudeSettings.Alt_Step" href="#pyflysight.config_params.AltitudeSettings.Alt_Step">Alt_Step</a></code></li>
+<li><code><a title="pyflysight.config_params.AltitudeSettings.Alt_Units" href="#pyflysight.config_params.AltitudeSettings.Alt_Units">Alt_Units</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.BaroODR" href="#pyflysight.config_params.BaroODR">BaroODR</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pyflysight.config_params.BaroODR.DISABLE" href="#pyflysight.config_params.BaroODR.DISABLE">DISABLE</a></code></li>
+<li><code><a title="pyflysight.config_params.BaroODR.HZ_1" href="#pyflysight.config_params.BaroODR.HZ_1">HZ_1</a></code></li>
+<li><code><a title="pyflysight.config_params.BaroODR.HZ_10" href="#pyflysight.config_params.BaroODR.HZ_10">HZ_10</a></code></li>
+<li><code><a title="pyflysight.config_params.BaroODR.HZ_100" href="#pyflysight.config_params.BaroODR.HZ_100">HZ_100</a></code></li>
+<li><code><a title="pyflysight.config_params.BaroODR.HZ_200" href="#pyflysight.config_params.BaroODR.HZ_200">HZ_200</a></code></li>
+<li><code><a title="pyflysight.config_params.BaroODR.HZ_25" href="#pyflysight.config_params.BaroODR.HZ_25">HZ_25</a></code></li>
+<li><code><a title="pyflysight.config_params.BaroODR.HZ_50" href="#pyflysight.config_params.BaroODR.HZ_50">HZ_50</a></code></li>
+<li><code><a title="pyflysight.config_params.BaroODR.HZ_75" href="#pyflysight.config_params.BaroODR.HZ_75">HZ_75</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.FlatLine" href="#pyflysight.config_params.FlatLine">FlatLine</a></code></h4>
+<ul class="">
+<li><code><a title="pyflysight.config_params.FlatLine.NO" href="#pyflysight.config_params.FlatLine.NO">NO</a></code></li>
+<li><code><a title="pyflysight.config_params.FlatLine.YES" href="#pyflysight.config_params.FlatLine.YES">YES</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></code></h4>
+<ul class="">
+<li><code><a title="pyflysight.config_params.FlysightSetting.to_buffer" href="#pyflysight.config_params.FlysightSetting.to_buffer">to_buffer</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.GPSModel" href="#pyflysight.config_params.GPSModel">GPSModel</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pyflysight.config_params.GPSModel.AIRBORNE_LT_1G" href="#pyflysight.config_params.GPSModel.AIRBORNE_LT_1G">AIRBORNE_LT_1G</a></code></li>
+<li><code><a title="pyflysight.config_params.GPSModel.AIRBORNE_LT_2G" href="#pyflysight.config_params.GPSModel.AIRBORNE_LT_2G">AIRBORNE_LT_2G</a></code></li>
+<li><code><a title="pyflysight.config_params.GPSModel.AIRBORNE_LT_4G" href="#pyflysight.config_params.GPSModel.AIRBORNE_LT_4G">AIRBORNE_LT_4G</a></code></li>
+<li><code><a title="pyflysight.config_params.GPSModel.AUTOMOTIVE" href="#pyflysight.config_params.GPSModel.AUTOMOTIVE">AUTOMOTIVE</a></code></li>
+<li><code><a title="pyflysight.config_params.GPSModel.PEDESTRIAN" href="#pyflysight.config_params.GPSModel.PEDESTRIAN">PEDESTRIAN</a></code></li>
+<li><code><a title="pyflysight.config_params.GPSModel.PORTABLE" href="#pyflysight.config_params.GPSModel.PORTABLE">PORTABLE</a></code></li>
+<li><code><a title="pyflysight.config_params.GPSModel.SEA" href="#pyflysight.config_params.GPSModel.SEA">SEA</a></code></li>
+<li><code><a title="pyflysight.config_params.GPSModel.STATIONARY" href="#pyflysight.config_params.GPSModel.STATIONARY">STATIONARY</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.GPSSettings" href="#pyflysight.config_params.GPSSettings">GPSSettings</a></code></h4>
+<ul class="">
+<li><code><a title="pyflysight.config_params.GPSSettings.Model" href="#pyflysight.config_params.GPSSettings.Model">Model</a></code></li>
+<li><code><a title="pyflysight.config_params.GPSSettings.Rate" href="#pyflysight.config_params.GPSSettings.Rate">Rate</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.GyroFS" href="#pyflysight.config_params.GyroFS">GyroFS</a></code></h4>
+<ul class="">
+<li><code><a title="pyflysight.config_params.GyroFS.DEG_S_1000" href="#pyflysight.config_params.GyroFS.DEG_S_1000">DEG_S_1000</a></code></li>
+<li><code><a title="pyflysight.config_params.GyroFS.DEG_S_2000" href="#pyflysight.config_params.GyroFS.DEG_S_2000">DEG_S_2000</a></code></li>
+<li><code><a title="pyflysight.config_params.GyroFS.DEG_S_250" href="#pyflysight.config_params.GyroFS.DEG_S_250">DEG_S_250</a></code></li>
+<li><code><a title="pyflysight.config_params.GyroFS.DEG_S_500" href="#pyflysight.config_params.GyroFS.DEG_S_500">DEG_S_500</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.GyroODR" href="#pyflysight.config_params.GyroODR">GyroODR</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pyflysight.config_params.GyroODR.DISABLE" href="#pyflysight.config_params.GyroODR.DISABLE">DISABLE</a></code></li>
+<li><code><a title="pyflysight.config_params.GyroODR.HZ_104" href="#pyflysight.config_params.GyroODR.HZ_104">HZ_104</a></code></li>
+<li><code><a title="pyflysight.config_params.GyroODR.HZ_12_5" href="#pyflysight.config_params.GyroODR.HZ_12_5">HZ_12_5</a></code></li>
+<li><code><a title="pyflysight.config_params.GyroODR.HZ_1666" href="#pyflysight.config_params.GyroODR.HZ_1666">HZ_1666</a></code></li>
+<li><code><a title="pyflysight.config_params.GyroODR.HZ_208" href="#pyflysight.config_params.GyroODR.HZ_208">HZ_208</a></code></li>
+<li><code><a title="pyflysight.config_params.GyroODR.HZ_26" href="#pyflysight.config_params.GyroODR.HZ_26">HZ_26</a></code></li>
+<li><code><a title="pyflysight.config_params.GyroODR.HZ_3333" href="#pyflysight.config_params.GyroODR.HZ_3333">HZ_3333</a></code></li>
+<li><code><a title="pyflysight.config_params.GyroODR.HZ_416" href="#pyflysight.config_params.GyroODR.HZ_416">HZ_416</a></code></li>
+<li><code><a title="pyflysight.config_params.GyroODR.HZ_52" href="#pyflysight.config_params.GyroODR.HZ_52">HZ_52</a></code></li>
+<li><code><a title="pyflysight.config_params.GyroODR.HZ_6666" href="#pyflysight.config_params.GyroODR.HZ_6666">HZ_6666</a></code></li>
+<li><code><a title="pyflysight.config_params.GyroODR.HZ_833" href="#pyflysight.config_params.GyroODR.HZ_833">HZ_833</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.HumODR" href="#pyflysight.config_params.HumODR">HumODR</a></code></h4>
+<ul class="">
+<li><code><a title="pyflysight.config_params.HumODR.DISABLE" href="#pyflysight.config_params.HumODR.DISABLE">DISABLE</a></code></li>
+<li><code><a title="pyflysight.config_params.HumODR.HZ_1" href="#pyflysight.config_params.HumODR.HZ_1">HZ_1</a></code></li>
+<li><code><a title="pyflysight.config_params.HumODR.HZ_12_5" href="#pyflysight.config_params.HumODR.HZ_12_5">HZ_12_5</a></code></li>
+<li><code><a title="pyflysight.config_params.HumODR.HZ_7" href="#pyflysight.config_params.HumODR.HZ_7">HZ_7</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.IMUSettings" href="#pyflysight.config_params.IMUSettings">IMUSettings</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pyflysight.config_params.IMUSettings.Accel_FS" href="#pyflysight.config_params.IMUSettings.Accel_FS">Accel_FS</a></code></li>
+<li><code><a title="pyflysight.config_params.IMUSettings.Accel_ODR" href="#pyflysight.config_params.IMUSettings.Accel_ODR">Accel_ODR</a></code></li>
+<li><code><a title="pyflysight.config_params.IMUSettings.Baro_ODR" href="#pyflysight.config_params.IMUSettings.Baro_ODR">Baro_ODR</a></code></li>
+<li><code><a title="pyflysight.config_params.IMUSettings.Gyro_FS" href="#pyflysight.config_params.IMUSettings.Gyro_FS">Gyro_FS</a></code></li>
+<li><code><a title="pyflysight.config_params.IMUSettings.Gyro_ODR" href="#pyflysight.config_params.IMUSettings.Gyro_ODR">Gyro_ODR</a></code></li>
+<li><code><a title="pyflysight.config_params.IMUSettings.Hum_ODR" href="#pyflysight.config_params.IMUSettings.Hum_ODR">Hum_ODR</a></code></li>
+<li><code><a title="pyflysight.config_params.IMUSettings.Mag_ODR" href="#pyflysight.config_params.IMUSettings.Mag_ODR">Mag_ODR</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.InitMode" href="#pyflysight.config_params.InitMode">InitMode</a></code></h4>
+<ul class="">
+<li><code><a title="pyflysight.config_params.InitMode.DO_NOTHING" href="#pyflysight.config_params.InitMode.DO_NOTHING">DO_NOTHING</a></code></li>
+<li><code><a title="pyflysight.config_params.InitMode.PLAY_FILE" href="#pyflysight.config_params.InitMode.PLAY_FILE">PLAY_FILE</a></code></li>
+<li><code><a title="pyflysight.config_params.InitMode.TEST_SPEECH" href="#pyflysight.config_params.InitMode.TEST_SPEECH">TEST_SPEECH</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.InitializationSettings" href="#pyflysight.config_params.InitializationSettings">InitializationSettings</a></code></h4>
+<ul class="">
+<li><code><a title="pyflysight.config_params.InitializationSettings.Init_File" href="#pyflysight.config_params.InitializationSettings.Init_File">Init_File</a></code></li>
+<li><code><a title="pyflysight.config_params.InitializationSettings.Init_Mode" href="#pyflysight.config_params.InitializationSettings.Init_Mode">Init_Mode</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.MagODR" href="#pyflysight.config_params.MagODR">MagODR</a></code></h4>
+<ul class="">
+<li><code><a title="pyflysight.config_params.MagODR.HZ_10" href="#pyflysight.config_params.MagODR.HZ_10">HZ_10</a></code></li>
+<li><code><a title="pyflysight.config_params.MagODR.HZ_100" href="#pyflysight.config_params.MagODR.HZ_100">HZ_100</a></code></li>
+<li><code><a title="pyflysight.config_params.MagODR.HZ_20" href="#pyflysight.config_params.MagODR.HZ_20">HZ_20</a></code></li>
+<li><code><a title="pyflysight.config_params.MagODR.HZ_50" href="#pyflysight.config_params.MagODR.HZ_50">HZ_50</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.MiscellaneousSettings" href="#pyflysight.config_params.MiscellaneousSettings">MiscellaneousSettings</a></code></h4>
+<ul class="">
+<li><code><a title="pyflysight.config_params.MiscellaneousSettings.TZ_Offset" href="#pyflysight.config_params.MiscellaneousSettings.TZ_Offset">TZ_Offset</a></code></li>
+<li><code><a title="pyflysight.config_params.MiscellaneousSettings.Use_SAS" href="#pyflysight.config_params.MiscellaneousSettings.Use_SAS">Use_SAS</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.Mode2" href="#pyflysight.config_params.Mode2">Mode2</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pyflysight.config_params.Mode2.CHANGE_VALUE_1" href="#pyflysight.config_params.Mode2.CHANGE_VALUE_1">CHANGE_VALUE_1</a></code></li>
+<li><code><a title="pyflysight.config_params.Mode2.DIVE_ANGLE" href="#pyflysight.config_params.Mode2.DIVE_ANGLE">DIVE_ANGLE</a></code></li>
+<li><code><a title="pyflysight.config_params.Mode2.GLIDE_RATIO" href="#pyflysight.config_params.Mode2.GLIDE_RATIO">GLIDE_RATIO</a></code></li>
+<li><code><a title="pyflysight.config_params.Mode2.HORIZONTAL_SPEED" href="#pyflysight.config_params.Mode2.HORIZONTAL_SPEED">HORIZONTAL_SPEED</a></code></li>
+<li><code><a title="pyflysight.config_params.Mode2.INVERSE_GLIDE_RATIO" href="#pyflysight.config_params.Mode2.INVERSE_GLIDE_RATIO">INVERSE_GLIDE_RATIO</a></code></li>
+<li><code><a title="pyflysight.config_params.Mode2.MAG_VALUE_1" href="#pyflysight.config_params.Mode2.MAG_VALUE_1">MAG_VALUE_1</a></code></li>
+<li><code><a title="pyflysight.config_params.Mode2.TOTAL_SPEED" href="#pyflysight.config_params.Mode2.TOTAL_SPEED">TOTAL_SPEED</a></code></li>
+<li><code><a title="pyflysight.config_params.Mode2.VERTICAL_SPEED" href="#pyflysight.config_params.Mode2.VERTICAL_SPEED">VERTICAL_SPEED</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.RateSettings" href="#pyflysight.config_params.RateSettings">RateSettings</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pyflysight.config_params.RateSettings.Flatline" href="#pyflysight.config_params.RateSettings.Flatline">Flatline</a></code></li>
+<li><code><a title="pyflysight.config_params.RateSettings.Max_Rate" href="#pyflysight.config_params.RateSettings.Max_Rate">Max_Rate</a></code></li>
+<li><code><a title="pyflysight.config_params.RateSettings.Max_Val_2" href="#pyflysight.config_params.RateSettings.Max_Val_2">Max_Val_2</a></code></li>
+<li><code><a title="pyflysight.config_params.RateSettings.Min_Rate" href="#pyflysight.config_params.RateSettings.Min_Rate">Min_Rate</a></code></li>
+<li><code><a title="pyflysight.config_params.RateSettings.Min_Val_2" href="#pyflysight.config_params.RateSettings.Min_Val_2">Min_Val_2</a></code></li>
+<li><code><a title="pyflysight.config_params.RateSettings.Mode_2" href="#pyflysight.config_params.RateSettings.Mode_2">Mode_2</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.SilenceWindowSettings" href="#pyflysight.config_params.SilenceWindowSettings">SilenceWindowSettings</a></code></h4>
+<ul class="">
+<li><code><a title="pyflysight.config_params.SilenceWindowSettings.Win_Bottom" href="#pyflysight.config_params.SilenceWindowSettings.Win_Bottom">Win_Bottom</a></code></li>
+<li><code><a title="pyflysight.config_params.SilenceWindowSettings.Win_Top" href="#pyflysight.config_params.SilenceWindowSettings.Win_Top">Win_Top</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.SpeechMode" href="#pyflysight.config_params.SpeechMode">SpeechMode</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pyflysight.config_params.SpeechMode.ALTITUDE_ABOVE_DZ" href="#pyflysight.config_params.SpeechMode.ALTITUDE_ABOVE_DZ">ALTITUDE_ABOVE_DZ</a></code></li>
+<li><code><a title="pyflysight.config_params.SpeechMode.DIVE_ANGLE" href="#pyflysight.config_params.SpeechMode.DIVE_ANGLE">DIVE_ANGLE</a></code></li>
+<li><code><a title="pyflysight.config_params.SpeechMode.GLIDE_RATIO" href="#pyflysight.config_params.SpeechMode.GLIDE_RATIO">GLIDE_RATIO</a></code></li>
+<li><code><a title="pyflysight.config_params.SpeechMode.HORIZONTAL_SPEED" href="#pyflysight.config_params.SpeechMode.HORIZONTAL_SPEED">HORIZONTAL_SPEED</a></code></li>
+<li><code><a title="pyflysight.config_params.SpeechMode.INVERSE_GLIDE_RATIO" href="#pyflysight.config_params.SpeechMode.INVERSE_GLIDE_RATIO">INVERSE_GLIDE_RATIO</a></code></li>
+<li><code><a title="pyflysight.config_params.SpeechMode.TOTAL_SPEED" href="#pyflysight.config_params.SpeechMode.TOTAL_SPEED">TOTAL_SPEED</a></code></li>
+<li><code><a title="pyflysight.config_params.SpeechMode.VERTICAL_SPEED" href="#pyflysight.config_params.SpeechMode.VERTICAL_SPEED">VERTICAL_SPEED</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.SpeechSettings" href="#pyflysight.config_params.SpeechSettings">SpeechSettings</a></code></h4>
+<ul class="">
+<li><code><a title="pyflysight.config_params.SpeechSettings.Sp_Dec" href="#pyflysight.config_params.SpeechSettings.Sp_Dec">Sp_Dec</a></code></li>
+<li><code><a title="pyflysight.config_params.SpeechSettings.Sp_Mode" href="#pyflysight.config_params.SpeechSettings.Sp_Mode">Sp_Mode</a></code></li>
+<li><code><a title="pyflysight.config_params.SpeechSettings.Sp_Rate" href="#pyflysight.config_params.SpeechSettings.Sp_Rate">Sp_Rate</a></code></li>
+<li><code><a title="pyflysight.config_params.SpeechSettings.Sp_Units" href="#pyflysight.config_params.SpeechSettings.Sp_Units">Sp_Units</a></code></li>
+<li><code><a title="pyflysight.config_params.SpeechSettings.Sp_Volume" href="#pyflysight.config_params.SpeechSettings.Sp_Volume">Sp_Volume</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.SpeechUnits" href="#pyflysight.config_params.SpeechUnits">SpeechUnits</a></code></h4>
+<ul class="">
+<li><code><a title="pyflysight.config_params.SpeechUnits.KMH_M" href="#pyflysight.config_params.SpeechUnits.KMH_M">KMH_M</a></code></li>
+<li><code><a title="pyflysight.config_params.SpeechUnits.MPH_F" href="#pyflysight.config_params.SpeechUnits.MPH_F">MPH_F</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.SpeechVolume" href="#pyflysight.config_params.SpeechVolume">SpeechVolume</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pyflysight.config_params.SpeechVolume.EVEN_MORE_LOUDER" href="#pyflysight.config_params.SpeechVolume.EVEN_MORE_LOUDER">EVEN_MORE_LOUDER</a></code></li>
+<li><code><a title="pyflysight.config_params.SpeechVolume.EVEN_MORE_QUIETER" href="#pyflysight.config_params.SpeechVolume.EVEN_MORE_QUIETER">EVEN_MORE_QUIETER</a></code></li>
+<li><code><a title="pyflysight.config_params.SpeechVolume.LOUDER" href="#pyflysight.config_params.SpeechVolume.LOUDER">LOUDER</a></code></li>
+<li><code><a title="pyflysight.config_params.SpeechVolume.LOUDEST" href="#pyflysight.config_params.SpeechVolume.LOUDEST">LOUDEST</a></code></li>
+<li><code><a title="pyflysight.config_params.SpeechVolume.MIDDLE" href="#pyflysight.config_params.SpeechVolume.MIDDLE">MIDDLE</a></code></li>
+<li><code><a title="pyflysight.config_params.SpeechVolume.MORE_LOUDER" href="#pyflysight.config_params.SpeechVolume.MORE_LOUDER">MORE_LOUDER</a></code></li>
+<li><code><a title="pyflysight.config_params.SpeechVolume.MORE_QUIETER" href="#pyflysight.config_params.SpeechVolume.MORE_QUIETER">MORE_QUIETER</a></code></li>
+<li><code><a title="pyflysight.config_params.SpeechVolume.QUIETER" href="#pyflysight.config_params.SpeechVolume.QUIETER">QUIETER</a></code></li>
+<li><code><a title="pyflysight.config_params.SpeechVolume.QUIETEST" href="#pyflysight.config_params.SpeechVolume.QUIETEST">QUIETEST</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.ThresholdSettings" href="#pyflysight.config_params.ThresholdSettings">ThresholdSettings</a></code></h4>
+<ul class="">
+<li><code><a title="pyflysight.config_params.ThresholdSettings.H_Thresh" href="#pyflysight.config_params.ThresholdSettings.H_Thresh">H_Thresh</a></code></li>
+<li><code><a title="pyflysight.config_params.ThresholdSettings.V_Thresh" href="#pyflysight.config_params.ThresholdSettings.V_Thresh">V_Thresh</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.ToneLimits" href="#pyflysight.config_params.ToneLimits">ToneLimits</a></code></h4>
+<ul class="">
+<li><code><a title="pyflysight.config_params.ToneLimits.CHIRP_DOWN_UP" href="#pyflysight.config_params.ToneLimits.CHIRP_DOWN_UP">CHIRP_DOWN_UP</a></code></li>
+<li><code><a title="pyflysight.config_params.ToneLimits.CHIRP_UP_DOWN" href="#pyflysight.config_params.ToneLimits.CHIRP_UP_DOWN">CHIRP_UP_DOWN</a></code></li>
+<li><code><a title="pyflysight.config_params.ToneLimits.MIN_MAX_TONE" href="#pyflysight.config_params.ToneLimits.MIN_MAX_TONE">MIN_MAX_TONE</a></code></li>
+<li><code><a title="pyflysight.config_params.ToneLimits.NO_TONE" href="#pyflysight.config_params.ToneLimits.NO_TONE">NO_TONE</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.ToneMeasurementMode" href="#pyflysight.config_params.ToneMeasurementMode">ToneMeasurementMode</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pyflysight.config_params.ToneMeasurementMode.DIVE_ANGLE" href="#pyflysight.config_params.ToneMeasurementMode.DIVE_ANGLE">DIVE_ANGLE</a></code></li>
+<li><code><a title="pyflysight.config_params.ToneMeasurementMode.GLIDE_RATIO" href="#pyflysight.config_params.ToneMeasurementMode.GLIDE_RATIO">GLIDE_RATIO</a></code></li>
+<li><code><a title="pyflysight.config_params.ToneMeasurementMode.HORIZONTAL_SPEED" href="#pyflysight.config_params.ToneMeasurementMode.HORIZONTAL_SPEED">HORIZONTAL_SPEED</a></code></li>
+<li><code><a title="pyflysight.config_params.ToneMeasurementMode.INVERSE_GLIDE_RATIO" href="#pyflysight.config_params.ToneMeasurementMode.INVERSE_GLIDE_RATIO">INVERSE_GLIDE_RATIO</a></code></li>
+<li><code><a title="pyflysight.config_params.ToneMeasurementMode.TOTAL_SPEED" href="#pyflysight.config_params.ToneMeasurementMode.TOTAL_SPEED">TOTAL_SPEED</a></code></li>
+<li><code><a title="pyflysight.config_params.ToneMeasurementMode.VERTICAL_SPEED" href="#pyflysight.config_params.ToneMeasurementMode.VERTICAL_SPEED">VERTICAL_SPEED</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.ToneSettings" href="#pyflysight.config_params.ToneSettings">ToneSettings</a></code></h4>
+<ul class="">
+<li><code><a title="pyflysight.config_params.ToneSettings.Limits" href="#pyflysight.config_params.ToneSettings.Limits">Limits</a></code></li>
+<li><code><a title="pyflysight.config_params.ToneSettings.Max" href="#pyflysight.config_params.ToneSettings.Max">Max</a></code></li>
+<li><code><a title="pyflysight.config_params.ToneSettings.Min" href="#pyflysight.config_params.ToneSettings.Min">Min</a></code></li>
+<li><code><a title="pyflysight.config_params.ToneSettings.Mode" href="#pyflysight.config_params.ToneSettings.Mode">Mode</a></code></li>
+<li><code><a title="pyflysight.config_params.ToneSettings.Volume" href="#pyflysight.config_params.ToneSettings.Volume">Volume</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.ToneVolume" href="#pyflysight.config_params.ToneVolume">ToneVolume</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pyflysight.config_params.ToneVolume.EVEN_MORE_LOUDER" href="#pyflysight.config_params.ToneVolume.EVEN_MORE_LOUDER">EVEN_MORE_LOUDER</a></code></li>
+<li><code><a title="pyflysight.config_params.ToneVolume.EVEN_MORE_QUIETER" href="#pyflysight.config_params.ToneVolume.EVEN_MORE_QUIETER">EVEN_MORE_QUIETER</a></code></li>
+<li><code><a title="pyflysight.config_params.ToneVolume.LOUDER" href="#pyflysight.config_params.ToneVolume.LOUDER">LOUDER</a></code></li>
+<li><code><a title="pyflysight.config_params.ToneVolume.LOUDEST" href="#pyflysight.config_params.ToneVolume.LOUDEST">LOUDEST</a></code></li>
+<li><code><a title="pyflysight.config_params.ToneVolume.MIDDLE" href="#pyflysight.config_params.ToneVolume.MIDDLE">MIDDLE</a></code></li>
+<li><code><a title="pyflysight.config_params.ToneVolume.MORE_LOUDER" href="#pyflysight.config_params.ToneVolume.MORE_LOUDER">MORE_LOUDER</a></code></li>
+<li><code><a title="pyflysight.config_params.ToneVolume.MORE_QUIETER" href="#pyflysight.config_params.ToneVolume.MORE_QUIETER">MORE_QUIETER</a></code></li>
+<li><code><a title="pyflysight.config_params.ToneVolume.QUIETER" href="#pyflysight.config_params.ToneVolume.QUIETER">QUIETER</a></code></li>
+<li><code><a title="pyflysight.config_params.ToneVolume.QUIETEST" href="#pyflysight.config_params.ToneVolume.QUIETEST">QUIETEST</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.config_params.UseSAS" href="#pyflysight.config_params.UseSAS">UseSAS</a></code></h4>
+<ul class="">
+<li><code><a title="pyflysight.config_params.UseSAS.NO" href="#pyflysight.config_params.UseSAS.NO">NO</a></code></li>
+<li><code><a title="pyflysight.config_params.UseSAS.YES" href="#pyflysight.config_params.UseSAS.YES">YES</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.1</a>.</p>
+</footer>
+</body>
+</html>

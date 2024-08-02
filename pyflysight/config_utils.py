@@ -56,7 +56,7 @@ class FlysightV2Config(FlysightConfig):
     Helper representation for the FlySight Hardware Version 2 configuration parameters.
 
     Valid parameters are enumerated & collected, along with their defaults, by the members of
-    `pyflysight.config_parameters`. A best attempt is made to synchronize the expected configuration
+    `pyflysight.config_params`. A best attempt is made to synchronize the expected configuration
     parameters with what is available to the device firmware. Firmware changes may cause these to
     go out of sync.
 
@@ -110,7 +110,7 @@ class FlysightV1Config(FlysightConfig):
     Helper representation for the FlySight Hardware Version 1 configuration parameters.
 
     Valid parameters are enumerated & collected, along with their defaults, by the members of
-    `pyflysight.config_parameters`. A best attempt is made to synchronize the expected configuration
+    `pyflysight.config_params`. A best attempt is made to synchronize the expected configuration
     parameters with what is available to the device firmware. Firmware changes may cause these to
     go out of sync.
 

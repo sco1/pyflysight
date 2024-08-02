@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.1">
+<title>pyflysight.flysight_proc API documentation</title>
+<meta name="description" content="">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pyflysight.flysight_proc</code></h1>
+</header>
+<section id="section-intro">
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pyflysight.flysight_proc.batch_load_flysight"><code class="name flex">
+<span>def <span class="ident">batch_load_flysight</span></span>(<span>top_dir: Path, pattern: str = '*.CSV') ‑> dict[str, dict[str, polars.dataframe.frame.DataFrame]]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Batch parse a directory of FlySight logs into a dictionary of <code>DataFrame</code>s.</p>
+<p>Because the FlySight hardware groups logs by date &amp; the log CSV name does not contain date
+information, the date is inferred from the log's parent directory name &amp; the output dictionary
+is of the form <code>{log date: {log_time: DataFrame}}</code>.</p>
+<p>Log file discovery is not recursive by default, the <code>pattern</code> kwarg can be adjusted to support
+a recursive glob.</p>
+<p>NOTE: File case sensitivity is deferred to the OS; <code>pattern</code> is passed to glob as-is so matches
+may or may not be case-sensitive.</p></div>
+</dd>
+<dt id="pyflysight.flysight_proc.load_flysight"><code class="name flex">
+<span>def <span class="ident">load_flysight</span></span>(<span>filepath: Path) ‑> polars.dataframe.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Parse the provided FlySight log into a <code>DataFrame</code>.</p>
+<p>FlySight logs are assumed to contain 2 header rows, one for labels and the other for units. By
+default, the units row is discarded.</p>
+<p>The following derived columns are added to the output <code>DataFrame</code>:
+* <code>elapsed_time</code>
+* <code>groundspeed</code> (m/s)</p></div>
+</dd>
+<dt id="pyflysight.flysight_proc.parse_v2_log_directory"><code class="name flex">
+<span>def <span class="ident">parse_v2_log_directory</span></span>(<span>log_directory: Path, sensor_filename: str = 'SENSOR.CSV', track_filename: str = 'TRACK.CSV') ‑> <a title="pyflysight.flysight_proc.FlysightV2FlightLog" href="#pyflysight.flysight_proc.FlysightV2FlightLog">FlysightV2FlightLog</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Data parsing pipeline for a directory of Flysight V2 logs.</p>
+<p>The Flysight V2 outputs a timestamped (<code>YY-mm-DD/HH-MM-SS/*</code>) directory of files:
+* <code>EVENT.CSV</code> - Debugging output, optionally present based on firmware version
+* <code>RAW.UBX</code> - Raw UBlox sensor output
+* <code>SENSOR.CSV</code> - Onboard sensor data
+* <code>TRACK.CSV</code> - GPS sensor data</p></div>
+</dd>
+<dt id="pyflysight.flysight_proc.parse_v2_sensor_data"><code class="name flex">
+<span>def <span class="ident">parse_v2_sensor_data</span></span>(<span>log_filepath: Path) ‑> tuple[dict[str, polars.dataframe.frame.DataFrame], <a title="pyflysight.flysight_proc.FlysightV2" href="#pyflysight.flysight_proc.FlysightV2">FlysightV2</a>]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Data parsing pipeline for a Flysight V2 sensor log CSV file.</p>
+<p>Sensor data files should come off the Flysight as <code>SENSOR.CSV</code>.</p></div>
+</dd>
+<dt id="pyflysight.flysight_proc.parse_v2_track_data"><code class="name flex">
+<span>def <span class="ident">parse_v2_track_data</span></span>(<span>log_filepath: Path) ‑> tuple[polars.dataframe.frame.DataFrame, <a title="pyflysight.flysight_proc.FlysightV2" href="#pyflysight.flysight_proc.FlysightV2">FlysightV2</a>]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Data parsing pipeline for a Flysight V2 track log CSV file.</p>
+<p>Sensor data files should come off the Flysight as <code>TRACK.CSV</code>.</p></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pyflysight.flysight_proc.FlysightV2"><code class="flex name class">
+<span>class <span class="ident">FlysightV2</span></span>
+<span>(</span><span>firmware_version: str, device_id: str, session_id: str, sensor_info: dict[str, <a title="pyflysight.flysight_proc.SensorInfo" href="#pyflysight.flysight_proc.SensorInfo">SensorInfo</a>], flysight_type: FlysightType = 2, first_timestamp: float | None = None, ground_pressure_pa: int | float = 101325)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Store device metadata for a corresponding FLysight V2 data logger.</p>
+<p>Sensor information is provided as a dictionary keyed by a sensor ID, assumed to be shared
+between the unit information contained in the header and each row of the sensor's records.</p>
+<p><code>first_timestamp</code> refers to the <code>time</code> value of the first data record &amp; used to calculate the
+running <code>elapsed_time</code> column during the parsing pipeline. This timestamp value must be set &amp;
+should be set later by the provided parsing pipeline.</p>
+<p><code>ground_pressure_pa</code> is the atmospheric pressure at ground level, in Pascals, used by some
+pressure altitude calculations. This defaults to standard day sea level pressure.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class FlysightV2:
+    &#34;&#34;&#34;
+    Store device metadata for a corresponding FLysight V2 data logger.
+
+    Sensor information is provided as a dictionary keyed by a sensor ID, assumed to be shared
+    between the unit information contained in the header and each row of the sensor&#39;s records.
+
+    `first_timestamp` refers to the `time` value of the first data record &amp; used to calculate the
+    running `elapsed_time` column during the parsing pipeline. This timestamp value must be set &amp;
+    should be set later by the provided parsing pipeline.
+
+    `ground_pressure_pa` is the atmospheric pressure at ground level, in Pascals, used by some
+    pressure altitude calculations. This defaults to standard day sea level pressure.
+    &#34;&#34;&#34;
+
+    firmware_version: str
+    device_id: str
+    session_id: str
+    sensor_info: dict[str, SensorInfo]
+    flysight_type: FlysightType = FlysightType.VERSION_2
+
+    first_timestamp: float | None = None
+    ground_pressure_pa: int | float = 101_325
+
+    @classmethod
+    def from_json(cls, raw_json: dict[str, t.Any]) -&gt; FlysightV2:
+        &#34;&#34;&#34;
+        Generate a new instance from a raw device data JSON file.
+
+        It is assumed that the JSON file is generated by `FlysightV2FlightLog.to_csv`, only minimal
+        checking is done for JSON validity (top level keys match `FlysightV2`&#39;s fields).
+        &#34;&#34;&#34;
+        expected_fields = {field.name for field in fields(cls)}
+        missing = expected_fields - raw_json.keys()
+
+        if missing:
+            raise ValueError(f&#34;Missing required device info fields: {missing}&#34;)
+
+        sensor_info = {sens: SensorInfo(*vals) for sens, vals in raw_json[&#34;sensor_info&#34;].items()}
+
+        return cls(
+            firmware_version=raw_json[&#34;firmware_version&#34;],
+            device_id=raw_json[&#34;device_id&#34;],
+            session_id=raw_json[&#34;session_id&#34;],
+            sensor_info=sensor_info,
+            flysight_type=FlysightType(raw_json[&#34;flysight_type&#34;]),
+            first_timestamp=raw_json[&#34;first_timestamp&#34;],
+            ground_pressure_pa=raw_json[&#34;ground_pressure_pa&#34;],
+        )</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.flysight_proc.FlysightV2.device_id"><code class="name">var <span class="ident">device_id</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.flysight_proc.FlysightV2.firmware_version"><code class="name">var <span class="ident">firmware_version</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.flysight_proc.FlysightV2.first_timestamp"><code class="name">var <span class="ident">first_timestamp</span> : float | None</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.flysight_proc.FlysightV2.flysight_type"><code class="name">var <span class="ident">flysight_type</span> : <a title="pyflysight.FlysightType" href="index.html#pyflysight.FlysightType">FlysightType</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.flysight_proc.FlysightV2.ground_pressure_pa"><code class="name">var <span class="ident">ground_pressure_pa</span> : int | float</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.flysight_proc.FlysightV2.sensor_info"><code class="name">var <span class="ident">sensor_info</span> : dict[str, <a title="pyflysight.flysight_proc.SensorInfo" href="#pyflysight.flysight_proc.SensorInfo">SensorInfo</a>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.flysight_proc.FlysightV2.session_id"><code class="name">var <span class="ident">session_id</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="pyflysight.flysight_proc.FlysightV2.from_json"><code class="name flex">
+<span>def <span class="ident">from_json</span></span>(<span>raw_json: dict[str, t.Any]) ‑> <a title="pyflysight.flysight_proc.FlysightV2" href="#pyflysight.flysight_proc.FlysightV2">FlysightV2</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Generate a new instance from a raw device data JSON file.</p>
+<p>It is assumed that the JSON file is generated by <code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.to_csv" href="#pyflysight.flysight_proc.FlysightV2FlightLog.to_csv">FlysightV2FlightLog.to_csv()</a></code>, only minimal
+checking is done for JSON validity (top level keys match <code><a title="pyflysight.flysight_proc.FlysightV2" href="#pyflysight.flysight_proc.FlysightV2">FlysightV2</a></code>'s fields).</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="pyflysight.flysight_proc.FlysightV2FlightLog"><code class="flex name class">
+<span>class <span class="ident">FlysightV2FlightLog</span></span>
+<span>(</span><span>track_data: polars.DataFrame, sensor_data: SensorDataFrames, device_info: <a title="pyflysight.flysight_proc.FlysightV2" href="#pyflysight.flysight_proc.FlysightV2">FlysightV2</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>FlysightV2FlightLog(track_data: 'polars.DataFrame', sensor_data: 'SensorDataFrames', device_info: 'FlysightV2', _is_trimmed: 'bool' = False)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class FlysightV2FlightLog:  # noqa: D101
+    track_data: polars.DataFrame
+    sensor_data: SensorDataFrames
+    device_info: FlysightV2
+
+    _is_trimmed: bool = False  # If True, then device_info.first_timestamp is likely out of sync
+
+    def to_csv(self, base_dir: Path) -&gt; None:
+        &#34;&#34;&#34;
+        Output logged data to a collection of CSV files relative to the provided base directory.
+
+        Sensor data is named by sensor name &amp; nested under `base_dir`:
+        `base_dir/device_id/session_id/*`. Note that any existing data in this directory will be
+        overwritten.
+        &#34;&#34;&#34;
+        out_dir = base_dir / f&#34;{self.device_info.device_id}/{self.device_info.session_id}&#34;
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        out_filepath = out_dir / &#34;TRACK.CSV&#34;
+        self.track_data.write_csv(out_filepath)
+
+        for sensor_name, sensor_data in self.sensor_data.items():
+            out_filepath = out_dir / f&#34;{sensor_name}.CSV&#34;
+            sensor_data.write_csv(out_filepath)
+
+        device_info_filepath = out_dir / &#34;device_info.json&#34;
+        with device_info_filepath.open(&#34;w&#34;) as f:
+            json.dump(asdict(self.device_info), f)
+
+    def trim_log(self, elapsed_start: NUMERIC_T, elapsed_end: NUMERIC_T) -&gt; None:
+        &#34;&#34;&#34;
+        Trim the sensor &amp; track logs to data between the provided start and end elapsed times.
+
+        NOTE: The elapsed time column is re-normalized to the provided trim window.
+        &#34;&#34;&#34;
+        for sensor, df in self.sensor_data.items():
+            l_idx = get_idx(df, elapsed_start)
+            r_idx = get_idx(df, elapsed_end)
+            self.sensor_data[sensor] = df[l_idx:r_idx]
+
+            # Re-normalize elapsed time
+            new_elapsed_start = self.sensor_data[sensor][&#34;elapsed_time&#34;][0]
+            new_time = self.sensor_data[sensor][&#34;elapsed_time&#34;] - new_elapsed_start
+            self.sensor_data[sensor] = self.sensor_data[sensor].with_columns(elapsed_time=new_time)
+
+        # Trim track data since it&#39;s stored separately
+        l_idx = get_idx(self.track_data, elapsed_start)
+        r_idx = get_idx(self.track_data, elapsed_end)
+        self.track_data = self.track_data[l_idx:r_idx]
+
+        # Re-normalize elapsed time
+        new_elapsed_start = self.track_data[&#34;elapsed_time&#34;][0]
+        new_time = self.track_data[&#34;elapsed_time&#34;] - new_elapsed_start
+        self.track_data = self.track_data.with_columns(elapsed_time=new_time)
+
+        self._is_trimmed = True
+
+    @classmethod
+    def from_csv(cls, base_dir: Path) -&gt; FlysightV2FlightLog:
+        &#34;&#34;&#34;
+        Generate a new instance from a directory of saved device data.
+
+        The specified base directory must contain only one child directory of device data,
+        determined by the presence of a `device_info.json` file.
+
+        For example, given the file structure:
+
+        ```
+        .
+        ├── a/
+        │   └── b/
+        │       └── device_data_1
+        └── c/
+            └── d/
+                ├── device_data_2
+                └── device_data_3
+        ```
+
+        `device_data_1` can be located using `base_dir` as `/a/`, `/a/b/`, or `/a/b/device_data_1`,
+        but `device_data_2` and `device_data_3` must be located using `base_dir` as
+        `/a/b/device_data_2` and `/a/b/device_data_3`, respectively.
+
+        It is assumed that the data directory is generated by `FlysightV2FlightLog.to_csv`, minimal
+        error checking is performed prior to attempting to reload the data.
+        &#34;&#34;&#34;
+        device_info_filepath = tuple(base_dir.rglob(&#34;device_info.json&#34;))
+        if not device_info_filepath:
+            raise ValueError(&#34;No device info JSON found in the given base dir or its children.&#34;)
+
+        if len(device_info_filepath) != 1:
+            raise ValueError(&#34;Must specify a base dir with only one child data directory.&#34;)
+
+        with device_info_filepath[0].open() as f:
+            raw_device_info = json.load(f)
+        device_info = FlysightV2.from_json(raw_device_info)
+
+        data_dir = device_info_filepath[0].parent
+        track_data: polars.DataFrame | None = None
+        sensor_data: SensorDataFrames = {}
+        for sensor_filepath in data_dir.glob(&#34;*.CSV&#34;):
+            sensor = sensor_filepath.stem
+            if sensor == &#34;TRACK&#34;:
+                track_data = polars.read_csv(sensor_filepath)
+                track_data = track_data.with_columns(time=track_data[&#34;time&#34;].str.to_datetime())
+            else:
+                sensor_data[sensor] = polars.read_csv(sensor_filepath)
+
+        if track_data is None:
+            raise ValueError(&#34;Track data file could not be located.&#34;)
+
+        if not sensor_data:
+            raise ValueError(&#34;No sensor data files could be located.&#34;)
+
+        return cls(
+            track_data=track_data,
+            sensor_data=sensor_data,
+            device_info=device_info,
+        )</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="pyflysight.flysight_proc.FlysightV2FlightLog.device_info"><code class="name">var <span class="ident">device_info</span> : <a title="pyflysight.flysight_proc.FlysightV2" href="#pyflysight.flysight_proc.FlysightV2">FlysightV2</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.flysight_proc.FlysightV2FlightLog.sensor_data"><code class="name">var <span class="ident">sensor_data</span> : dict[str, polars.dataframe.frame.DataFrame]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.flysight_proc.FlysightV2FlightLog.track_data"><code class="name">var <span class="ident">track_data</span> : polars.dataframe.frame.DataFrame</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="pyflysight.flysight_proc.FlysightV2FlightLog.from_csv"><code class="name flex">
+<span>def <span class="ident">from_csv</span></span>(<span>base_dir: Path) ‑> <a title="pyflysight.flysight_proc.FlysightV2FlightLog" href="#pyflysight.flysight_proc.FlysightV2FlightLog">FlysightV2FlightLog</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Generate a new instance from a directory of saved device data.</p>
+<p>The specified base directory must contain only one child directory of device data,
+determined by the presence of a <code>device_info.json</code> file.</p>
+<p>For example, given the file structure:</p>
+<pre><code>.
+├── a/
+│   └── b/
+│       └── device_data_1
+└── c/
+    └── d/
+        ├── device_data_2
+        └── device_data_3
+</code></pre>
+<p><code>device_data_1</code> can be located using <code>base_dir</code> as <code>/a/</code>, <code>/a/b/</code>, or <code>/a/b/device_data_1</code>,
+but <code>device_data_2</code> and <code>device_data_3</code> must be located using <code>base_dir</code> as
+<code>/a/b/device_data_2</code> and <code>/a/b/device_data_3</code>, respectively.</p>
+<p>It is assumed that the data directory is generated by <code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.to_csv" href="#pyflysight.flysight_proc.FlysightV2FlightLog.to_csv">FlysightV2FlightLog.to_csv()</a></code>, minimal
+error checking is performed prior to attempting to reload the data.</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pyflysight.flysight_proc.FlysightV2FlightLog.to_csv"><code class="name flex">
+<span>def <span class="ident">to_csv</span></span>(<span>self, base_dir: Path) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Output logged data to a collection of CSV files relative to the provided base directory.</p>
+<p>Sensor data is named by sensor name &amp; nested under <code>base_dir</code>:
+<code>base_dir/device_id/session_id/*</code>. Note that any existing data in this directory will be
+overwritten.</p></div>
+</dd>
+<dt id="pyflysight.flysight_proc.FlysightV2FlightLog.trim_log"><code class="name flex">
+<span>def <span class="ident">trim_log</span></span>(<span>self, elapsed_start: NUMERIC_T, elapsed_end: NUMERIC_T) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Trim the sensor &amp; track logs to data between the provided start and end elapsed times.</p>
+<p>NOTE: The elapsed time column is re-normalized to the provided trim window.</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="pyflysight.flysight_proc.SensorInfo"><code class="flex name class">
+<span>class <span class="ident">SensorInfo</span></span>
+<span>(</span><span>columns: ForwardRef('list[str]'), units: ForwardRef('list[str]'), id_: ForwardRef('str') = '')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Store sensor record column &amp; unit information, assumed to be of equal length.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SensorInfo(t.NamedTuple):
+    &#34;&#34;&#34;Store sensor record column &amp; unit information, assumed to be of equal length.&#34;&#34;&#34;
+
+    columns: list[str]
+    units: list[str]
+    id_: str = &#34;&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.tuple</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="pyflysight.flysight_proc.SensorInfo.columns"><code class="name">var <span class="ident">columns</span> : list[str]</code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 0</p></div>
+</dd>
+<dt id="pyflysight.flysight_proc.SensorInfo.id_"><code class="name">var <span class="ident">id_</span> : str</code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 2</p></div>
+</dd>
+<dt id="pyflysight.flysight_proc.SensorInfo.units"><code class="name">var <span class="ident">units</span> : list[str]</code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 1</p></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pyflysight" href="index.html">pyflysight</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pyflysight.flysight_proc.batch_load_flysight" href="#pyflysight.flysight_proc.batch_load_flysight">batch_load_flysight</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.load_flysight" href="#pyflysight.flysight_proc.load_flysight">load_flysight</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.parse_v2_log_directory" href="#pyflysight.flysight_proc.parse_v2_log_directory">parse_v2_log_directory</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.parse_v2_sensor_data" href="#pyflysight.flysight_proc.parse_v2_sensor_data">parse_v2_sensor_data</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.parse_v2_track_data" href="#pyflysight.flysight_proc.parse_v2_track_data">parse_v2_track_data</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pyflysight.flysight_proc.FlysightV2" href="#pyflysight.flysight_proc.FlysightV2">FlysightV2</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pyflysight.flysight_proc.FlysightV2.device_id" href="#pyflysight.flysight_proc.FlysightV2.device_id">device_id</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.FlysightV2.firmware_version" href="#pyflysight.flysight_proc.FlysightV2.firmware_version">firmware_version</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.FlysightV2.first_timestamp" href="#pyflysight.flysight_proc.FlysightV2.first_timestamp">first_timestamp</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.FlysightV2.flysight_type" href="#pyflysight.flysight_proc.FlysightV2.flysight_type">flysight_type</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.FlysightV2.from_json" href="#pyflysight.flysight_proc.FlysightV2.from_json">from_json</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.FlysightV2.ground_pressure_pa" href="#pyflysight.flysight_proc.FlysightV2.ground_pressure_pa">ground_pressure_pa</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.FlysightV2.sensor_info" href="#pyflysight.flysight_proc.FlysightV2.sensor_info">sensor_info</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.FlysightV2.session_id" href="#pyflysight.flysight_proc.FlysightV2.session_id">session_id</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.flysight_proc.FlysightV2FlightLog" href="#pyflysight.flysight_proc.FlysightV2FlightLog">FlysightV2FlightLog</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.device_info" href="#pyflysight.flysight_proc.FlysightV2FlightLog.device_info">device_info</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.from_csv" href="#pyflysight.flysight_proc.FlysightV2FlightLog.from_csv">from_csv</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.sensor_data" href="#pyflysight.flysight_proc.FlysightV2FlightLog.sensor_data">sensor_data</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.to_csv" href="#pyflysight.flysight_proc.FlysightV2FlightLog.to_csv">to_csv</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.track_data" href="#pyflysight.flysight_proc.FlysightV2FlightLog.track_data">track_data</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.trim_log" href="#pyflysight.flysight_proc.FlysightV2FlightLog.trim_log">trim_log</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.flysight_proc.SensorInfo" href="#pyflysight.flysight_proc.SensorInfo">SensorInfo</a></code></h4>
+<ul class="">
+<li><code><a title="pyflysight.flysight_proc.SensorInfo.columns" href="#pyflysight.flysight_proc.SensorInfo.columns">columns</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.SensorInfo.id_" href="#pyflysight.flysight_proc.SensorInfo.id_">id_</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.SensorInfo.units" href="#pyflysight.flysight_proc.SensorInfo.units">units</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.1</a>.</p>
+</footer>
+</body>
+</html>
