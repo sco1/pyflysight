@@ -1,9 +1,11 @@
+import typing as t
 from pathlib import Path
 
 import typer
 from sco1_misc.prompts import prompt_for_dir
 
 from pyflysight import FlysightType
+from pyflysight.flysight_utils import get_device_metadata, get_flysight_drives, wait_for_flysight
 from pyflysight.log_utils import classify_log_dir, iter_log_dirs
 from pyflysight.trim_app import windowtrim_flight_log
 
@@ -22,33 +24,37 @@ trim_app = typer.Typer(add_completion=False)
 pyflysight_cli.add_typer(trim_app, name="trim", help="FlySight log trimming.")
 
 
+def _print_connected_drives(flysight_drives: t.Iterable[Path]) -> None:
+    for idx, drive in enumerate(flysight_drives):
+        md = get_device_metadata(drive)
+        md_str = (
+            f"{idx}. {drive} - FlySight V{md.flysight_type}, Logs Available: {md.n_logs}\n"
+            f"    Serial: {md.serial}\n"
+            f"    Firmware: {md.firmware}"
+        )
+        print(md_str)
+
+
 @device_app.command()
-def list(wait_for: int = typer.Option(0)) -> None:
+def list(wait_for: int = typer.Option(0, min=0)) -> None:
     """
     List connected Flysight devices.
 
     If `wait_for` is > 0, the OS will be polled for up to `wait_for` seconds for at least one
     FlySight device to be connected.
     """
-    raise NotImplementedError
+    if wait_for > 0:
+        flysight_drives = wait_for_flysight(timeout=wait_for)
+    else:
+        flysight_drives = get_flysight_drives()
 
+    if not flysight_drives:
+        # Polling function already prints its own timeout message
+        if wait_for == 0:
+            print("No connected FlySight devices could be identified.")
+        return
 
-@device_app.command()
-def info() -> None:
-    """Display device information for the selected FlySight device."""
-    raise NotImplementedError
-
-
-@device_app.command()
-def update_firmware() -> None:
-    """
-    Update the FlySight's current firmware version.
-
-    NOTE: Due to differences in the flashing process, this is currently limited to the FlySight V2
-    hardware only. See: https://flysight.ca/firmware/ for full instructions & to obtain firmware for
-    your device.
-    """
-    raise NotImplementedError
+    _print_connected_drives(flysight_drives)
 
 
 @config_app.command()
@@ -105,16 +111,15 @@ def _check_log_dir(log_dir: Path, verbose: bool) -> None:
     """Check log directory parameters & exit CLI if issues are encountered."""
     try:
         flysight_type = classify_log_dir(log_dir)
-    except ValueError as e:
+    except ValueError:
         if verbose:
             print("Error: No log files found in provided log directory.")
-
-        raise typer.Exit() from e
+        return
 
     if flysight_type == FlysightType.VERSION_1:
         if verbose:
             print("Error: Log trimming is currently not implemented for FlySight V1 hardware.")
-        raise typer.Exit() from None
+        return
 
 
 def _trim_pipeline(log_dir: Path, verbose: bool) -> None:

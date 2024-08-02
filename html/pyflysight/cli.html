@@ -34,16 +34,64 @@ hljs.highlightAll();
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="pyflysight.cli.batch"><code class="name flex">
-<span>def <span class="ident">batch</span></span>(<span>log_dir: pathlib.Path = &lt;typer.models.OptionInfo object&gt;, log_pattern: str = &lt;typer.models.OptionInfo object&gt;, verbose: bool = &lt;typer.models.OptionInfo object&gt;) ‑> None</span>
+<span>def <span class="ident">batch</span></span>(<span>log_dir: pathlib.Path = &lt;typer.models.OptionInfo object&gt;, verbose: bool = &lt;typer.models.OptionInfo object&gt;) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Batch flight log processing pipeline.</p></div>
+<div class="desc"><p>Batch trim a directory of flight logs.</p>
+<p>NOTE: Log trimming is currently only implemented for FlySight V2 hardware.</p></div>
+</dd>
+<dt id="pyflysight.cli.clear"><code class="name flex">
+<span>def <span class="ident">clear</span></span>(<span>) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Clear all logs on device.</p>
+<p>WARNING: This action is destructive. All logs on the device will be permanently deleted and
+cannot be recovered.</p></div>
+</dd>
+<dt id="pyflysight.cli.copy"><code class="name flex">
+<span>def <span class="ident">copy</span></span>(<span>) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Copy all logs on device to the specified destination.</p></div>
+</dd>
+<dt id="pyflysight.cli.list"><code class="name flex">
+<span>def <span class="ident">list</span></span>(<span>wait_for: int = &lt;typer.models.OptionInfo object&gt;) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>List connected Flysight devices.</p>
+<p>If <code>wait_for</code> is &gt; 0, the OS will be polled for up to <code>wait_for</code> seconds for at least one
+FlySight device to be connected.</p></div>
 </dd>
 <dt id="pyflysight.cli.single"><code class="name flex">
-<span>def <span class="ident">single</span></span>(<span>log_filepath: pathlib.Path = &lt;typer.models.OptionInfo object&gt;) ‑> None</span>
+<span>def <span class="ident">single</span></span>(<span>log_dir: pathlib.Path = &lt;typer.models.OptionInfo object&gt;, verbose: bool = &lt;typer.models.OptionInfo object&gt;) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Single flight log processing pipeline.</p></div>
+<div class="desc"><p>Trim single flight log.</p>
+<p>NOTE: Log trimming is currently only implemented for FlySight V2 hardware.</p></div>
+</dd>
+<dt id="pyflysight.cli.write_default"><code class="name flex">
+<span>def <span class="ident">write_default</span></span>(<span>) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Write default configuration.</p>
+<p>WARNING: This action is destructive. All existing configuration information &amp; formatting will be
+permanently lost.</p></div>
+</dd>
+<dt id="pyflysight.cli.write_from_json"><code class="name flex">
+<span>def <span class="ident">write_from_json</span></span>(<span>) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Write previously serialized paramters.</p>
+<p>WARNING: This action is destructive. All existing configuration information &amp; formatting will be
+permanently lost.</p></div>
+</dd>
+<dt id="pyflysight.cli.write_from_other"><code class="name flex">
+<span>def <span class="ident">write_from_other</span></span>(<span>) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Copy configuration from file.</p>
+<p>WARNING: This action is destructive. All existing configuration information &amp; formatting will be
+permanently lost.</p></div>
 </dd>
 </dl>
 </section>
@@ -61,9 +109,15 @@ hljs.highlightAll();
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="pyflysight.cli.batch" href="#pyflysight.cli.batch">batch</a></code></li>
+<li><code><a title="pyflysight.cli.clear" href="#pyflysight.cli.clear">clear</a></code></li>
+<li><code><a title="pyflysight.cli.copy" href="#pyflysight.cli.copy">copy</a></code></li>
+<li><code><a title="pyflysight.cli.list" href="#pyflysight.cli.list">list</a></code></li>
 <li><code><a title="pyflysight.cli.single" href="#pyflysight.cli.single">single</a></code></li>
+<li><code><a title="pyflysight.cli.write_default" href="#pyflysight.cli.write_default">write_default</a></code></li>
+<li><code><a title="pyflysight.cli.write_from_json" href="#pyflysight.cli.write_from_json">write_from_json</a></code></li>
+<li><code><a title="pyflysight.cli.write_from_other" href="#pyflysight.cli.write_from_other">write_from_other</a></code></li>
 </ul>
 </li>
 </ul>

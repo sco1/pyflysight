@@ -154,7 +154,7 @@ def get_device_metadata(device_root: Path) -> FlysightMetadata:
     if flysight_type == FlysightType.VERSION_1:
         firmware_version = config_params["Firmware version"]
         serial = config_params["Processor serial number"]
-    elif flysight_type == FlysightType.VERSION_2:
+    elif flysight_type == FlysightType.VERSION_2:  # pragma: no branch
         firmware_version = config_params["Firmware_Ver"]
         serial = config_params["Device_ID"]
 
