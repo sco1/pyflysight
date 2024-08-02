@@ -1,0 +1,235 @@
+; FlySight - http://flysight.ca
+
+; GPS settings
+
+Model:     7     ; Dynamic model
+                 ;   0 = Portable
+                 ;   2 = Stationary
+                 ;   3 = Pedestrian
+                 ;   4 = Automotive
+                 ;   5 = Sea
+                 ;   6 = Airborne with < 1 G acceleration
+                 ;   7 = Airborne with < 2 G acceleration
+                 ;   8 = Airborne with < 4 G acceleration
+Rate:      200   ; Measurement rate (ms)
+
+
+; IMU settings
+
+; NOTE: Configuring away from default IMU values currently
+;       requires installation of beta firmware, which can be
+;       found at: http://flysight.ca/firmware/?include_beta=true
+
+; NOTE: Currently not possible to achieve full logging rate
+;       for the accelerometer and gyro; current max is ~1666 Hz
+
+; NOTE: Defaults are as of time of writing & may change based
+;       on firmware version
+
+Baro_ODR:  5     ; Barometric pressure sampling rate
+                 ;    0 = Disable
+                 ;    1 = 1 Hz
+                 ;    2 = 10 Hz (default)
+                 ;    3 = 25 Hz
+                 ;    4 = 50 Hz
+                 ;    5 = 75 Hz
+                 ;    6 = 100 Hz
+                 ;    7 = 200 Hz
+Hum_ODR:   1     ; Humidity sampling rate
+                 ;    0 = Disable
+                 ;    1 = 1 Hz (default)
+                 ;    2 = 7 Hz
+                 ;    3 = 12.5 Hz
+Mag_ODR:   0     ; Magnetometer sampling rate
+                 ;    0 = 10 Hz (default)
+                 ;    1 = 20 Hz
+                 ;    2 = 50 Hz
+                 ;    3 = 100 Hz
+Accel_ODR: 5     ; Accelerometer sampling rate
+                 ;    0 = Disable
+                 ;    1 = 12.5 Hz (default)
+                 ;    2 = 26 Hz
+                 ;    3 = 52 Hz
+                 ;    4 = 104 Hz
+                 ;    5 = 208 Hz
+                 ;    6 = 416 Hz
+                 ;    7 = 833 Hz
+                 ;    8 = 1666 Hz
+                 ;    9 = 3333 Hz
+                 ;    10 = 6666 Hz
+                 ;    11 = 1.6 Hz
+Accel_FS:  1     ; Accelerometer full scale resolution
+                 ;    0 = 2 g
+                 ;    1 = 16 g (default)
+                 ;    2 = 4 g
+                 ;    3 = 8 g
+Gyro_ODR:  5     ; Gyroscope sampling rate
+                 ;    0 = Disable
+                 ;    1 = 12.5 Hz (default)
+                 ;    2 = 26 Hz
+                 ;    3 = 52 Hz
+                 ;    4 = 104 Hz
+                 ;    5 = 208 Hz
+                 ;    6 = 416 Hz
+                 ;    7 = 833 Hz
+                 ;    8 = 1666 Hz
+                 ;    9 = 3333 Hz
+                 ;    10 = 6666 Hz
+Gyro_FS:   3     ; Gyroscope full scale resolution
+                 ;    0 = 250 deg/s
+                 ;    1 = 500 deg/s
+                 ;    2 = 1000 deg/s
+                 ;    3 = 2000 deg/s (default)
+
+; Tone settings
+
+Mode:      2     ; Measurement mode
+                 ;   0 = Horizontal speed
+                 ;   1 = Vertical speed
+                 ;   2 = Glide ratio
+                 ;   3 = Inverse glide ratio
+                 ;   4 = Total speed
+                 ;   11 = Dive angle
+Min:       0     ; Lowest pitch value
+                 ;   cm/s        in Mode 0, 1, or 4
+                 ;   ratio * 100 in Mode 2 or 3
+                 ;   degrees     in Mode 11
+Max:       300   ; Highest pitch value
+                 ;   cm/s        in Mode 0, 1, or 4
+                 ;   ratio * 100 in Mode 2 or 3
+                 ;   degrees     in Mode 11
+Limits:    1     ; Behaviour when outside bounds
+                 ;   0 = No tone
+                 ;   1 = Min/max tone
+                 ;   2 = Chirp up/down
+                 ;   3 = Chirp down/up
+Volume:    6     ; 0 (min) to 8 (max)
+
+; Rate settings
+
+Mode_2:    9     ; Determines tone rate
+                 ;   0 = Horizontal speed
+                 ;   1 = Vertical speed
+                 ;   2 = Glide ratio
+                 ;   3 = Inverse glide ratio
+                 ;   4 = Total speed
+                 ;   8 = Magnitude of Value 1
+                 ;   9 = Change in Value 1
+                 ;   11 = Dive angle
+Min_Val_2: 300   ; Lowest rate value
+                 ;   cm/s          when Mode 2 = 0, 1, or 4
+                 ;   ratio * 100   when Mode 2 = 2 or 3
+                 ;   percent * 100 when Mode 2 = 9
+                 ;   degrees       when Mode 2 = 11
+Max_Val_2: 1500  ; Highest rate value
+                 ;   cm/s          when Mode 2 = 0, 1, or 4
+                 ;   ratio * 100   when Mode 2 = 2 or 3
+                 ;   percent * 100 when Mode 2 = 9
+                 ;   degrees       when Mode 2 = 11
+Min_Rate:  100   ; Minimum rate (Hz * 100)
+Max_Rate:  500   ; Maximum rate (Hz * 100)
+Flatline:  0     ; Flatline at minimum rate
+                 ;   0 = No
+                 ;   1 = Yes
+
+; Speech settings
+
+Sp_Rate:   0     ; Speech rate (s)
+                 ;   0 = No speech
+Sp_Volume: 6     ; 0 (min) to 8 (max)
+
+Sp_Mode:   2     ; Speech mode
+                 ;   0 = Horizontal speed
+                 ;   1 = Vertical speed
+                 ;   2 = Glide ratio
+                 ;   3 = Inverse glide ratio
+                 ;   4 = Total speed
+                 ;   5 = Altitude above DZ_Elev
+                 ;   11 = Dive angle
+Sp_Units:  1     ; Speech units
+                 ;   0 = km/h or m
+                 ;   1 = mph or feet
+Sp_Dec:    1     ; Speech precision
+                 ;   Altitude step in Mode 5
+                 ;   Decimal places in all other Modes
+
+; Thresholds
+
+V_Thresh:  1000  ; Minimum vertical speed for tone (cm/s)
+H_Thresh:  0     ; Minimum horizontal speed for tone (cm/s)
+
+; Miscellaneous
+
+Use_SAS:   1     ; Use skydiver's airspeed
+                 ;   0 = No
+                 ;   1 = Yes
+TZ_Offset: 0     ; Timezone offset of output files in seconds
+                 ;   -14400 = UTC-4 (EDT)
+                 ;   -18000 = UTC-5 (EST, CDT)
+                 ;   -21600 = UTC-6 (CST, MDT)
+                 ;   -25200 = UTC-7 (MST, PDT)
+                 ;   -28800 = UTC-8 (PST)
+
+; Initialization
+
+Init_Mode: 0     ; When the FlySight is powered on
+                 ;   0 = Do nothing
+                 ;   1 = Test speech mode
+                 ;   2 = Play file
+Init_File: 0     ; File to be played
+
+; Alarm settings
+
+; WARNING: GPS measurements depend on very weak signals
+;          received from orbiting satellites. As such, they
+;          are prone to interference, and should NEVER be
+;          relied upon for life saving purposes.
+
+;          UNDER NO CIRCUMSTANCES SHOULD THESE ALARMS BE
+;          USED TO INDICATE DEPLOYMENT OR BREAKOFF ALTITUDE.
+
+; NOTE:    Alarm elevations are given in meters above ground
+;          elevation, which is specified in DZ_Elev.
+
+Win_Above:     0 ; Window above each alarm (m)
+Win_Below:     0 ; Window below each alarm (m)
+DZ_Elev:       0 ; Ground elevation (m above sea level)
+
+Alarm_Elev:    0 ; Alarm elevation (m above ground level)
+Alarm_Type:    0 ; Alarm type
+                 ;   0 = No alarm
+                 ;   1 = Beep
+                 ;   2 = Chirp up
+                 ;   3 = Chirp down
+                 ;   4 = Play file
+Alarm_File:    0 ; File to be played
+
+; Altitude mode settings
+
+; WARNING: GPS measurements depend on very weak signals
+;          received from orbiting satellites. As such, they
+;          are prone to interference, and should NEVER be
+;          relied upon for life saving purposes.
+
+;          UNDER NO CIRCUMSTANCES SHOULD ALTITUDE MODE BE
+;          USED TO INDICATE DEPLOYMENT OR BREAKOFF ALTITUDE.
+
+; NOTE:    Altitude is given relative to ground elevation,
+;          which is specified in DZ_Elev. Altitude mode will
+;          not function below 1500 m above ground.
+
+Alt_Units:     1 ; Altitude units
+                 ;   0 = m
+                 ;   1 = ft
+Alt_Step:      0 ; Altitude between announcements
+                 ;   0 = No altitude
+
+; Silence windows
+
+; NOTE:    Silence windows are given in meters above ground
+;          elevation, which is specified in DZ_Elev. Tones
+;          will be silenced during these windows and only
+;          alarms will be audible.
+
+Win_Top:       0 ; Silence window top (m)
+Win_Bottom:    0 ; Silence window bottom (m)

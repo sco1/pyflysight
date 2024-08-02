@@ -1,0 +1,97 @@
+; FlySight - http://flysight.ca
+;
+; NOTE: This log file has been automatically generated and does not contain the
+;       descriptive comments found in the default configuration file as shipped
+;       by the manufacturer. Firmware updates may introduce and/or remove
+;       configuration values; missing values should be interpreted by the
+;       FlySight config parser as their defaults. Configuration details can be
+;       found in the FlySight support wiki or the firmware source repository.
+;
+;       See:
+;           https://flysight.ca/wiki/index.php?title=Configuring_FlySight
+;           https://github.com/flysight/flysight (Hardware V1)
+;           https://github.com/flysight/flysight-2-firmware (Hardware V2)
+;
+; NOTE: Defaults are as of time of writing & may change based on firmware
+;       version
+
+; GPS settings
+Model: 6
+Rate: 200
+
+; Tone settings
+Mode: 2
+Min: 0
+Max: 300
+Limits: 1
+Volume: 6
+
+; Thresholds
+V_Thresh: 1000
+H_Thresh: 0
+
+; Rate settings
+Mode_2: 9
+Min_Val_2: 300
+Max_Val_2: 1500
+Min_Rate: 100
+Max_Rate: 500
+Flatline: 0
+
+; Speech settings
+Sp_Rate: 0
+Sp_Volume: 6
+Sp_Mode: 2
+Sp_Units: 1
+Sp_Dec: 1
+
+; Miscellaneous
+Use_SAS: 1
+TZ_Offset: 0
+
+; Initialization
+; NOTE: Consult the FlySight support wiki for instructions on how to select the
+;       initialization audio file:
+;
+;       https://flysight.ca/wiki/index.php?title=Configuring_FlySight#Selectable_configurations
+Init_Mode: 0
+Init_File: 0
+
+; Alarm settings
+; NOTE: Alarms may be set for multiple altitudes by specifying repeated blocks
+;       of configuration information. See the FlySight support wiki for
+;       examples & instructions on selecting alarm files:
+;
+;       https://flysight.ca/wiki/index.php?title=Configuring_FlySight#Speech_alarms
+;
+; NOTE: Altitudes are specified relative to ground elevation, as specified by
+;       Dz_Elev.
+Win_Above: 0
+Win_Below: 0
+DZ_Elev: 0
+
+; Alarm windows
+Alarm_Elev: 0
+Alarm_Type: 0
+Alarm_File: 0
+
+; Altitude mode settings
+; NOTE: Altitudes are specified relative to ground elevation, as specified by
+;       Dz_Elev. Altitude mode will not function below 1500m AGL.
+;
+; NOTE: Altitude is called out when the FlySight first receives a GPS fix in
+;       order to verify DZ_Elev is set properly. If correctly configured
+;       this altitude should be within 10 meters of zero.
+Alt_Units: 1
+Alt_Step: 0
+
+; Silence windows
+; NOTE: Multiple silence windows may be specified to silence tones during the
+;       window elevation; only alarms will be audible.
+;
+; NOTE: Altitudes are specified relative to ground elevation, as specified by
+;       Dz_Elev.
+;
+; NOTE: Silence windows are currently not detailed in the FlySight support wiki.
+Win_Top: 0
+Win_Bottom: 0
