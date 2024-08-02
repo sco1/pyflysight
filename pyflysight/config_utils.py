@@ -154,3 +154,24 @@ class FlysightV1Config(FlysightConfig):
             config_d = json.load(f)
 
         return cls(**config_d)
+
+
+def parse_config_params(config_filepath: Path) -> dict[str, str]:
+    """
+    Parse raw configuration parameters from the provided file.
+
+    Parameters are assumed to be `param:val` pairs & are returned in their raw form. `;` is treated
+    as a comment character & any text following it in a line is ignored.
+    """
+    parsed_params = {}
+    with config_filepath.open("r") as f:
+        for line in f:
+            if not line.strip() or line.startswith(";"):
+                continue
+
+            kv_pair = line.split(";")[0].strip()
+            if kv_pair:
+                param, val = kv_pair.split(":")
+                parsed_params[param] = val.strip()
+
+    return parsed_params

@@ -1,12 +1,13 @@
 import shutil
 import time
+import typing as t
 from collections import abc
 from pathlib import Path
 
 import psutil
 
 from pyflysight import FlysightType
-from pyflysight.config_utils import FlysightConfig
+from pyflysight.config_utils import FlysightConfig, parse_config_params
 from pyflysight.log_utils import iter_log_dirs
 
 
@@ -136,6 +137,35 @@ def classify_hardware_type(device_root: Path) -> FlysightType:
         return FlysightType.VERSION_1
     else:
         raise UnknownDeviceError("Could not identify hardware type.")
+
+
+class FlysightMetadata(t.NamedTuple):  # noqa: D101
+    flysight_type: FlysightType
+    serial: str
+    firmware: str
+    n_logs: int
+
+
+def get_device_metadata(device_root: Path) -> FlysightMetadata:
+    """Parse the provided FlySight device for some descriptive metadata."""
+    flysight_type = classify_hardware_type(device_root)
+
+    config_params = parse_config_params(device_root / "FLYSIGHT.TXT")
+    if flysight_type == FlysightType.VERSION_1:
+        firmware_version = config_params["Firmware version"]
+        serial = config_params["Processor serial number"]
+    elif flysight_type == FlysightType.VERSION_2:
+        firmware_version = config_params["Firmware_Ver"]
+        serial = config_params["Device_ID"]
+
+    n_logs = len(tuple(iter_log_dirs(device_root, flysight_type=flysight_type)))
+
+    return FlysightMetadata(
+        flysight_type=flysight_type,
+        serial=serial,
+        firmware=firmware_version,
+        n_logs=n_logs,
+    )
 
 
 def copy_logs(

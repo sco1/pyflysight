@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from pyflysight.config_params import FlysightSetting
-from pyflysight.config_utils import FlysightV1Config, FlysightV2Config
+from pyflysight.config_utils import FlysightV1Config, FlysightV2Config, parse_config_params
 from tests import SAMPLE_DATA_DIR
 
 
@@ -78,3 +78,33 @@ def test_v1_config_load_v2_config_raises(tmp_path: Path) -> None:
 
     with pytest.raises(TypeError):
         FlysightV1Config.from_json(out_json)
+
+
+SAMPLE_CONFIG = """\
+; FlySight - http://flysight.ca
+
+; GPS settings
+
+Model:     7     ; Dynamic model
+                 ;   0 = Portable
+                 ;   2 = Stationary
+                 ;   3 = Pedestrian
+                 ;   4 = Automotive
+                 ;   5 = Sea
+                 ;   6 = Airborne with < 1 G acceleration
+                 ;   7 = Airborne with < 2 G acceleration
+                 ;   8 = Airborne with < 4 G acceleration
+Rate:      200   ; Measurement rate (ms)
+"""
+
+
+def test_parse_config_params(tmp_path: Path) -> None:
+    cfg = tmp_path / "CONFIG.TXT"
+    cfg.write_text(SAMPLE_CONFIG)
+
+    truth_params = {
+        "Model": "7",
+        "Rate": "200",
+    }
+
+    assert parse_config_params(cfg) == truth_params

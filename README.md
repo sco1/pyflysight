@@ -30,9 +30,9 @@ Options:
   --help  Show this message and exit.
 
 Commands:
-  device
-  logs
-  trim
+  device  FlySight device utilities.
+  logs    FlySight device log utilities.
+  trim    FlySight log trimming.
 ```
 <!-- [[[end]]] -->
 

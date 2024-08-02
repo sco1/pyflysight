@@ -5,10 +5,12 @@ import pytest
 from pyflysight import FlysightType
 from pyflysight.config_utils import FlysightV2Config
 from pyflysight.flysight_utils import (
+    FlysightMetadata,
     NoDeviceStateError,
     UnknownDeviceError,
     classify_hardware_type,
     copy_logs,
+    get_device_metadata,
     write_config,
 )
 
@@ -27,7 +29,7 @@ def test_hardware_type_no_data_raises(tmp_path: Path) -> None:
 SAMPLE_V1_STATE = """\
 FlySight - http://flysight.ca/
 Processor serial number: 1234567890
-Firmware version: v20170405
+Firmware version: v123abc
 """
 
 SAMPLE_V2_STATE = """\
@@ -37,9 +39,12 @@ SAMPLE_V2_STATE = """\
 
 FUS_Ver:      1.2.0
 Stack_Ver:    1.17.2
-Firmware_Ver: v2024.05.25.pairing_request
+Firmware_Ver: v123abc
 
-<...>
+; Device information
+
+Device_ID:    1234567890
+Session_ID:   abc123
 """
 
 HARDWARE_CLASSIFICATION_CASES = (
@@ -97,8 +102,8 @@ FLYSIGHT_V1_FILE_STRUCTURE = {
 }
 
 
-def test_copy_v1_logs(tmp_path: Path) -> None:
-    flysight_device = tmp_path / "flysight"
+def _build_dummy_v1_device(top_dir: Path) -> Path:
+    flysight_device = top_dir / "flysight"
     flysight_device.mkdir()
     (flysight_device / "FLYSIGHT.TXT").write_text(SAMPLE_V1_STATE)
     for d, fnames in FLYSIGHT_V1_FILE_STRUCTURE.items():
@@ -106,6 +111,12 @@ def test_copy_v1_logs(tmp_path: Path) -> None:
         log_dir.mkdir()
         for f in fnames:
             (log_dir / f).touch()
+
+    return flysight_device
+
+
+def test_copy_v1_logs(tmp_path: Path) -> None:
+    flysight_device = _build_dummy_v1_device(tmp_path)
 
     dest = tmp_path / "copied"
     copy_logs(device_root=flysight_device, dest=dest)
@@ -121,8 +132,8 @@ FLYSIGHT_V2_FILE_STRUCTURE = (
 )
 
 
-def test_copy_v2_logs(tmp_path: Path) -> None:
-    flysight_device = tmp_path / "flysight"
+def _build_dummy_v2_device(top_dir: Path) -> Path:
+    flysight_device = top_dir / "flysight"
     flysight_device.mkdir()
     (flysight_device / "FLYSIGHT.TXT").write_text(SAMPLE_V2_STATE)
     for d in FLYSIGHT_V2_FILE_STRUCTURE:
@@ -130,6 +141,12 @@ def test_copy_v2_logs(tmp_path: Path) -> None:
         log_dir.mkdir(parents=True)
         for f in ("RAW.UBX", "SENSOR.CSV", "TRACK.CSV"):
             (log_dir / f).touch()
+
+    return flysight_device
+
+
+def test_copy_v2_logs(tmp_path: Path) -> None:
+    flysight_device = _build_dummy_v2_device(tmp_path)
 
     dest = tmp_path / "copied"
     copy_logs(device_root=flysight_device, dest=dest)
@@ -147,14 +164,7 @@ def sample_filter(log_dir: Path) -> bool:
 
 
 def test_copy_logs_with_filter(tmp_path: Path) -> None:
-    flysight_device = tmp_path / "flysight"
-    flysight_device.mkdir()
-    (flysight_device / "FLYSIGHT.TXT").write_text(SAMPLE_V2_STATE)
-    for d in FLYSIGHT_V2_FILE_STRUCTURE:
-        log_dir = flysight_device / d
-        log_dir.mkdir(parents=True)
-        for f in ("RAW.UBX", "SENSOR.CSV", "TRACK.CSV"):
-            (log_dir / f).touch()
+    flysight_device = _build_dummy_v2_device(tmp_path)
 
     dest = tmp_path / "copied"
     copy_logs(device_root=flysight_device, dest=dest, filter_func=sample_filter)
@@ -162,14 +172,7 @@ def test_copy_logs_with_filter(tmp_path: Path) -> None:
 
 
 def test_copy_logs_remove_after(tmp_path: Path) -> None:
-    flysight_device = tmp_path / "flysight"
-    flysight_device.mkdir()
-    (flysight_device / "FLYSIGHT.TXT").write_text(SAMPLE_V2_STATE)
-    for d in FLYSIGHT_V2_FILE_STRUCTURE:
-        log_dir = flysight_device / d
-        log_dir.mkdir(parents=True)
-        for f in ("RAW.UBX", "SENSOR.CSV", "TRACK.CSV"):
-            (log_dir / f).touch()
+    flysight_device = _build_dummy_v2_device(tmp_path)
 
     dest = tmp_path / "copied"
     copy_logs(device_root=flysight_device, dest=dest, remove_after=True)
@@ -179,17 +182,33 @@ def test_copy_logs_remove_after(tmp_path: Path) -> None:
 
 
 def test_copy_logs_with_filter_remove_after(tmp_path: Path) -> None:
-    flysight_device = tmp_path / "flysight"
-    flysight_device.mkdir()
-    (flysight_device / "FLYSIGHT.TXT").write_text(SAMPLE_V2_STATE)
-    for d in FLYSIGHT_V2_FILE_STRUCTURE:
-        log_dir = flysight_device / d
-        log_dir.mkdir(parents=True)
-        for f in ("RAW.UBX", "SENSOR.CSV", "TRACK.CSV"):
-            (log_dir / f).touch()
+    flysight_device = _build_dummy_v2_device(tmp_path)
 
     dest = tmp_path / "copied"
     copy_logs(device_root=flysight_device, dest=dest, filter_func=sample_filter, remove_after=True)
 
     log_filenames = tuple(flysight_device.rglob("*.CSV"))
     assert len(log_filenames) == 2
+
+
+def test_get_v1_device_metadata(tmp_path: Path) -> None:
+    flysight_device = _build_dummy_v1_device(tmp_path)
+
+    truth_metadata = FlysightMetadata(
+        flysight_type=FlysightType.VERSION_1,
+        serial="1234567890",
+        firmware="v123abc",
+        n_logs=2,
+    )
+    assert get_device_metadata(flysight_device) == truth_metadata
+
+
+def test_get_v2_device_metadata(tmp_path: Path) -> None:
+    flysight_device = _build_dummy_v2_device(tmp_path)
+    truth_metadata = FlysightMetadata(
+        flysight_type=FlysightType.VERSION_2,
+        serial="1234567890",
+        firmware="v123abc",
+        n_logs=2,
+    )
+    assert get_device_metadata(flysight_device) == truth_metadata
