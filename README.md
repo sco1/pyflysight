@@ -95,26 +95,3 @@ The Flysight V2 log output looks something like:
         ├── SENSOR.CSV
         └── TRACK.CSV
 ```
-
-## Contributing
-### Development Environment
-This project uses [Poetry](https://python-poetry.org/) to manage dependencies. With your fork cloned to your local machine, you can install the project and its dependencies to create a development environment using:
-
-```bash
-$ poetry install
-```
-
-A [pre-commit](https://pre-commit.com) configuration is also provided to create a pre-commit hook so linting errors aren't committed:
-
-```bash
-$ pre-commit install
-```
-
-### Testing & Coverage
-A [pytest](https://docs.pytest.org/en/latest/) suite is provided, with coverage reporting from [pytest-cov](https://github.com/pytest-dev/pytest-cov). A [tox](https://github.com/tox-dev/tox/) configuration is provided to test across all supported versions of Python. Testing will be skipped for Python versions that cannot be found.
-
-```bash
-$ tox
-```
-
-Details on missing coverage, including in the test suite, is provided in the report to allow the user to generate additional tests for full coverage.
