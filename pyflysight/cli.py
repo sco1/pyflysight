@@ -205,7 +205,10 @@ def copy(
     if dest is None:
         dest = prompt_for_dir(title="Select Log Destination")
 
-    copy_logs(device_root=flysight_root, dest=dest, exist_ok=exist_ok, remove_after=False)
+    copy_status = copy_logs(
+        device_root=flysight_root, dest=dest, exist_ok=exist_ok, remove_after=False
+    )
+    print(f"Copied {copy_status.n_dirs_copied} log directories to {dest}")
 
 
 @log_app.command()

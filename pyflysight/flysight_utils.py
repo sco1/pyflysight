@@ -151,14 +151,20 @@ def get_device_metadata(device_root: Path) -> FlysightMetadata:
     flysight_type = classify_hardware_type(device_root)
 
     config_params = parse_config_params(device_root / "FLYSIGHT.TXT")
+    log_dirs = tuple(iter_log_dirs(device_root, flysight_type=flysight_type))
     if flysight_type == FlysightType.VERSION_1:
         firmware_version = config_params["Firmware version"]
         serial = config_params["Processor serial number"]
+
+        # V1 hardware has a directory per day that may contain multiple CSVs
+        n_logs = sum(len(tuple(ld.log_dir.glob("*.CSV"))) for ld in log_dirs)
+
     elif flysight_type == FlysightType.VERSION_2:  # pragma: no branch
         firmware_version = config_params["Firmware_Ver"]
         serial = config_params["Device_ID"]
 
-    n_logs = len(tuple(iter_log_dirs(device_root, flysight_type=flysight_type)))
+        # V2 hardware has a log per directory
+        n_logs = len(log_dirs)
 
     return FlysightMetadata(
         flysight_type=flysight_type,
@@ -168,15 +174,28 @@ def get_device_metadata(device_root: Path) -> FlysightMetadata:
     )
 
 
+class LogCopyStatus(t.NamedTuple):  # noqa: D101
+    n_dirs_copied: int
+    n_dirs_erased: int
+
+
 def copy_logs(
     device_root: Path,
     dest: Path,
     filter_func: abc.Callable[[Path], bool] | None = None,
     exist_ok: bool = True,
     remove_after: bool = False,
-) -> None:
+) -> LogCopyStatus:
     """
     Copy the log file tree from the provided device root to the specified destination directory.
+
+    NOTE: This function operates on directories of log files only. FlySight V1 hardware groups
+    flight logs by UTC date & time, so each directory may have multiple flight logs present.
+    FlySight V2 hardware groups flight logs per logging session, so each flight log will have its
+    own directory.
+
+    The number of directories copied and deleted is optionally returned for downstream notification
+    purposes.
 
     A filtering function may be optionally specified as a callable that accepts a path to a single
     directory of log files and returns `False` if the directory should not be copied.
@@ -191,6 +210,8 @@ def copy_logs(
     and/or deleted data will be lost permanently.
     """
     flysight_type = classify_hardware_type(device_root)
+    n_dirs_copied = 0
+    n_dirs_erased = 0
     for ld in iter_log_dirs(top_dir=device_root, flysight_type=flysight_type):
         if filter_func is not None:
             if not filter_func(ld.log_dir):
@@ -204,9 +225,13 @@ def copy_logs(
             log_dest = dest / "/".join(ld.log_dir.parts[-2:])
 
         shutil.copytree(ld.log_dir, log_dest, dirs_exist_ok=exist_ok)
+        n_dirs_copied += 1
 
         if remove_after:
             shutil.rmtree(ld.log_dir)
+            n_dirs_erased += 1
+
+    return LogCopyStatus(n_dirs_copied=n_dirs_copied, n_dirs_erased=n_dirs_erased)
 
 
 def erase_logs(device_root: Path, filter_func: abc.Callable[[Path], bool] | None = None) -> None:

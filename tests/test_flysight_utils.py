@@ -97,32 +97,9 @@ def test_write_config_overwrite_existing(tmp_path: Path) -> None:
     assert not backup_config_filepath.exists()
 
 
-def test_get_v1_device_metadata(tmp_path: Path) -> None:
-    flysight_device = _build_dummy_v1_device(tmp_path)
-
-    truth_metadata = FlysightMetadata(
-        flysight_type=FlysightType.VERSION_1,
-        serial="1234567890",
-        firmware="v123abc",
-        n_logs=2,
-    )
-    assert get_device_metadata(flysight_device) == truth_metadata
-
-
-def test_get_v2_device_metadata(tmp_path: Path) -> None:
-    flysight_device = _build_dummy_v2_device(tmp_path)
-    truth_metadata = FlysightMetadata(
-        flysight_type=FlysightType.VERSION_2,
-        serial="1234567890",
-        firmware="v123abc",
-        n_logs=2,
-    )
-    assert get_device_metadata(flysight_device) == truth_metadata
-
-
 FLYSIGHT_V1_FILE_STRUCTURE = {
     "23-04-21": ("04-20-00.CSV",),
-    "24-04-21": ("04-20-00.CSV",),
+    "24-04-21": ("04-20-00.CSV", "05-20-00.CSV"),
 }
 
 
@@ -137,17 +114,6 @@ def _build_dummy_v1_device(top_dir: Path) -> Path:
             (log_dir / f).touch()
 
     return flysight_device
-
-
-def test_copy_v1_logs(tmp_path: Path) -> None:
-    flysight_device = _build_dummy_v1_device(tmp_path)
-
-    dest = tmp_path / "copied"
-    copy_logs(device_root=flysight_device, dest=dest)
-
-    log_filenames = {f.name for f in flysight_device.rglob("*.CSV")}
-    copied_filenames = {f.name for f in dest.rglob("*.CSV")}
-    assert copied_filenames == log_filenames
 
 
 FLYSIGHT_V2_FILE_STRUCTURE = (
@@ -167,6 +133,40 @@ def _build_dummy_v2_device(top_dir: Path) -> Path:
             (log_dir / f).touch()
 
     return flysight_device
+
+
+def test_get_v1_device_metadata(tmp_path: Path) -> None:
+    flysight_device = _build_dummy_v1_device(tmp_path)
+
+    truth_metadata = FlysightMetadata(
+        flysight_type=FlysightType.VERSION_1,
+        serial="1234567890",
+        firmware="v123abc",
+        n_logs=3,
+    )
+    assert get_device_metadata(flysight_device) == truth_metadata
+
+
+def test_get_v2_device_metadata(tmp_path: Path) -> None:
+    flysight_device = _build_dummy_v2_device(tmp_path)
+    truth_metadata = FlysightMetadata(
+        flysight_type=FlysightType.VERSION_2,
+        serial="1234567890",
+        firmware="v123abc",
+        n_logs=2,
+    )
+    assert get_device_metadata(flysight_device) == truth_metadata
+
+
+def test_copy_v1_logs(tmp_path: Path) -> None:
+    flysight_device = _build_dummy_v1_device(tmp_path)
+
+    dest = tmp_path / "copied"
+    copy_logs(device_root=flysight_device, dest=dest)
+
+    log_filenames = {f.name for f in flysight_device.rglob("*.CSV")}
+    copied_filenames = {f.name for f in dest.rglob("*.CSV")}
+    assert copied_filenames == log_filenames
 
 
 def test_copy_v2_logs(tmp_path: Path) -> None:
