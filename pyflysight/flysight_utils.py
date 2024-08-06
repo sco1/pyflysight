@@ -207,3 +207,21 @@ def copy_logs(
 
         if remove_after:
             shutil.rmtree(ld.log_dir)
+
+
+def erase_logs(device_root: Path, filter_func: abc.Callable[[Path], bool] | None = None) -> None:
+    """
+    Erase all log files from the provided device root.
+
+    A filtering function may be optionally specified as a callable that accepts a path to a single
+    directory of log files and returns `False` if the directory should not be erased.
+
+    WARNING: This is a destructive operation. Data is removed permanently and cannot be recovered.
+    """
+    flysight_type = classify_hardware_type(device_root)
+    for ld in iter_log_dirs(top_dir=device_root, flysight_type=flysight_type):
+        if filter_func is not None:
+            if not filter_func(ld.log_dir):
+                continue
+
+        shutil.rmtree(ld.log_dir)

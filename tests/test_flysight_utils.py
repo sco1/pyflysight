@@ -10,6 +10,7 @@ from pyflysight.flysight_utils import (
     UnknownDeviceError,
     classify_hardware_type,
     copy_logs,
+    erase_logs,
     get_device_metadata,
     write_config,
 )
@@ -94,6 +95,29 @@ def test_write_config_overwrite_existing(tmp_path: Path) -> None:
 
     backup_config_filepath = tmp_path / "CONFIG_OLD.TXT"
     assert not backup_config_filepath.exists()
+
+
+def test_get_v1_device_metadata(tmp_path: Path) -> None:
+    flysight_device = _build_dummy_v1_device(tmp_path)
+
+    truth_metadata = FlysightMetadata(
+        flysight_type=FlysightType.VERSION_1,
+        serial="1234567890",
+        firmware="v123abc",
+        n_logs=2,
+    )
+    assert get_device_metadata(flysight_device) == truth_metadata
+
+
+def test_get_v2_device_metadata(tmp_path: Path) -> None:
+    flysight_device = _build_dummy_v2_device(tmp_path)
+    truth_metadata = FlysightMetadata(
+        flysight_type=FlysightType.VERSION_2,
+        serial="1234567890",
+        firmware="v123abc",
+        n_logs=2,
+    )
+    assert get_device_metadata(flysight_device) == truth_metadata
 
 
 FLYSIGHT_V1_FILE_STRUCTURE = {
@@ -191,24 +215,17 @@ def test_copy_logs_with_filter_remove_after(tmp_path: Path) -> None:
     assert len(log_filenames) == 2
 
 
-def test_get_v1_device_metadata(tmp_path: Path) -> None:
-    flysight_device = _build_dummy_v1_device(tmp_path)
-
-    truth_metadata = FlysightMetadata(
-        flysight_type=FlysightType.VERSION_1,
-        serial="1234567890",
-        firmware="v123abc",
-        n_logs=2,
-    )
-    assert get_device_metadata(flysight_device) == truth_metadata
-
-
-def test_get_v2_device_metadata(tmp_path: Path) -> None:
+def test_remove_logs(tmp_path: Path) -> None:
     flysight_device = _build_dummy_v2_device(tmp_path)
-    truth_metadata = FlysightMetadata(
-        flysight_type=FlysightType.VERSION_2,
-        serial="1234567890",
-        firmware="v123abc",
-        n_logs=2,
-    )
-    assert get_device_metadata(flysight_device) == truth_metadata
+
+    erase_logs(flysight_device)
+    log_files = tuple(flysight_device.rglob("*.CSV"))
+    assert len(log_files) == 0
+
+
+def test_remove_logs_with_filter(tmp_path: Path) -> None:
+    flysight_device = _build_dummy_v2_device(tmp_path)
+
+    erase_logs(flysight_device, filter_func=sample_filter)
+    log_files = tuple(flysight_device.rglob("*.CSV"))
+    assert len(log_files) == 2
