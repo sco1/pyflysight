@@ -34,6 +34,11 @@ trim_app = typer.Typer(add_completion=False)
 pyflysight_cli.add_typer(trim_app, name="trim", help="FlySight log trimming.")
 
 
+def _abort_with_message(message: str, end: str = "") -> t.Never:
+    print(message, end=end)
+    raise typer.Abort() from None
+
+
 def _print_connected_drives(flysight_drives: t.Iterable[Path]) -> None:
     for idx, drive in enumerate(flysight_drives):
         md = get_device_metadata(drive)
@@ -60,8 +65,8 @@ def _ask_select_flysight() -> Path:
 
     try:
         return flysight_drives[select]
-    except IndexError as e:
-        raise ValueError("Invalid drive selection.") from e
+    except IndexError:
+        _abort_with_message("Error: Invalid drive selection. ")
 
 
 @device_app.command()
@@ -86,6 +91,14 @@ def list(wait_for: int = typer.Option(0, min=0)) -> None:
     _print_connected_drives(flysight_drives)
 
 
+def _try_write_config(device_root: Path, config: FlysightConfig, backup_existing: bool) -> None:
+    """Wrap config writing utility with graceful handling for errors."""
+    try:
+        write_config(device_root=device_root, config=config, backup_existing=backup_existing)
+    except PermissionError:
+        _abort_with_message("Error: FlySight device is read-only. ")
+
+
 @config_app.command()
 def write_default(
     flysight_root: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
@@ -107,7 +120,7 @@ def write_default(
     elif flysight_type == FlysightType.VERSION_2:
         config = FlysightV2Config()
 
-    write_config(device_root=flysight_root, config=config, backup_existing=backup_existing)
+    _try_write_config(device_root=flysight_root, config=config, backup_existing=backup_existing)
 
 
 @config_app.command()
@@ -141,7 +154,7 @@ def write_from_json(
     elif flysight_type == FlysightType.VERSION_2:
         config = FlysightV2Config.from_json(config_source)
 
-    write_config(device_root=flysight_root, config=config, backup_existing=backup_existing)
+    _try_write_config(device_root=flysight_root, config=config, backup_existing=backup_existing)
 
 
 @config_app.command()
@@ -169,11 +182,14 @@ def write_from_other(
         )
 
     flysight_config_filepath = flysight_root / "CONFIG.TXT"
-    if flysight_config_filepath.exists() and backup_existing:
-        backup_filepath = flysight_root / "CONFIG_OLD.TXT"
-        shutil.copy(flysight_config_filepath, backup_filepath)
+    try:
+        if flysight_config_filepath.exists() and backup_existing:
+            backup_filepath = flysight_root / "CONFIG_OLD.TXT"
+            shutil.copy(flysight_config_filepath, backup_filepath)
 
-    shutil.copy(config_source, flysight_config_filepath)
+        shutil.copy(config_source, flysight_config_filepath)
+    except PermissionError:
+        _abort_with_message("Error: FlySight device is read-only. ")
 
 
 @log_app.command()
@@ -212,7 +228,10 @@ def clear(
         if not confirm_clear:
             raise typer.Abort()
 
-    erase_logs(flysight_root)
+    try:
+        erase_logs(flysight_root)
+    except PermissionError:
+        _abort_with_message("Error: FlySight device is write protected. ")
 
 
 def _check_log_dir(log_dir: Path, verbose: bool) -> None:
