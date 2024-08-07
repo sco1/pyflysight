@@ -202,6 +202,11 @@ def copy(
     if flysight_root is None:
         flysight_root = _ask_select_flysight()
 
+    drive_metadata = get_device_metadata(flysight_root)
+    if drive_metadata.n_logs == 0:
+        print("No logs on device to copy.")
+        return
+
     if dest is None:
         dest = prompt_for_dir(title="Select Log Destination")
 
@@ -225,8 +230,12 @@ def clear(
     if flysight_root is None:
         flysight_root = _ask_select_flysight()
 
+    drive_metadata = get_device_metadata(flysight_root)
+    if drive_metadata.n_logs == 0:
+        print("No logs on device to erase.")
+        return
+
     if not force:
-        drive_metadata = get_device_metadata(flysight_root)
         confirm_clear = typer.confirm(f"This will erase {drive_metadata.n_logs} logs. Confirm?")
         if not confirm_clear:
             raise typer.Abort()
