@@ -104,6 +104,7 @@ ITER_DIR_STRUCTURE = {
     "24-04-20": ("04-20-00.CSV",),
     "12-34-00": ("RAW.UBX", "SENSOR.CSV", "TRACK.CSV"),
     "abc123": ("BARO.CSV", "IMU.CSV", "TRACK.CSV", "device_info.json"),
+    "TEMP/0000": ("RAW.UBX", "SENSOR.CSV", "TRACK.CSV"),  # TEMP dir should be ignored
 }
 
 ITER_DIR_TEST_CASES = (
@@ -119,7 +120,7 @@ def test_iter_dir(
 ) -> None:
     for log_dirname, filenames in ITER_DIR_STRUCTURE.items():
         log_dir = tmp_path / log_dirname
-        log_dir.mkdir()
+        log_dir.mkdir(parents=True)
 
         for name in filenames:
             (log_dir / name).touch()

@@ -149,8 +149,8 @@ class FlysightMetadata(t.NamedTuple):  # noqa: D101
 def get_device_metadata(device_root: Path) -> FlysightMetadata:
     """Parse the provided FlySight device for some descriptive metadata."""
     flysight_type = classify_hardware_type(device_root)
-
     config_params = parse_config_params(device_root / "FLYSIGHT.TXT")
+
     log_dirs = tuple(iter_log_dirs(device_root, flysight_type=flysight_type))
     if flysight_type == FlysightType.VERSION_1:
         firmware_version = config_params["Firmware version"]

@@ -82,10 +82,18 @@ def iter_log_dirs(
     NOTE: Order of yielded directories is not guaranteed.
 
     NOTE: Directories containing trimmed log data are currently not considered.
+
+    NOTE: FlySight V2 devices may have a root `TEMP` directory that contains a flight log output,
+    this directory is excluded from being yielded.
     """
     possible_parents = {f.parent for f in top_dir.rglob("*.CSV")}
 
     for p in possible_parents:
+        # FlySight V2 devices may have a TEMP directory that contains temporary logs, this should be
+        # excluded
+        if "TEMP" in p.parts:
+            continue
+
         filenames = {f.name for f in p.glob("*") if f.is_file()}
 
         # For now, filter out trimmed log directories
