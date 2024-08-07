@@ -44,10 +44,16 @@ iteration, it appears that the contents &amp; structure of this file differs sig
 between the two hardware revisions to reliably make an accurate distinction.</p></div>
 </dd>
 <dt id="pyflysight.flysight_utils.copy_logs"><code class="name flex">
-<span>def <span class="ident">copy_logs</span></span>(<span>device_root: pathlib.Path, dest: pathlib.Path, filter_func: collections.abc.Callable[[pathlib.Path], bool] | None = None, exist_ok: bool = True, remove_after: bool = False) ‑> None</span>
+<span>def <span class="ident">copy_logs</span></span>(<span>device_root: pathlib.Path, dest: pathlib.Path, filter_func: collections.abc.Callable[[pathlib.Path], bool] | None = None, exist_ok: bool = True, remove_after: bool = False) ‑> <a title="pyflysight.flysight_utils.LogCopyStatus" href="#pyflysight.flysight_utils.LogCopyStatus">LogCopyStatus</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Copy the log file tree from the provided device root to the specified destination directory.</p>
+<p>NOTE: This function operates on directories of log files only. FlySight V1 hardware groups
+flight logs by UTC date &amp; time, so each directory may have multiple flight logs present.
+FlySight V2 hardware groups flight logs per logging session, so each flight log will have its
+own directory.</p>
+<p>The number of directories copied and deleted is optionally returned for downstream notification
+purposes.</p>
 <p>A filtering function may be optionally specified as a callable that accepts a path to a single
 directory of log files and returns <code>False</code> if the directory should not be copied.</p>
 <p>If <code>exist_ok</code> is <code>False</code>, an exception will be raised if the target directory already exists in
@@ -56,6 +62,21 @@ the destination.</p>
 log data is copied to the destination.</p>
 <p>WARNING: <code>exist_ok=True</code> and <code>remove_after=True</code> are both destructive operations. Overwritten
 and/or deleted data will be lost permanently.</p></div>
+</dd>
+<dt id="pyflysight.flysight_utils.erase_logs"><code class="name flex">
+<span>def <span class="ident">erase_logs</span></span>(<span>device_root: pathlib.Path, filter_func: collections.abc.Callable[[pathlib.Path], bool] | None = None) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Erase all log files from the provided device root.</p>
+<p>A filtering function may be optionally specified as a callable that accepts a path to a single
+directory of log files and returns <code>False</code> if the directory should not be erased.</p>
+<p>WARNING: This is a destructive operation. Data is removed permanently and cannot be recovered.</p></div>
+</dd>
+<dt id="pyflysight.flysight_utils.get_device_metadata"><code class="name flex">
+<span>def <span class="ident">get_device_metadata</span></span>(<span>device_root: pathlib.Path) ‑> <a title="pyflysight.flysight_utils.FlysightMetadata" href="#pyflysight.flysight_utils.FlysightMetadata">FlysightMetadata</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Parse the provided FlySight device for some descriptive metadata.</p></div>
 </dd>
 <dt id="pyflysight.flysight_utils.get_flysight_drives"><code class="name flex">
 <span>def <span class="ident">get_flysight_drives</span></span>(<span>) ‑> tuple[pathlib.Path]</span>
@@ -103,6 +124,76 @@ overwritten.</p></div>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="pyflysight.flysight_utils.FlysightMetadata"><code class="flex name class">
+<span>class <span class="ident">FlysightMetadata</span></span>
+<span>(</span><span>flysight_type: <a title="pyflysight.FlysightType" href="index.html#pyflysight.FlysightType">FlysightType</a>, serial: str, firmware: str, n_logs: int)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>FlysightMetadata(flysight_type, serial, firmware, n_logs)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FlysightMetadata(t.NamedTuple):  # noqa: D101
+    flysight_type: FlysightType
+    serial: str
+    firmware: str
+    n_logs: int</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.tuple</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="pyflysight.flysight_utils.FlysightMetadata.firmware"><code class="name">var <span class="ident">firmware</span> : str</code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 2</p></div>
+</dd>
+<dt id="pyflysight.flysight_utils.FlysightMetadata.flysight_type"><code class="name">var <span class="ident">flysight_type</span> : <a title="pyflysight.FlysightType" href="index.html#pyflysight.FlysightType">FlysightType</a></code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 0</p></div>
+</dd>
+<dt id="pyflysight.flysight_utils.FlysightMetadata.n_logs"><code class="name">var <span class="ident">n_logs</span> : int</code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 3</p></div>
+</dd>
+<dt id="pyflysight.flysight_utils.FlysightMetadata.serial"><code class="name">var <span class="ident">serial</span> : str</code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 1</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="pyflysight.flysight_utils.LogCopyStatus"><code class="flex name class">
+<span>class <span class="ident">LogCopyStatus</span></span>
+<span>(</span><span>n_dirs_copied: int, n_dirs_erased: int)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>LogCopyStatus(n_dirs_copied, n_dirs_erased)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class LogCopyStatus(t.NamedTuple):  # noqa: D101
+    n_dirs_copied: int
+    n_dirs_erased: int</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.tuple</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="pyflysight.flysight_utils.LogCopyStatus.n_dirs_copied"><code class="name">var <span class="ident">n_dirs_copied</span> : int</code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 0</p></div>
+</dd>
+<dt id="pyflysight.flysight_utils.LogCopyStatus.n_dirs_erased"><code class="name">var <span class="ident">n_dirs_erased</span> : int</code></dt>
+<dd>
+<div class="desc"><p>Alias for field number 1</p></div>
+</dd>
+</dl>
+</dd>
 <dt id="pyflysight.flysight_utils.NoDeviceStateError"><code class="flex name class">
 <span>class <span class="ident">NoDeviceStateError</span></span>
 <span>(</span><span>*args, **kwargs)</span>
@@ -158,6 +249,8 @@ overwritten.</p></div>
 <ul class="">
 <li><code><a title="pyflysight.flysight_utils.classify_hardware_type" href="#pyflysight.flysight_utils.classify_hardware_type">classify_hardware_type</a></code></li>
 <li><code><a title="pyflysight.flysight_utils.copy_logs" href="#pyflysight.flysight_utils.copy_logs">copy_logs</a></code></li>
+<li><code><a title="pyflysight.flysight_utils.erase_logs" href="#pyflysight.flysight_utils.erase_logs">erase_logs</a></code></li>
+<li><code><a title="pyflysight.flysight_utils.get_device_metadata" href="#pyflysight.flysight_utils.get_device_metadata">get_device_metadata</a></code></li>
 <li><code><a title="pyflysight.flysight_utils.get_flysight_drives" href="#pyflysight.flysight_utils.get_flysight_drives">get_flysight_drives</a></code></li>
 <li><code><a title="pyflysight.flysight_utils.iter_flysight_drives" href="#pyflysight.flysight_utils.iter_flysight_drives">iter_flysight_drives</a></code></li>
 <li><code><a title="pyflysight.flysight_utils.wait_for_flysight" href="#pyflysight.flysight_utils.wait_for_flysight">wait_for_flysight</a></code></li>
@@ -166,6 +259,22 @@ overwritten.</p></div>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
+<li>
+<h4><code><a title="pyflysight.flysight_utils.FlysightMetadata" href="#pyflysight.flysight_utils.FlysightMetadata">FlysightMetadata</a></code></h4>
+<ul class="">
+<li><code><a title="pyflysight.flysight_utils.FlysightMetadata.firmware" href="#pyflysight.flysight_utils.FlysightMetadata.firmware">firmware</a></code></li>
+<li><code><a title="pyflysight.flysight_utils.FlysightMetadata.flysight_type" href="#pyflysight.flysight_utils.FlysightMetadata.flysight_type">flysight_type</a></code></li>
+<li><code><a title="pyflysight.flysight_utils.FlysightMetadata.n_logs" href="#pyflysight.flysight_utils.FlysightMetadata.n_logs">n_logs</a></code></li>
+<li><code><a title="pyflysight.flysight_utils.FlysightMetadata.serial" href="#pyflysight.flysight_utils.FlysightMetadata.serial">serial</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pyflysight.flysight_utils.LogCopyStatus" href="#pyflysight.flysight_utils.LogCopyStatus">LogCopyStatus</a></code></h4>
+<ul class="">
+<li><code><a title="pyflysight.flysight_utils.LogCopyStatus.n_dirs_copied" href="#pyflysight.flysight_utils.LogCopyStatus.n_dirs_copied">n_dirs_copied</a></code></li>
+<li><code><a title="pyflysight.flysight_utils.LogCopyStatus.n_dirs_erased" href="#pyflysight.flysight_utils.LogCopyStatus.n_dirs_erased">n_dirs_erased</a></code></li>
+</ul>
+</li>
 <li>
 <h4><code><a title="pyflysight.flysight_utils.NoDeviceStateError" href="#pyflysight.flysight_utils.NoDeviceStateError">NoDeviceStateError</a></code></h4>
 </li>
