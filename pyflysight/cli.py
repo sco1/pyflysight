@@ -93,8 +93,10 @@ def list(wait_for: int = typer.Option(0, min=0)) -> None:
 
 def _try_write_config(device_root: Path, config: FlysightConfig, backup_existing: bool) -> None:
     """Wrap config writing utility with graceful handling for errors."""
+    print(f"Writing config to: {device_root}")
     try:
         write_config(device_root=device_root, config=config, backup_existing=backup_existing)
+        print(f"Config successfully written to: {device_root}")
     except PermissionError:
         _abort_with_message("Error: FlySight device is read-only. ")
 

@@ -58,7 +58,9 @@ considered.</p></div>
 <p>A specific Flysight hardware revision can be targeted using the <code>flysight_type</code> argument; if
 specified as <code>None</code>, both hardware types will be searched for.</p>
 <p>NOTE: Order of yielded directories is not guaranteed.</p>
-<p>NOTE: Directories containing trimmed log data are currently not considered.</p></div>
+<p>NOTE: Directories containing trimmed log data are currently not considered.</p>
+<p>NOTE: FlySight V2 devices may have a root <code>TEMP</code> directory that contains a flight log output,
+this directory is excluded from being yielded.</p></div>
 </dd>
 <dt id="pyflysight.log_utils.locate_log_subdir"><code class="name flex">
 <span>def <span class="ident">locate_log_subdir</span></span>(<span>top_dir: pathlib.Path, flysight_type: <a title="pyflysight.FlysightType" href="index.html#pyflysight.FlysightType">FlysightType</a>) ‑> pathlib.Path</span>

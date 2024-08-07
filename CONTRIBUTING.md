@@ -12,6 +12,14 @@ A [`pre-commit`](https://pre-commit.com) configuration is also provided to creat
 $ pre-commit install
 ```
 
+[`mypy`](https://mypy-lang.org/) is also used by this project to provide static type checking. It can be invoked using:
+
+```bash
+$ mypy .
+```
+
+Note that `mypy` is not included as a pre-commit hook.
+
 ## Testing & Coverage
 A [pytest](https://docs.pytest.org/en/latest/) suite is provided, with coverage reporting from [`pytest-cov`](https://github.com/pytest-dev/pytest-cov). A [`tox`](https://github.com/tox-dev/tox/) configuration is provided to test across all supported versions of Python. Testing will be skipped for Python versions that cannot be found.
 

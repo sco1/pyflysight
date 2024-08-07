@@ -41,7 +41,7 @@ hljs.highlightAll();
 <p>NOTE: Log trimming is currently only implemented for FlySight V2 hardware.</p></div>
 </dd>
 <dt id="pyflysight.cli.clear"><code class="name flex">
-<span>def <span class="ident">clear</span></span>(<span>) ‑> None</span>
+<span>def <span class="ident">clear</span></span>(<span>flysight_root: pathlib.Path = &lt;typer.models.OptionInfo object&gt;, force: bool = &lt;typer.models.OptionInfo object&gt;) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Clear all logs on device.</p>
@@ -49,7 +49,7 @@ hljs.highlightAll();
 cannot be recovered.</p></div>
 </dd>
 <dt id="pyflysight.cli.copy"><code class="name flex">
-<span>def <span class="ident">copy</span></span>(<span>) ‑> None</span>
+<span>def <span class="ident">copy</span></span>(<span>flysight_root: pathlib.Path = &lt;typer.models.OptionInfo object&gt;, dest: pathlib.Path = &lt;typer.models.OptionInfo object&gt;, exist_ok: bool = &lt;typer.models.OptionInfo object&gt;) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Copy all logs on device to the specified destination.</p></div>
@@ -70,7 +70,7 @@ FlySight device to be connected.</p></div>
 <p>NOTE: Log trimming is currently only implemented for FlySight V2 hardware.</p></div>
 </dd>
 <dt id="pyflysight.cli.write_default"><code class="name flex">
-<span>def <span class="ident">write_default</span></span>(<span>) ‑> None</span>
+<span>def <span class="ident">write_default</span></span>(<span>flysight_root: pathlib.Path = &lt;typer.models.OptionInfo object&gt;, backup_existing: bool = &lt;typer.models.OptionInfo object&gt;) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Write default configuration.</p>
@@ -78,7 +78,7 @@ FlySight device to be connected.</p></div>
 permanently lost.</p></div>
 </dd>
 <dt id="pyflysight.cli.write_from_json"><code class="name flex">
-<span>def <span class="ident">write_from_json</span></span>(<span>) ‑> None</span>
+<span>def <span class="ident">write_from_json</span></span>(<span>flysight_root: pathlib.Path = &lt;typer.models.OptionInfo object&gt;, config_source: pathlib.Path = &lt;typer.models.OptionInfo object&gt;, backup_existing: bool = &lt;typer.models.OptionInfo object&gt;) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Write previously serialized paramters.</p>
@@ -86,7 +86,7 @@ permanently lost.</p></div>
 permanently lost.</p></div>
 </dd>
 <dt id="pyflysight.cli.write_from_other"><code class="name flex">
-<span>def <span class="ident">write_from_other</span></span>(<span>) ‑> None</span>
+<span>def <span class="ident">write_from_other</span></span>(<span>flysight_root: pathlib.Path = &lt;typer.models.OptionInfo object&gt;, config_source: pathlib.Path = &lt;typer.models.OptionInfo object&gt;, backup_existing: bool = &lt;typer.models.OptionInfo object&gt;) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Copy configuration from file.</p>
