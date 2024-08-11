@@ -1,15 +1,16 @@
 # Changelog
 Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (`<major>`.`<minor>`.`<patch>`)
 
+## [0.5.1]
+### Added
+* Add `py.typed` marker to register library as typed for downstream type checking
+
 ## [0.5.0]
 ### Changed
 * #16 Complete reimplementation of CLI
 
 ### Added
 * Add additional helpers to `pyflysight.config_utils` and `pyflysight.flysight_utils`
-
-### Added
-
 
 ## [v0.4.0]
 ### Added

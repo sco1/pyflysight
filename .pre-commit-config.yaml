@@ -35,6 +35,6 @@ repos:
       -  id: python-check-blanket-type-ignore
       -  id: python-use-type-annotations
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.5.6
+    rev: v0.5.7
     hooks:
       - id: ruff
