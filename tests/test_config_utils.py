@@ -56,18 +56,13 @@ def test_default_settings_dump_v2(tmp_path: Path) -> None:
 def test_config_json_round_trip(
     tmp_path: Path, config_base: FlysightV1Config | FlysightV2Config
 ) -> None:
-    # Rather than deal with the headache of comparing all fields (since enums are lost), check that
-    # the instance loaded from json serializes the same as the original
     out_json = tmp_path / "config.json"
-    deserialized_out_json = tmp_path / "dserialized_out.json"
 
     fsc = config_base()  # type: ignore[operator]
     fsc.to_json(out_json)
 
     fsc_from_json = fsc.from_json(out_json)
-    fsc_from_json.to_json(deserialized_out_json)
-
-    assert out_json.read_text() == deserialized_out_json.read_text()
+    assert fsc_from_json == fsc
 
 
 def test_v1_config_load_v2_config_raises(tmp_path: Path) -> None:
@@ -76,7 +71,7 @@ def test_v1_config_load_v2_config_raises(tmp_path: Path) -> None:
     fsc = FlysightV2Config()
     fsc.to_json(out_json)
 
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError, match="FlysightV1Config"):
         FlysightV1Config.from_json(out_json)
 
 
