@@ -1,6 +1,13 @@
 # Changelog
 Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (`<major>`.`<minor>`.`<patch>`)
 
+## [0.6.0]
+### Added
+* #24 Add optinal normalization of parsed GPS coordinates
+
+### Fixed
+* #25 Re-initialize nested configuration dataclasses when loading from JSON
+
 ## [0.5.1]
 ### Added
 * Add `py.typed` marker to register library as typed for downstream type checking

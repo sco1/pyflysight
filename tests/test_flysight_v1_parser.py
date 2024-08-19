@@ -2,6 +2,7 @@ import datetime as dt
 from textwrap import dedent
 
 import polars
+import pytest
 from polars.testing import assert_frame_equal
 
 from pyflysight import FlysightType, flysight_proc
@@ -32,6 +33,15 @@ def test_log_parse() -> None:
     assert_frame_equal(flight_log.select(DERIVED_COLS), TRUTH_DERIVED, rtol=1e-3)
 
 
+def test_log_parse_normalize_gps() -> None:
+    sample_flight_log = SAMPLE_DATA_DIR / "21-04-20.CSV"  # Test log with single data row
+    flight_log = flysight_proc.load_flysight(sample_flight_log, normalize_gps=True)
+
+    # Normalization helper tested elsewhere, just check here that the flag is being acted on
+    assert flight_log["lat"][0] == pytest.approx(0)
+    assert flight_log["lon"][0] == pytest.approx(0)
+
+
 def test_batch_log_parse() -> None:
     sample_log_pattern = "21*.CSV"  # Limit to a subset of the sample data
     flight_logs = flysight_proc.batch_load_flysight(SAMPLE_DATA_DIR, pattern=sample_log_pattern)
@@ -41,6 +51,18 @@ def test_batch_log_parse() -> None:
 
     # Check that the log files are loaded & keyed correctly
     assert set(flight_logs["sample_data"]) == BATCH_LOG_STEMS
+
+
+def test_batch_log_parse_normalize_gps() -> None:
+    sample_log_pattern = "21*.CSV"  # Limit to a subset of the sample data
+    flight_logs = flysight_proc.batch_load_flysight(
+        SAMPLE_DATA_DIR, pattern=sample_log_pattern, normalize_gps=True
+    )
+
+    # Normalization helper tested elsewhere, just check here that the flag is being acted on
+    for fl in flight_logs["sample_data"].values():
+        assert fl["lat"][0] == pytest.approx(0)
+        assert fl["lon"][0] == pytest.approx(0)
 
 
 SAMPLE_DATA_TO_SPLIT = dedent(

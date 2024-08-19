@@ -89,3 +89,13 @@ def test_flight_log_roundtrip(tmp_path: Path) -> None:
         val = getattr(flight_log.device_info, field)
         truth_val = getattr(truth_flight_log.device_info, field)
         assert val == truth_val
+
+
+def test_flight_log_export_normalized_gps(tmp_path: Path) -> None:
+    # Round tripping tested already, so pull back into flight log instance for easier checking
+    truth_flight_log = parse_v2_log_directory(SAMPLE_LOG, normalize_gps=False)
+    truth_flight_log.to_csv(tmp_path, normalize_gps=True)
+    flight_log = FlysightV2FlightLog.from_csv(tmp_path)
+
+    assert flight_log.track_data["lat"][0] == pytest.approx(0)
+    assert flight_log.track_data["lon"][0] == pytest.approx(0)

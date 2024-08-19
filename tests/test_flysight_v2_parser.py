@@ -312,3 +312,23 @@ def test_directory_pipeline() -> None:
     assert data_log.track_data.shape == (1, 13)
     assert "IMU" in data_log.sensor_data
     assert data_log.device_info.device_id == "003e0038484e501420353131"
+
+
+def test_directory_pipeline_normalize_gps() -> None:
+    data_directory = SAMPLE_DATA_DIR / "24-04-20/04-20-00"
+    data_log = parse_v2_log_directory(data_directory, normalize_gps=True)
+
+    # Normalization helper tested elsewhere, just check here that the flag is being acted on
+    assert data_log.track_data["lat"][0] == pytest.approx(0)
+    assert data_log.track_data["lon"][0] == pytest.approx(0)
+
+
+def test_v2_flightlog_normalize_gps() -> None:
+    data_directory = SAMPLE_DATA_DIR / "24-04-20/04-20-00"
+
+    # Have already tested that the coordinate is correctly parsed
+    data_log = parse_v2_log_directory(data_directory, normalize_gps=False)
+
+    data_log.normalize_gps()
+    assert data_log.track_data["lat"][0] == pytest.approx(0)
+    assert data_log.track_data["lon"][0] == pytest.approx(0)

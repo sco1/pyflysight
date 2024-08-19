@@ -11,7 +11,7 @@ import polars
 from polars.exceptions import ShapeError
 
 from pyflysight import FlysightType, NUMERIC_T
-from pyflysight.log_utils import get_idx
+from pyflysight.log_utils import get_idx, normalize_gps_location
 
 HEADER_PARTITION_KEYWORD = "$DATA"
 
@@ -35,7 +35,7 @@ def _calc_derived_track_vals(flog: polars.DataFrame) -> polars.DataFrame:
     return flog
 
 
-def load_flysight(filepath: Path) -> polars.DataFrame:
+def load_flysight(filepath: Path, normalize_gps: bool = False) -> polars.DataFrame:
     """
     Parse the provided FlySight log into a `DataFrame`.
 
@@ -45,10 +45,15 @@ def load_flysight(filepath: Path) -> polars.DataFrame:
     The following derived columns are added to the output `DataFrame`:
         * `elapsed_time`
         * `groundspeed` (m/s)
+
+    If `normalize_gps` is `True`, the GPS track data is normalized to start at `(0, 0)`
     """
     flight_log = polars.read_csv(filepath, skip_rows_after_header=1)
     flight_log = flight_log.with_columns(flight_log["time"].str.to_datetime())
     flight_log = _calc_derived_track_vals(flight_log)
+
+    if normalize_gps:
+        flight_log = normalize_gps_location(flight_log)
 
     return flight_log
 
@@ -56,6 +61,7 @@ def load_flysight(filepath: Path) -> polars.DataFrame:
 def batch_load_flysight(
     top_dir: Path,
     pattern: str = r"*.CSV",
+    normalize_gps: bool = False,
 ) -> dict[str, dict[str, polars.DataFrame]]:
     """
     Batch parse a directory of FlySight logs into a dictionary of `DataFrame`s.
@@ -69,12 +75,14 @@ def batch_load_flysight(
 
     NOTE: File case sensitivity is deferred to the OS; `pattern` is passed to glob as-is so matches
     may or may not be case-sensitive.
+
+    If `normalize_gps` is `True`, the GPS track data is normalized to start at `(0, 0)`
     """
     parsed_logs: dict[str, dict[str, polars.DataFrame]] = defaultdict(dict)
     for log_file in top_dir.glob(pattern):
         # Log files are grouped by date, need to retain this since it's not in the CSV filename
         log_date = log_file.parent.stem
-        parsed_logs[log_date][log_file.stem] = load_flysight(log_file)
+        parsed_logs[log_date][log_file.stem] = load_flysight(log_file, normalize_gps=normalize_gps)
 
     return parsed_logs
 
@@ -417,18 +425,23 @@ class FlysightV2FlightLog:  # noqa: D101
 
     _is_trimmed: bool = False  # If True, then device_info.first_timestamp is likely out of sync
 
-    def to_csv(self, base_dir: Path) -> None:
+    def to_csv(self, base_dir: Path, normalize_gps: bool = False) -> None:
         """
         Output logged data to a collection of CSV files relative to the provided base directory.
 
         Sensor data is named by sensor name & nested under `base_dir`:
         `base_dir/device_id/session_id/*`. Note that any existing data in this directory will be
         overwritten.
+
+        If `normalize_gps` is `True`, the GPS track data is normalized to start at `(0, 0)`
         """
         out_dir = base_dir / f"{self.device_info.device_id}/{self.device_info.session_id}"
         out_dir.mkdir(parents=True, exist_ok=True)
 
         out_filepath = out_dir / "TRACK.CSV"
+        if normalize_gps:
+            self.normalize_gps()
+
         self.track_data.write_csv(out_filepath)
 
         for sensor_name, sensor_data in self.sensor_data.items():
@@ -466,6 +479,10 @@ class FlysightV2FlightLog:  # noqa: D101
         self.track_data = self.track_data.with_columns(elapsed_time=new_time)
 
         self._is_trimmed = True
+
+    def normalize_gps(self, start_coord: tuple[float, float] = (0, 0)) -> None:
+        """Shift parsed GPS coordinates so they begin at the provided starting location."""
+        self.track_data = normalize_gps_location(self.track_data, start_coord=start_coord)
 
     @classmethod
     def from_csv(cls, base_dir: Path) -> FlysightV2FlightLog:
@@ -531,7 +548,10 @@ class FlysightV2FlightLog:  # noqa: D101
 
 
 def parse_v2_log_directory(
-    log_directory: Path, sensor_filename: str = "SENSOR.CSV", track_filename: str = "TRACK.CSV"
+    log_directory: Path,
+    normalize_gps: bool = False,
+    sensor_filename: str = "SENSOR.CSV",
+    track_filename: str = "TRACK.CSV",
 ) -> FlysightV2FlightLog:
     """
     Data parsing pipeline for a directory of Flysight V2 logs.
@@ -541,6 +561,8 @@ def parse_v2_log_directory(
         * `RAW.UBX` - Raw UBlox sensor output
         * `SENSOR.CSV` - Onboard sensor data
         * `TRACK.CSV` - GPS sensor data
+
+    If `normalize_gps` is `True`, the GPS track data is normalized to start at `(0, 0)`
     """
     sensor_filepath = log_directory / sensor_filename
     if not sensor_filepath.exists():
@@ -551,7 +573,11 @@ def parse_v2_log_directory(
         raise ValueError(f"Could not locate 'TRACK.CSV` in directory: '{log_directory}'")
 
     sensor_data, device_info = parse_v2_sensor_data(sensor_filepath)
+
     track_data, _ = parse_v2_track_data(track_filepath)
+    if normalize_gps:
+        track_data = normalize_gps_location(track_data)
+
     return FlysightV2FlightLog(
         track_data=track_data,
         sensor_data=sensor_data,

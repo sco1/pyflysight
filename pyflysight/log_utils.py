@@ -103,3 +103,19 @@ def iter_log_dirs(
         inferred_type = classify_log_dir(p)
         if (flysight_type is None) or (inferred_type == flysight_type):
             yield LogDir(p, inferred_type)
+
+
+def normalize_gps_location(
+    track_data: polars.DataFrame, start_coord: tuple[float, float] = (0, 0)
+) -> polars.DataFrame:
+    """Shift parsed GPS coordinates so they begin at the provided starting location."""
+    start_lat, start_lon = start_coord
+    lat_delta = start_lat - track_data["lat"][0]
+    lon_delta = start_lon - track_data["lon"][0]
+
+    track_data = track_data.with_columns(
+        lat=track_data["lat"] + lat_delta,
+        lon=track_data["lon"] + lon_delta,
+    )
+
+    return track_data

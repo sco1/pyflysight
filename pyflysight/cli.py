@@ -263,11 +263,11 @@ def _check_log_dir(log_dir: Path, verbose: bool) -> None:
         return
 
 
-def _trim_pipeline(log_dir: Path, verbose: bool) -> None:
+def _trim_pipeline(log_dir: Path, verbose: bool, normalize_gps: bool) -> None:
     if verbose:
         print(f"Trimming: {log_dir}...", end="")
 
-    windowtrim_flight_log(log_dir, write_csv=True)
+    windowtrim_flight_log(log_dir, write_csv=True, normalize_gps=normalize_gps)
 
     if verbose:
         print("Done!")
@@ -276,6 +276,7 @@ def _trim_pipeline(log_dir: Path, verbose: bool) -> None:
 @trim_app.command()
 def single(
     log_dir: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
+    normalize_gps: bool = typer.Option(False),
     verbose: bool = typer.Option(True),
 ) -> None:
     """
@@ -287,12 +288,13 @@ def single(
         log_dir = prompt_for_dir(title="Select Log Directory For Processing")
 
     _check_log_dir(log_dir, verbose=verbose)
-    _trim_pipeline(log_dir, verbose=verbose)
+    _trim_pipeline(log_dir, normalize_gps=normalize_gps, verbose=verbose)
 
 
 @trim_app.command()
 def batch(
     log_dir: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
+    normalize_gps: bool = typer.Option(False),
     verbose: bool = typer.Option(True),
 ) -> None:
     """
@@ -305,7 +307,7 @@ def batch(
 
     for ld in iter_log_dirs(log_dir, flysight_type=FlysightType.VERSION_2):
         _check_log_dir(ld.log_dir, verbose=verbose)
-        _trim_pipeline(ld.log_dir, verbose=verbose)
+        _trim_pipeline(ld.log_dir, normalize_gps=normalize_gps, verbose=verbose)
 
 
 if __name__ == "__main__":  # pragma: no cover
