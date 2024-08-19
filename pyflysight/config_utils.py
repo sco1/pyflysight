@@ -47,6 +47,7 @@ class FlysightConfig:  # noqa: D101
 def _remap_fields(
     parent_class: type[FlysightConfig], in_json: dict[str, t.Any]
 ) -> dict[str, t.Any]:
+    """Re-initialize nested config dataclasses from the provided raw json."""
     factory_map = {f.name: f.default_factory for f in fields(parent_class)}
     converted_fields = {}
     for k, v in in_json.items():
@@ -54,9 +55,15 @@ def _remap_fields(
             raise ValueError(f"Field '{k}' not found as field of {parent_class.__name__}")
 
         if inspect.isclass(factory_map[k]):
-            converted_fields[k] = factory_map[k](**v)
-        elif inspect.isfunction(factory_map[k]):
-            raise NotImplementedError
+            # Non-windowed config fields will have a default factory that's just the config class,
+            # so we can pass the args directly
+            converted_fields[k] = factory_map[k](**v)  # type: ignore[misc]
+        elif inspect.ismethod(factory_map[k]):  # pragma: no branch
+            # Config window fields use a classmethod as the default factory to initialize a list
+            # with the default window config, so we have to grab the parent class from this method
+            # and then can reconstitute the list of windows
+            pc = factory_map[k].__self__  # type: ignore[union-attr]
+            converted_fields[k] = [pc(**w) for w in v]
 
     return converted_fields
 

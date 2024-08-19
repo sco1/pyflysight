@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import io
-import typing as t
 from dataclasses import dataclass, fields
 from enum import IntEnum
 
@@ -359,12 +358,8 @@ class AlarmWindowSettings(FlysightSetting):
     _multi: bool = True
 
     @classmethod
-    def factory(cls) -> list[AlarmWindowSettings]:
+    def factory(cls) -> list[AlarmWindowSettings]:  # noqa: D102
         return [cls()]
-
-    @classmethod
-    def from_json(cls, in_json: list[dict[str, t.Any]]) -> list[AlarmWindowSettings]:
-        raise NotImplementedError
 
 
 # Altitude mode settings
@@ -414,12 +409,8 @@ class SilenceWindowSettings(FlysightSetting):
     _multi: bool = True
 
     @classmethod
-    def factory(cls) -> list[SilenceWindowSettings]:
+    def factory(cls) -> list[SilenceWindowSettings]:  # noqa: D102
         return [cls()]
-
-    @classmethod
-    def from_json(cls, in_json: list[dict[str, t.Any]]) -> list[SilenceWindowSettings]:
-        raise NotImplementedError
 
 
 ALL_SETTINGS = (
