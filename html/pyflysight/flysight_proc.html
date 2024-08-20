@@ -278,6 +278,69 @@ class FlysightV2FlightLog:  # noqa: D101
         &#34;&#34;&#34;Shift parsed GPS coordinates so they begin at the provided starting location.&#34;&#34;&#34;
         self.track_data = normalize_gps_location(self.track_data, start_coord=start_coord)
 
+    def filter_accel(
+        self,
+        filter_func: abc.Callable[[polars.Series], polars.Series],
+        filter_derived: bool = False,
+    ) -&gt; None:
+        &#34;&#34;&#34;
+        Filter the accleration data columns using the specified filter function.
+
+        The derived total acceleration column is also recomputed using the filtered component data.
+
+        The filtering function is specified as a callable that accepts &amp; returns a `polars.Series`
+        object (i.e. a data column). Filtered data is saved to a set of new columns with a `&#34;_filt&#34;`
+        suffix.
+
+        If `filter_derived` is `True`, the filter function is also applied to the derived total
+        acceleration column.
+        &#34;&#34;&#34;
+        df = self.sensor_data[&#34;IMU&#34;]
+        cols = (&#34;ax&#34;, &#34;ay&#34;, &#34;az&#34;)
+
+        # Calc accel in parallel &amp; then total accel afterwards
+        df = df.with_columns(polars.col(cols).map_batches(filter_func).name.suffix(&#34;_filt&#34;))
+        df = df.with_columns(
+            total_accel_filt=polars.sum_horizontal(polars.col(&#34;^a._filt$&#34;).pow(2)).pow(1 / 2)
+        )
+
+        if filter_derived:
+            df = df.with_columns(polars.col(&#34;total_accel_filt&#34;).map_batches(filter_func))
+
+        self.sensor_data[&#34;IMU&#34;] = df
+
+    def filter_baro(
+        self,
+        filter_func: abc.Callable[[polars.Series], polars.Series],
+        filter_derived: bool = False,
+    ) -&gt; None:
+        &#34;&#34;&#34;
+        Filter the barometric pressure data column using the specified filter function.
+
+        The derived pressure altitude columns are also recomputed using the filtered component data.
+
+        The filtering function is specified as a callable that accepts &amp; returns a `polars.Series`
+        object (i.e. a data column). Filtered data is saved to a set of new columns with a `&#34;_filt&#34;`
+        suffix.
+
+        If `filter_derived` is `True`, the filter function is also applied to the derived pressure
+        altitude columns.
+        &#34;&#34;&#34;
+        df = self.sensor_data[&#34;BARO&#34;]
+        cols = (&#34;pressure&#34;,)
+
+        df = df.with_columns(polars.col(cols).map_batches(filter_func).name.suffix(&#34;_filt&#34;))
+        alts = _calculate_pressure_altitude(
+            df, self.device_info.ground_pressure_pa, use_filtered=True
+        ).with_columns(polars.all().name.suffix(&#34;_filt&#34;))
+        df = df.hstack(alts)
+
+        if filter_derived:
+            derived_cols = (&#34;press_alt_m_filt&#34;, &#34;press_alt_ft_filt&#34;)
+            df = df.with_columns(polars.col(derived_cols).map_batches(filter_func))
+
+        self.sensor_data[&#34;BARO&#34;] = df
+
     @classmethod
     def from_csv(cls, base_dir: Path) -&gt; FlysightV2FlightLog:
         &#34;&#34;&#34;
@@ -383,6 +446,30 @@ error checking is performed prior to attempting to reload the data.</p></div>
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="pyflysight.flysight_proc.FlysightV2FlightLog.filter_accel"><code class="name flex">
+<span>def <span class="ident">filter_accel</span></span>(<span>self, filter_func: abc.Callable[[polars.Series], polars.Series], filter_derived: bool = False) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Filter the accleration data columns using the specified filter function.</p>
+<p>The derived total acceleration column is also recomputed using the filtered component data.</p>
+<p>The filtering function is specified as a callable that accepts &amp; returns a <code>polars.Series</code>
+object (i.e. a data column). Filtered data is saved to a set of new columns with a <code>"_filt"</code>
+suffix.</p>
+<p>If <code>filter_derived</code> is <code>True</code>, the filter function is also applied to the derived total
+acceleration column.</p></div>
+</dd>
+<dt id="pyflysight.flysight_proc.FlysightV2FlightLog.filter_baro"><code class="name flex">
+<span>def <span class="ident">filter_baro</span></span>(<span>self, filter_func: abc.Callable[[polars.Series], polars.Series], filter_derived: bool = False) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Filter the barometric pressure data column using the specified filter function.</p>
+<p>The derived pressure altitude columns are also recomputed using the filtered component data.</p>
+<p>The filtering function is specified as a callable that accepts &amp; returns a <code>polars.Series</code>
+object (i.e. a data column). Filtered data is saved to a set of new columns with a <code>"_filt"</code>
+suffix.</p>
+<p>If <code>filter_derived</code> is <code>True</code>, the filter function is also applied to the derived pressure
+altitude columns.</p></div>
+</dd>
 <dt id="pyflysight.flysight_proc.FlysightV2FlightLog.normalize_gps"><code class="name flex">
 <span>def <span class="ident">normalize_gps</span></span>(<span>self, start_coord: tuple[float, float] = (0, 0)) ‑> None</span>
 </code></dt>
@@ -486,6 +573,8 @@ overwritten.</p>
 <h4><code><a title="pyflysight.flysight_proc.FlysightV2FlightLog" href="#pyflysight.flysight_proc.FlysightV2FlightLog">FlysightV2FlightLog</a></code></h4>
 <ul class="two-column">
 <li><code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.device_info" href="#pyflysight.flysight_proc.FlysightV2FlightLog.device_info">device_info</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.filter_accel" href="#pyflysight.flysight_proc.FlysightV2FlightLog.filter_accel">filter_accel</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.filter_baro" href="#pyflysight.flysight_proc.FlysightV2FlightLog.filter_baro">filter_baro</a></code></li>
 <li><code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.from_csv" href="#pyflysight.flysight_proc.FlysightV2FlightLog.from_csv">from_csv</a></code></li>
 <li><code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.normalize_gps" href="#pyflysight.flysight_proc.FlysightV2FlightLog.normalize_gps">normalize_gps</a></code></li>
 <li><code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.sensor_data" href="#pyflysight.flysight_proc.FlysightV2FlightLog.sensor_data">sensor_data</a></code></li>

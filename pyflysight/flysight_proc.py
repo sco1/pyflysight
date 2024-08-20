@@ -3,7 +3,7 @@ from __future__ import annotations
 import datetime as dt
 import json
 import typing as t
-from collections import defaultdict, deque
+from collections import abc, defaultdict, deque
 from dataclasses import asdict, dataclass, fields
 from pathlib import Path
 
@@ -281,6 +281,29 @@ def _partition_sensor_data(data_lines: t.Sequence[str]) -> tuple[GroupedSensorDa
     return sensor_data, initial_timestamp
 
 
+def _calculate_pressure_altitude(
+    df: polars.DataFrame, ground_pressure_pa: float, use_filtered: bool = False
+) -> polars.DataFrame:
+    """
+    Derive pressure altitude columns from the provided pressure data, assuming standard lapse rate.
+
+    The provided dataframe is assumed to contain a `pressure` data column; this function returns a
+    dataframe containing `press_alt_m` and `press_alt_ft` columns.
+
+    If `use_filtered` is `True`, a `pressure_filt` column is assumed to be present & is used
+    instead.
+    """
+    if use_filtered:
+        col = df["pressure_filt"]
+    else:
+        col = df["pressure"]
+
+    press_alt_m = (44_330 * (1 - (col / ground_pressure_pa).pow(1 / 5.225))).alias("press_alt_m")
+    press_alt_ft = (press_alt_m * 3.2808).alias("press_alt_ft")
+
+    return polars.DataFrame((press_alt_m, press_alt_ft))
+
+
 def _calculate_derived_columns(
     df: polars.DataFrame,
     sensor: str,
@@ -299,12 +322,8 @@ def _calculate_derived_columns(
     If no specific calculations are required, the `DataFrame` is passed through unchanged.
     """
     if sensor == "BARO":
-        press_alt_m = (
-            44_330 * (1 - (df["pressure"] / device_info.ground_pressure_pa).pow(1 / 5.225))
-        ).alias("press_alt_m")
-        press_alt_ft = (press_alt_m * 3.2808).alias("press_alt_ft")
-
-        df = df.hstack([press_alt_m, press_alt_ft])
+        alts = _calculate_pressure_altitude(df, ground_pressure_pa=device_info.ground_pressure_pa)
+        df = df.hstack(alts)
 
     if sensor == "IMU":
         df = df.with_columns(
@@ -483,6 +502,69 @@ class FlysightV2FlightLog:  # noqa: D101
     def normalize_gps(self, start_coord: tuple[float, float] = (0, 0)) -> None:
         """Shift parsed GPS coordinates so they begin at the provided starting location."""
         self.track_data = normalize_gps_location(self.track_data, start_coord=start_coord)
+
+    def filter_accel(
+        self,
+        filter_func: abc.Callable[[polars.Series], polars.Series],
+        filter_derived: bool = False,
+    ) -> None:
+        """
+        Filter the accleration data columns using the specified filter function.
+
+        The derived total acceleration column is also recomputed using the filtered component data.
+
+        The filtering function is specified as a callable that accepts & returns a `polars.Series`
+        object (i.e. a data column). Filtered data is saved to a set of new columns with a `"_filt"`
+        suffix.
+
+        If `filter_derived` is `True`, the filter function is also applied to the derived total
+        acceleration column.
+        """
+        df = self.sensor_data["IMU"]
+        cols = ("ax", "ay", "az")
+
+        # Calc accel in parallel & then total accel afterwards
+        df = df.with_columns(polars.col(cols).map_batches(filter_func).name.suffix("_filt"))
+        df = df.with_columns(
+            total_accel_filt=polars.sum_horizontal(polars.col("^a._filt$").pow(2)).pow(1 / 2)
+        )
+
+        if filter_derived:
+            df = df.with_columns(polars.col("total_accel_filt").map_batches(filter_func))
+
+        self.sensor_data["IMU"] = df
+
+    def filter_baro(
+        self,
+        filter_func: abc.Callable[[polars.Series], polars.Series],
+        filter_derived: bool = False,
+    ) -> None:
+        """
+        Filter the barometric pressure data column using the specified filter function.
+
+        The derived pressure altitude columns are also recomputed using the filtered component data.
+
+        The filtering function is specified as a callable that accepts & returns a `polars.Series`
+        object (i.e. a data column). Filtered data is saved to a set of new columns with a `"_filt"`
+        suffix.
+
+        If `filter_derived` is `True`, the filter function is also applied to the derived pressure
+        altitude columns.
+        """
+        df = self.sensor_data["BARO"]
+        cols = ("pressure",)
+
+        df = df.with_columns(polars.col(cols).map_batches(filter_func).name.suffix("_filt"))
+        alts = _calculate_pressure_altitude(
+            df, self.device_info.ground_pressure_pa, use_filtered=True
+        ).with_columns(polars.all().name.suffix("_filt"))
+        df = df.hstack(alts)
+
+        if filter_derived:
+            derived_cols = ("press_alt_m_filt", "press_alt_ft_filt")
+            df = df.with_columns(polars.col(derived_cols).map_batches(filter_func))
+
+        self.sensor_data["BARO"] = df
 
     @classmethod
     def from_csv(cls, base_dir: Path) -> FlysightV2FlightLog:

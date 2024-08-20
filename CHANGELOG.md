@@ -4,6 +4,7 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (`<ma
 ## [0.6.0]
 ### Added
 * #24 Add optinal normalization of parsed GPS coordinates
+* #27 Add `filter_accel` and `filter_baro` helpers to `pyflysight.flysight_proc.FlysightV2FlightLog` to assist with applying filters to logged accelerometer & baro data.
 
 ### Fixed
 * #25 Re-initialize nested configuration dataclasses when loading from JSON

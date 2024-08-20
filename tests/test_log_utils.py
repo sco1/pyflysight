@@ -1,8 +1,8 @@
 from pathlib import Path
 
 import polars
-import polars.testing
 import pytest
+from polars.testing import assert_frame_equal
 
 from pyflysight import FlysightType, NUMERIC_T
 from pyflysight.log_utils import (
@@ -153,4 +153,4 @@ def test_gps_normalize() -> None:
     )
 
     normalized_track = normalize_gps_location(track_df)
-    polars.testing.assert_frame_equal(normalized_track, truth_normal)
+    assert_frame_equal(normalized_track, truth_normal)
