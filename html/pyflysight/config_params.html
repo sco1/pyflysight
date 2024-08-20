@@ -166,16 +166,16 @@ hljs.highlightAll();
 <span>(</span><span>Win_Above: int = 0, Win_Below: int = 0, DZ_Elev: int = 0)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>AlarmSettings(_header: str = '; Alarm settings', _header_text: str | None = '; NOTE: Alarms may be set for multiple altitudes by specifying repeated blocks\n;
+<div class="desc"><p>AlarmSettings(_header: 'str' = '; Alarm settings', _header_text: 'str | None' = '; NOTE: Alarms may be set for multiple altitudes by specifying repeated blocks\n;
 of configuration information. See the FlySight support wiki for\n;
 examples &amp; instructions on selecting alarm files:\n;\n;
 <a href="https://flysight.ca/wiki/index.php?title=Configuring_FlySight#Speech_alarms\n;\n;">https://flysight.ca/wiki/index.php?title=Configuring_FlySight#Speech_alarms\n;\n;</a> NOTE: Altitudes are specified relative to ground elevation, as specified by\n;
-Dz_Elev.\n', _multi: bool = False, Win_Above: int = 0, Win_Below: int = 0, DZ_Elev: int = 0)</p></div>
+Dz_Elev.\n', Win_Above: 'int' = 0, Win_Below: 'int' = 0, DZ_Elev: 'int' = 0)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@dataclass
+<pre><code class="python">@dataclass(slots=True)
 class AlarmSettings(FlysightSetting):
     Win_Above: int = 0
     Win_Below: int = 0
@@ -188,7 +188,7 @@ class AlarmSettings(FlysightSetting):
 <ul class="hlist">
 <li><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></li>
 </ul>
-<h3>Class variables</h3>
+<h3>Instance variables</h3>
 <dl>
 <dt id="pyflysight.config_params.AlarmSettings.DZ_Elev"><code class="name">var <span class="ident">DZ_Elev</span> : int</code></dt>
 <dd>
@@ -265,12 +265,12 @@ class AlarmSettings(FlysightSetting):
 <span>(</span><span>Alarm_Elev: int = 0, Alarm_Type: <a title="pyflysight.config_params.AlarmType" href="#pyflysight.config_params.AlarmType">AlarmType</a> = 0, Alarm_File: int = 0)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>AlarmWindowSettings(_header: str = '; Alarm windows', _header_text: str | None = None, _multi: bool = True, Alarm_Elev: int = 0, Alarm_Type: pyflysight.config_params.AlarmType = <AlarmType.NO_ALARM: 0>, Alarm_File: int = 0)</p></div>
+<div class="desc"><p>AlarmWindowSettings(_header: 'str' = '; Alarm windows', _header_text: 'str | None' = None, Alarm_Elev: 'int' = 0, Alarm_Type: 'AlarmType' = <AlarmType.NO_ALARM: 0>, Alarm_File: 'int' = 0)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@dataclass
+<pre><code class="python">@dataclass(slots=True)
 class AlarmWindowSettings(FlysightSetting):
     Alarm_Elev: int = 0
     Alarm_Type: AlarmType = AlarmType.NO_ALARM
@@ -278,13 +278,25 @@ class AlarmWindowSettings(FlysightSetting):
 
     _header: str = &#34;; Alarm windows&#34;
     _header_text: str | None = None
-    _multi: bool = True</code></pre>
+
+    @classmethod
+    def factory(cls) -&gt; list[AlarmWindowSettings]:  # noqa: D102
+        return [cls()]</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></li>
 </ul>
-<h3>Class variables</h3>
+<h3>Static methods</h3>
+<dl>
+<dt id="pyflysight.config_params.AlarmWindowSettings.factory"><code class="name flex">
+<span>def <span class="ident">factory</span></span>(<span>) ‑> list[<a title="pyflysight.config_params.AlarmWindowSettings" href="#pyflysight.config_params.AlarmWindowSettings">AlarmWindowSettings</a>]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
 <dl>
 <dt id="pyflysight.config_params.AlarmWindowSettings.Alarm_Elev"><code class="name">var <span class="ident">Alarm_Elev</span> : int</code></dt>
 <dd>
@@ -346,15 +358,15 @@ class AlarmWindowSettings(FlysightSetting):
 <span>(</span><span>Alt_Units: <a title="pyflysight.config_params.AltUnits" href="#pyflysight.config_params.AltUnits">AltUnits</a> = 1, Alt_Step: int = 0)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>AltitudeSettings(_header: str = '; Altitude mode settings', _header_text: str | None = '; NOTE: Altitudes are specified relative to ground elevation, as specified by\n;
+<div class="desc"><p>AltitudeSettings(_header: 'str' = '; Altitude mode settings', _header_text: 'str | None' = '; NOTE: Altitudes are specified relative to ground elevation, as specified by\n;
 Dz_Elev. Altitude mode will not function below 1500m AGL.\n;\n; NOTE: Altitude is called out when the FlySight first receives a GPS fix in\n;
 order to verify DZ_Elev is set properly. If correctly configured\n;
-this altitude should be within 10 meters of zero.\n', _multi: bool = False, Alt_Units: pyflysight.config_params.AltUnits = <AltUnits.FEET: 1>, Alt_Step: int = 0)</p></div>
+this altitude should be within 10 meters of zero.\n', Alt_Units: 'AltUnits' = <AltUnits.FEET: 1>, Alt_Step: 'int' = 0)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@dataclass
+<pre><code class="python">@dataclass(slots=True)
 class AltitudeSettings(FlysightSetting):
     Alt_Units: AltUnits = AltUnits.FEET
     Alt_Step: int = 0
@@ -366,7 +378,7 @@ class AltitudeSettings(FlysightSetting):
 <ul class="hlist">
 <li><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></li>
 </ul>
-<h3>Class variables</h3>
+<h3>Instance variables</h3>
 <dl>
 <dt id="pyflysight.config_params.AltitudeSettings.Alt_Step"><code class="name">var <span class="ident">Alt_Step</span> : int</code></dt>
 <dd>
@@ -486,17 +498,15 @@ class AltitudeSettings(FlysightSetting):
 <span>class <span class="ident">FlysightSetting</span></span>
 </code></dt>
 <dd>
-<div class="desc"><p>FlysightSetting(_header: str = '', _header_text: str | None = None, _multi: bool = False)</p></div>
+<div class="desc"><p>FlysightSetting(_header: 'str' = '', _header_text: 'str | None' = None)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@dataclass
+<pre><code class="python">@dataclass(slots=True)
 class FlysightSetting:
     _header: str = &#34;&#34;
     _header_text: str | None = None
-
-    _multi: bool = False
 
     def to_buffer(self, buff: io.StringIO) -&gt; None:
         &#34;&#34;&#34;
@@ -529,7 +539,7 @@ class FlysightSetting:
 <h3>Methods</h3>
 <dl>
 <dt id="pyflysight.config_params.FlysightSetting.to_buffer"><code class="name flex">
-<span>def <span class="ident">to_buffer</span></span>(<span>self, buff: _io.StringIO) ‑> None</span>
+<span>def <span class="ident">to_buffer</span></span>(<span>self, buff: io.StringIO) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Dump the class' fields to the provided string buffer.</p>
@@ -605,12 +615,12 @@ class FlysightSetting:
 <span>(</span><span>Model: <a title="pyflysight.config_params.GPSModel" href="#pyflysight.config_params.GPSModel">GPSModel</a> = 6, Rate: int = 200)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>GPSSettings(_header: str = '; GPS settings', _header_text: str | None = None, _multi: bool = False, Model: pyflysight.config_params.GPSModel = <GPSModel.AIRBORNE_LT_1G: 6>, Rate: int = 200)</p></div>
+<div class="desc"><p>GPSSettings(_header: 'str' = '; GPS settings', _header_text: 'str | None' = None, Model: 'GPSModel' = <GPSModel.AIRBORNE_LT_1G: 6>, Rate: 'int' = 200)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@dataclass
+<pre><code class="python">@dataclass(slots=True)
 class GPSSettings(FlysightSetting):
     Model: GPSModel = GPSModel.AIRBORNE_LT_1G
     Rate: int = 200  # milliseconds
@@ -621,7 +631,7 @@ class GPSSettings(FlysightSetting):
 <ul class="hlist">
 <li><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></li>
 </ul>
-<h3>Class variables</h3>
+<h3>Instance variables</h3>
 <dl>
 <dt id="pyflysight.config_params.GPSSettings.Model"><code class="name">var <span class="ident">Model</span> : <a title="pyflysight.config_params.GPSModel" href="#pyflysight.config_params.GPSModel">GPSModel</a></code></dt>
 <dd>
@@ -810,15 +820,15 @@ class GPSSettings(FlysightSetting):
 <span>(</span><span>Baro_ODR: <a title="pyflysight.config_params.BaroODR" href="#pyflysight.config_params.BaroODR">BaroODR</a> = 2, Hum_ODR: <a title="pyflysight.config_params.HumODR" href="#pyflysight.config_params.HumODR">HumODR</a> = 1, Mag_ODR: <a title="pyflysight.config_params.MagODR" href="#pyflysight.config_params.MagODR">MagODR</a> = 0, Accel_ODR: <a title="pyflysight.config_params.AccelODR" href="#pyflysight.config_params.AccelODR">AccelODR</a> = 1, Accel_FS: <a title="pyflysight.config_params.AccelFS" href="#pyflysight.config_params.AccelFS">AccelFS</a> = 1, Gyro_ODR: <a title="pyflysight.config_params.GyroODR" href="#pyflysight.config_params.GyroODR">GyroODR</a> = 1, Gyro_FS: <a title="pyflysight.config_params.GyroFS" href="#pyflysight.config_params.GyroFS">GyroFS</a> = 3)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>IMUSettings(_header: str = '; IMU settings', _header_text: str | None = '; NOTE: Configuring away from default IMU values currently requires installation\n;
+<div class="desc"><p>IMUSettings(_header: 'str' = '; IMU settings', _header_text: 'str | None' = '; NOTE: Configuring away from default IMU values currently requires installation\n;
 of beta firmware, which can be found at:\n;\n;
 <a href="https://flysight.ca/firmware/?include_beta=true\n;\n;">https://flysight.ca/firmware/?include_beta=true\n;\n;</a> NOTE: Currently not possible to achieve full logging rate for the\n;
-accelerometer and gyro; the currently known maximum is ~1666 Hz\n', _multi: bool = False, Baro_ODR: pyflysight.config_params.BaroODR = <BaroODR.HZ_10: 2>, Hum_ODR: pyflysight.config_params.HumODR = <HumODR.HZ_1: 1>, Mag_ODR: pyflysight.config_params.MagODR = <MagODR.HZ_10: 0>, Accel_ODR: pyflysight.config_params.AccelODR = <AccelODR.HZ_12_5: 1>, Accel_FS: pyflysight.config_params.AccelFS = <AccelFS.GEE_16: 1>, Gyro_ODR: pyflysight.config_params.GyroODR = <GyroODR.HZ_12_5: 1>, Gyro_FS: pyflysight.config_params.GyroFS = <GyroFS.DEG_S_2000: 3>)</p></div>
+accelerometer and gyro; the currently known maximum is ~1666 Hz\n', Baro_ODR: 'BaroODR' = <BaroODR.HZ_10: 2>, Hum_ODR: 'HumODR' = <HumODR.HZ_1: 1>, Mag_ODR: 'MagODR' = <MagODR.HZ_10: 0>, Accel_ODR: 'AccelODR' = <AccelODR.HZ_12_5: 1>, Accel_FS: 'AccelFS' = <AccelFS.GEE_16: 1>, Gyro_ODR: 'GyroODR' = <GyroODR.HZ_12_5: 1>, Gyro_FS: 'GyroFS' = <GyroFS.DEG_S_2000: 3>)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@dataclass
+<pre><code class="python">@dataclass(slots=True)
 class IMUSettings(FlysightSetting):
     Baro_ODR: BaroODR = BaroODR.HZ_10
     Hum_ODR: HumODR = HumODR.HZ_1
@@ -835,7 +845,7 @@ class IMUSettings(FlysightSetting):
 <ul class="hlist">
 <li><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></li>
 </ul>
-<h3>Class variables</h3>
+<h3>Instance variables</h3>
 <dl>
 <dt id="pyflysight.config_params.IMUSettings.Accel_FS"><code class="name">var <span class="ident">Accel_FS</span> : <a title="pyflysight.config_params.AccelFS" href="#pyflysight.config_params.AccelFS">AccelFS</a></code></dt>
 <dd>
@@ -918,14 +928,14 @@ class IMUSettings(FlysightSetting):
 <span>(</span><span>Init_Mode: <a title="pyflysight.config_params.InitMode" href="#pyflysight.config_params.InitMode">InitMode</a> = 0, Init_File: int = 0)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>InitializationSettings(_header: str = '; Initialization', _header_text: str | None = '; NOTE: Consult the FlySight support wiki for instructions on how to select the\n;
+<div class="desc"><p>InitializationSettings(_header: 'str' = '; Initialization', _header_text: 'str | None' = '; NOTE: Consult the FlySight support wiki for instructions on how to select the\n;
 initialization audio file:\n;\n;
-<a href="https://flysight.ca/wiki/index.php?title=Configuring_FlySight#Selectable_configurations\n',">https://flysight.ca/wiki/index.php?title=Configuring_FlySight#Selectable_configurations\n',</a> _multi: bool = False, Init_Mode: pyflysight.config_params.InitMode = <InitMode.DO_NOTHING: 0>, Init_File: int = 0)</p></div>
+<a href="https://flysight.ca/wiki/index.php?title=Configuring_FlySight#Selectable_configurations\n',">https://flysight.ca/wiki/index.php?title=Configuring_FlySight#Selectable_configurations\n',</a> Init_Mode: 'InitMode' = <InitMode.DO_NOTHING: 0>, Init_File: 'int' = 0)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@dataclass
+<pre><code class="python">@dataclass(slots=True)
 class InitializationSettings(FlysightSetting):
     Init_Mode: InitMode = InitMode.DO_NOTHING
     Init_File: int = 0
@@ -937,7 +947,7 @@ class InitializationSettings(FlysightSetting):
 <ul class="hlist">
 <li><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></li>
 </ul>
-<h3>Class variables</h3>
+<h3>Instance variables</h3>
 <dl>
 <dt id="pyflysight.config_params.InitializationSettings.Init_File"><code class="name">var <span class="ident">Init_File</span> : int</code></dt>
 <dd>
@@ -1005,12 +1015,12 @@ class InitializationSettings(FlysightSetting):
 <span>(</span><span>Use_SAS: <a title="pyflysight.config_params.UseSAS" href="#pyflysight.config_params.UseSAS">UseSAS</a> = 1, TZ_Offset: int = 0)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>MiscellaneousSettings(_header: str = '; Miscellaneous', _header_text: str | None = None, _multi: bool = False, Use_SAS: pyflysight.config_params.UseSAS = <UseSAS.YES: 1>, TZ_Offset: int = 0)</p></div>
+<div class="desc"><p>MiscellaneousSettings(_header: 'str' = '; Miscellaneous', _header_text: 'str | None' = None, Use_SAS: 'UseSAS' = <UseSAS.YES: 1>, TZ_Offset: 'int' = 0)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@dataclass
+<pre><code class="python">@dataclass(slots=True)
 class MiscellaneousSettings(FlysightSetting):
     Use_SAS: UseSAS = UseSAS.YES
     TZ_Offset: int = 0
@@ -1021,7 +1031,7 @@ class MiscellaneousSettings(FlysightSetting):
 <ul class="hlist">
 <li><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></li>
 </ul>
-<h3>Class variables</h3>
+<h3>Instance variables</h3>
 <dl>
 <dt id="pyflysight.config_params.MiscellaneousSettings.TZ_Offset"><code class="name">var <span class="ident">TZ_Offset</span> : int</code></dt>
 <dd>
@@ -1109,12 +1119,12 @@ class MiscellaneousSettings(FlysightSetting):
 <span>(</span><span>Mode_2: <a title="pyflysight.config_params.Mode2" href="#pyflysight.config_params.Mode2">Mode2</a> = 9, Min_Val_2: int = 300, Max_Val_2: int = 1500, Min_Rate: int = 100, Max_Rate: int = 500, Flatline: <a title="pyflysight.config_params.FlatLine" href="#pyflysight.config_params.FlatLine">FlatLine</a> = 0)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>RateSettings(_header: str = '; Rate settings', _header_text: str | None = None, _multi: bool = False, Mode_2: pyflysight.config_params.Mode2 = <Mode2.CHANGE_VALUE_1: 9>, Min_Val_2: int = 300, Max_Val_2: int = 1500, Min_Rate: int = 100, Max_Rate: int = 500, Flatline: pyflysight.config_params.FlatLine = <FlatLine.NO: 0>)</p></div>
+<div class="desc"><p>RateSettings(_header: 'str' = '; Rate settings', _header_text: 'str | None' = None, Mode_2: 'Mode2' = <Mode2.CHANGE_VALUE_1: 9>, Min_Val_2: 'int' = 300, Max_Val_2: 'int' = 1500, Min_Rate: 'int' = 100, Max_Rate: 'int' = 500, Flatline: 'FlatLine' = <FlatLine.NO: 0>)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@dataclass
+<pre><code class="python">@dataclass(slots=True)
 class RateSettings(FlysightSetting):
     Mode_2: Mode2 = Mode2.CHANGE_VALUE_1
     Min_Val_2: int = 300
@@ -1129,7 +1139,7 @@ class RateSettings(FlysightSetting):
 <ul class="hlist">
 <li><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></li>
 </ul>
-<h3>Class variables</h3>
+<h3>Instance variables</h3>
 <dl>
 <dt id="pyflysight.config_params.RateSettings.Flatline"><code class="name">var <span class="ident">Flatline</span> : <a title="pyflysight.config_params.FlatLine" href="#pyflysight.config_params.FlatLine">FlatLine</a></code></dt>
 <dd>
@@ -1170,27 +1180,39 @@ class RateSettings(FlysightSetting):
 <span>(</span><span>Win_Top: int = 0, Win_Bottom: int = 0)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>SilenceWindowSettings(_header: str = '; Silence windows', _header_text: str | None = '; NOTE: Multiple silence windows may be specified to silence tones during the\n;
+<div class="desc"><p>SilenceWindowSettings(_header: 'str' = '; Silence windows', _header_text: 'str | None' = '; NOTE: Multiple silence windows may be specified to silence tones during the\n;
 window elevation; only alarms will be audible.\n;\n; NOTE: Altitudes are specified relative to ground elevation, as specified by\n;
-Dz_Elev.\n;\n; NOTE: Silence windows are currently not detailed in the FlySight support wiki.\n', _multi: bool = True, Win_Top: int = 0, Win_Bottom: int = 0)</p></div>
+Dz_Elev.\n;\n; NOTE: Silence windows are currently not detailed in the FlySight support wiki.\n', Win_Top: 'int' = 0, Win_Bottom: 'int' = 0)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@dataclass
+<pre><code class="python">@dataclass(slots=True)
 class SilenceWindowSettings(FlysightSetting):
     Win_Top: int = 0
     Win_Bottom: int = 0
 
     _header: str = &#34;; Silence windows&#34;
     _header_text: str | None = SILENCE_WINDOW_HEADER
-    _multi: bool = True</code></pre>
+
+    @classmethod
+    def factory(cls) -&gt; list[SilenceWindowSettings]:  # noqa: D102
+        return [cls()]</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></li>
 </ul>
-<h3>Class variables</h3>
+<h3>Static methods</h3>
+<dl>
+<dt id="pyflysight.config_params.SilenceWindowSettings.factory"><code class="name flex">
+<span>def <span class="ident">factory</span></span>(<span>) ‑> list[<a title="pyflysight.config_params.SilenceWindowSettings" href="#pyflysight.config_params.SilenceWindowSettings">SilenceWindowSettings</a>]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
 <dl>
 <dt id="pyflysight.config_params.SilenceWindowSettings.Win_Bottom"><code class="name">var <span class="ident">Win_Bottom</span> : int</code></dt>
 <dd>
@@ -1273,12 +1295,12 @@ class SilenceWindowSettings(FlysightSetting):
 <span>(</span><span>Sp_Rate: int = 0, Sp_Volume: <a title="pyflysight.config_params.SpeechVolume" href="#pyflysight.config_params.SpeechVolume">SpeechVolume</a> = 6, Sp_Mode: <a title="pyflysight.config_params.SpeechMode" href="#pyflysight.config_params.SpeechMode">SpeechMode</a> = 2, Sp_Units: <a title="pyflysight.config_params.SpeechUnits" href="#pyflysight.config_params.SpeechUnits">SpeechUnits</a> = 1, Sp_Dec: int = 1)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>SpeechSettings(_header: str = '; Speech settings', _header_text: str | None = None, _multi: bool = False, Sp_Rate: int = 0, Sp_Volume: pyflysight.config_params.SpeechVolume = <SpeechVolume.MORE_LOUDER: 6>, Sp_Mode: pyflysight.config_params.SpeechMode = <SpeechMode.GLIDE_RATIO: 2>, Sp_Units: pyflysight.config_params.SpeechUnits = <SpeechUnits.MPH_F: 1>, Sp_Dec: int = 1)</p></div>
+<div class="desc"><p>SpeechSettings(_header: 'str' = '; Speech settings', _header_text: 'str | None' = None, Sp_Rate: 'int' = 0, Sp_Volume: 'SpeechVolume' = <SpeechVolume.MORE_LOUDER: 6>, Sp_Mode: 'SpeechMode' = <SpeechMode.GLIDE_RATIO: 2>, Sp_Units: 'SpeechUnits' = <SpeechUnits.MPH_F: 1>, Sp_Dec: 'int' = 1)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@dataclass
+<pre><code class="python">@dataclass(slots=True)
 class SpeechSettings(FlysightSetting):
     Sp_Rate: int = 0
     Sp_Volume: SpeechVolume = SpeechVolume.MORE_LOUDER
@@ -1292,7 +1314,7 @@ class SpeechSettings(FlysightSetting):
 <ul class="hlist">
 <li><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></li>
 </ul>
-<h3>Class variables</h3>
+<h3>Instance variables</h3>
 <dl>
 <dt id="pyflysight.config_params.SpeechSettings.Sp_Dec"><code class="name">var <span class="ident">Sp_Dec</span> : int</code></dt>
 <dd>
@@ -1430,12 +1452,12 @@ class SpeechSettings(FlysightSetting):
 <span>(</span><span>V_Thresh: int = 1000, H_Thresh: int = 0)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>ThresholdSettings(_header: str = '; Thresholds', _header_text: str | None = None, _multi: bool = False, V_Thresh: int = 1000, H_Thresh: int = 0)</p></div>
+<div class="desc"><p>ThresholdSettings(_header: 'str' = '; Thresholds', _header_text: 'str | None' = None, V_Thresh: 'int' = 1000, H_Thresh: 'int' = 0)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@dataclass
+<pre><code class="python">@dataclass(slots=True)
 class ThresholdSettings(FlysightSetting):
     V_Thresh: int = 1000
     H_Thresh: int = 0
@@ -1446,7 +1468,7 @@ class ThresholdSettings(FlysightSetting):
 <ul class="hlist">
 <li><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></li>
 </ul>
-<h3>Class variables</h3>
+<h3>Instance variables</h3>
 <dl>
 <dt id="pyflysight.config_params.ThresholdSettings.H_Thresh"><code class="name">var <span class="ident">H_Thresh</span> : int</code></dt>
 <dd>
@@ -1567,12 +1589,12 @@ class ThresholdSettings(FlysightSetting):
 <span>(</span><span>Mode: <a title="pyflysight.config_params.ToneMeasurementMode" href="#pyflysight.config_params.ToneMeasurementMode">ToneMeasurementMode</a> = 2, Min: int = 0, Max: int = 300, Limits: <a title="pyflysight.config_params.ToneLimits" href="#pyflysight.config_params.ToneLimits">ToneLimits</a> = 1, Volume: <a title="pyflysight.config_params.ToneVolume" href="#pyflysight.config_params.ToneVolume">ToneVolume</a> = 6)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>ToneSettings(_header: str = '; Tone settings', _header_text: str | None = None, _multi: bool = False, Mode: pyflysight.config_params.ToneMeasurementMode = <ToneMeasurementMode.GLIDE_RATIO: 2>, Min: int = 0, Max: int = 300, Limits: pyflysight.config_params.ToneLimits = <ToneLimits.MIN_MAX_TONE: 1>, Volume: pyflysight.config_params.ToneVolume = <ToneVolume.MORE_LOUDER: 6>)</p></div>
+<div class="desc"><p>ToneSettings(_header: 'str' = '; Tone settings', _header_text: 'str | None' = None, Mode: 'ToneMeasurementMode' = <ToneMeasurementMode.GLIDE_RATIO: 2>, Min: 'int' = 0, Max: 'int' = 300, Limits: 'ToneLimits' = <ToneLimits.MIN_MAX_TONE: 1>, Volume: 'ToneVolume' = <ToneVolume.MORE_LOUDER: 6>)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@dataclass
+<pre><code class="python">@dataclass(slots=True)
 class ToneSettings(FlysightSetting):
     Mode: ToneMeasurementMode = ToneMeasurementMode.GLIDE_RATIO
     Min: int = 0
@@ -1586,7 +1608,7 @@ class ToneSettings(FlysightSetting):
 <ul class="hlist">
 <li><a title="pyflysight.config_params.FlysightSetting" href="#pyflysight.config_params.FlysightSetting">FlysightSetting</a></li>
 </ul>
-<h3>Class variables</h3>
+<h3>Instance variables</h3>
 <dl>
 <dt id="pyflysight.config_params.ToneSettings.Limits"><code class="name">var <span class="ident">Limits</span> : <a title="pyflysight.config_params.ToneLimits" href="#pyflysight.config_params.ToneLimits">ToneLimits</a></code></dt>
 <dd>
@@ -1784,6 +1806,7 @@ class ToneSettings(FlysightSetting):
 <li><code><a title="pyflysight.config_params.AlarmWindowSettings.Alarm_Elev" href="#pyflysight.config_params.AlarmWindowSettings.Alarm_Elev">Alarm_Elev</a></code></li>
 <li><code><a title="pyflysight.config_params.AlarmWindowSettings.Alarm_File" href="#pyflysight.config_params.AlarmWindowSettings.Alarm_File">Alarm_File</a></code></li>
 <li><code><a title="pyflysight.config_params.AlarmWindowSettings.Alarm_Type" href="#pyflysight.config_params.AlarmWindowSettings.Alarm_Type">Alarm_Type</a></code></li>
+<li><code><a title="pyflysight.config_params.AlarmWindowSettings.factory" href="#pyflysight.config_params.AlarmWindowSettings.factory">factory</a></code></li>
 </ul>
 </li>
 <li>
@@ -1952,6 +1975,7 @@ class ToneSettings(FlysightSetting):
 <ul class="">
 <li><code><a title="pyflysight.config_params.SilenceWindowSettings.Win_Bottom" href="#pyflysight.config_params.SilenceWindowSettings.Win_Bottom">Win_Bottom</a></code></li>
 <li><code><a title="pyflysight.config_params.SilenceWindowSettings.Win_Top" href="#pyflysight.config_params.SilenceWindowSettings.Win_Top">Win_Top</a></code></li>
+<li><code><a title="pyflysight.config_params.SilenceWindowSettings.factory" href="#pyflysight.config_params.SilenceWindowSettings.factory">factory</a></code></li>
 </ul>
 </li>
 <li>
