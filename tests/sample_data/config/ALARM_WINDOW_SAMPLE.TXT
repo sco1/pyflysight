@@ -1,0 +1,42 @@
+; FlySight - http://flysight.ca
+;
+; NOTE: This log file has been automatically generated and does not contain the
+;       descriptive comments found in the default configuration file as shipped
+;       by the manufacturer. Firmware updates may introduce and/or remove
+;       configuration values; missing values should be interpreted by the
+;       FlySight config parser as their defaults. Configuration details can be
+;       found in the FlySight support wiki or the firmware source repository.
+;
+;       See:
+;           https://flysight.ca/wiki/index.php?title=Configuring_FlySight
+;           https://github.com/flysight/flysight (Hardware V1)
+;           https://github.com/flysight/flysight-2-firmware (Hardware V2)
+;
+; NOTE: Defaults are as of time of writing & may change based on firmware
+;       version
+
+; Alarm settings
+; NOTE: Alarms may be set for multiple altitudes by specifying repeated blocks
+;       of configuration information. See the FlySight support wiki for
+;       examples & instructions on selecting alarm files:
+;
+;       https://flysight.ca/wiki/index.php?title=Configuring_FlySight#Speech_alarms
+;
+; NOTE: Altitudes are specified relative to ground elevation, as specified by
+;       Dz_Elev.
+Win_Above: 0
+Win_Below: 0
+DZ_Elev: 0
+
+; Alarm windows
+Alarm_Elev: 2700
+Alarm_Type: 1
+Alarm_File: 0
+
+Alarm_Elev: 1800
+Alarm_Type: 2
+Alarm_File: 0
+
+Alarm_Elev: 900
+Alarm_Type: 3
+Alarm_File: 0

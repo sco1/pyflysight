@@ -4,8 +4,13 @@ from pathlib import Path
 
 import pytest
 
-from pyflysight.config_params import FlysightSetting
-from pyflysight.config_utils import FlysightV1Config, FlysightV2Config, parse_config_params
+from pyflysight.config_params import AlarmSettings, AlarmType, AlarmWindowSettings, FlysightSetting
+from pyflysight.config_utils import (
+    FlysightConfig,
+    FlysightV1Config,
+    FlysightV2Config,
+    parse_config_params,
+)
 from tests import SAMPLE_DATA_DIR
 
 
@@ -28,6 +33,30 @@ def test_setting_dump_to_buffer() -> None:
     NoHeader().to_buffer(buff)
 
     assert buff.getvalue() == TRUTH_SETTING_STRING_DUMP
+
+
+@dataclass
+class Windowed(FlysightConfig):
+    settings: AlarmSettings
+    windows: list[AlarmWindowSettings]
+
+
+TRUTH_MULTI_WINDOW_CONFIG = SAMPLE_DATA_DIR / "config/ALARM_WINDOW_SAMPLE.TXT"
+
+
+def test_window_setting_dump(tmp_path: Path) -> None:
+    cfg = Windowed(
+        settings=AlarmSettings(),
+        windows=[
+            AlarmWindowSettings(Alarm_Elev=2700, Alarm_Type=AlarmType.BEEP),
+            AlarmWindowSettings(Alarm_Elev=1800, Alarm_Type=AlarmType.CHIRP_UP),
+            AlarmWindowSettings(Alarm_Elev=900, Alarm_Type=AlarmType.CHIRP_DOWN),
+        ],
+    )
+    conf = tmp_path / "CONFIG.TXT"
+    cfg.to_file(conf)
+
+    assert conf.read_text() == TRUTH_MULTI_WINDOW_CONFIG.read_text()
 
 
 TRUTH_DEFAULT_CONFIG_V1 = SAMPLE_DATA_DIR / "config/GENERATED_V1_DEFAULT_CONFIG.TXT"

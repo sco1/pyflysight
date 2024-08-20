@@ -12,8 +12,6 @@ class FlysightSetting:
     _header: str = ""
     _header_text: str | None = None
 
-    _multi: bool = False
-
     def to_buffer(self, buff: io.StringIO) -> None:
         """
         Dump the class' fields to the provided string buffer.
@@ -355,7 +353,6 @@ class AlarmWindowSettings(FlysightSetting):
 
     _header: str = "; Alarm windows"
     _header_text: str | None = None
-    _multi: bool = True
 
     @classmethod
     def factory(cls) -> list[AlarmWindowSettings]:  # noqa: D102
@@ -406,7 +403,6 @@ class SilenceWindowSettings(FlysightSetting):
 
     _header: str = "; Silence windows"
     _header_text: str | None = SILENCE_WINDOW_HEADER
-    _multi: bool = True
 
     @classmethod
     def factory(cls) -> list[SilenceWindowSettings]:  # noqa: D102

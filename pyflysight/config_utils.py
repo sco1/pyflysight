@@ -28,8 +28,12 @@ class FlysightConfig:  # noqa: D101
 
             if isinstance(setting, list):
                 _write_headers(buff, setting[0])
-                for chunk in setting:
+                for i, chunk in enumerate(setting, start=1):
                     chunk.to_buffer(buff)
+
+                    # Newline delimit windows but do not add an extra newline at the end
+                    if i < len(setting):
+                        buff.write("\n")
             else:
                 _write_headers(buff, setting)
                 setting.to_buffer(buff)
