@@ -46,10 +46,10 @@ Currently encountered information contained in the header file is as follows:
     * `$COL` - Sensor ID & measured quantities; the sensor ID is used in the first column of a data row to identify the information source for each row
     * `$UNIT` - Measured quantity units
 
-#### Sensor data
+#### Sensor Data
 The sensor data stream is comingled, where the source sensor for each row is provided in the first column of each row & corresponds to the sensor information provided in the file's header.
 
-I believe the timestamps are provided as GPS time of day, in seconds.
+It is unclear how the timestamps are generated, but I do not believe they are linked to GPS time. See: [Data Synchronization](#data-synchronization) for more information.
 
 ```
 $FLYS,1
@@ -97,7 +97,7 @@ Currently seen sensors are:
     * Time
     * Voltage
 
-#### Track data
+#### Track Data
 
 ```
 $FLYS,1
@@ -123,3 +123,10 @@ Currently seen sensors are:
     * Vertical accuracy
     * Speed accuracy
     * Satellites in view
+
+### Data Synchronization
+It is unclear how the timestamps in the sensor data are generated, but they do not appear to be correlated to GPS time. This means that they cannot be directly directly to the GPS timestamp contained in the track data.
+
+However, the sensor data does contain regular time logs, given as (timestamp, GPS time of week, GPS week) (e.g. `$TIME,60077.615,316515.000,2311`), which can be used to calculate the GPS timestamp of the reading. The GPS time can be calculated by adding the GPS TOW and GPS Week to the GPS Epoch (1980-01-06). I believe, but have not confirmed, that the U-Blox chip used by FlySight to obtain GPS signal already accounts for leap seconds, so the correction can be omitted from this calculation.
+
+The `pyflysight.flysight_proc.calculate_sync_delta` helper function has been added to calculate the time delta required, in seconds, to align the track & sensor data. When added to the track data's elapsed time, the resulting elapsed time should align with the elapsed time recorded by the sensor data. When using the `pyflysight.flysight_proc.parse_v2_log_directory` helper pipeline, an `elapsed_time_sensor` column is added to the track `DataFrame`, providing a synchronized elapsed time that can be used to align the sensor & track data.

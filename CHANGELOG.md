@@ -3,8 +3,9 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (`<ma
 
 ## [0.6.0]
 ### Added
-* #24 Add optinal normalization of parsed GPS coordinates
+* #24 Add optional normalization of parsed GPS coordinates
 * #27 Add `filter_accel` and `filter_baro` helpers to `pyflysight.flysight_proc.FlysightV2FlightLog` to assist with applying filters to logged accelerometer & baro data.
+* #26 Add `pyflysight.flysight_proc.calculate_sync_delta` for calculating the time delta required to align the parsed track & sensor data
 
 ### Changed
 * #26 When using `pyflysight.flysight_proc.parse_v2_log_directory`, an `elapsed_time_sensor` column is now added to the track `DataFrame`, providing a synchronized elapsed time that can be used to align the sensor & track `DataFrame`s
