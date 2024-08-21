@@ -15,6 +15,8 @@ from pyflysight.log_utils import get_idx, normalize_gps_location
 
 HEADER_PARTITION_KEYWORD = "$DATA"
 
+GPS_EPOCH = dt.datetime(year=1980, month=1, day=6)
+
 GroupedSensorData: t.TypeAlias = dict[str, list[list[float]]]
 SensorDataFrames: t.TypeAlias = dict[str, polars.DataFrame]
 
@@ -118,7 +120,7 @@ class SensorInfo(t.NamedTuple):
     id_: str = ""
 
 
-@dataclass
+@dataclass(slots=True)
 class FlysightV2:
     """
     Store device metadata for a corresponding FLysight V2 data logger.
@@ -126,9 +128,9 @@ class FlysightV2:
     Sensor information is provided as a dictionary keyed by a sensor ID, assumed to be shared
     between the unit information contained in the header and each row of the sensor's records.
 
-    `first_timestamp` refers to the `time` value of the first data record & used to calculate the
-    running `elapsed_time` column during the parsing pipeline. This timestamp value must be set &
-    should be set later by the provided parsing pipeline.
+    `first_sensor_timestamp` refers to the `time` value of the first data record & used to calculate
+    the running `elapsed_time` column during the parsing pipeline. This timestamp value must be set
+    & should be set later by the provided parsing pipeline.
 
     `ground_pressure_pa` is the atmospheric pressure at ground level, in Pascals, used by some
     pressure altitude calculations. This defaults to standard day sea level pressure.
@@ -140,7 +142,7 @@ class FlysightV2:
     sensor_info: dict[str, SensorInfo]
     flysight_type: FlysightType = FlysightType.VERSION_2
 
-    first_timestamp: float | None = None
+    first_sensor_timestamp: float | None = None
     ground_pressure_pa: int | float = 101_325
 
     @classmethod
@@ -165,7 +167,7 @@ class FlysightV2:
             session_id=raw_json["session_id"],
             sensor_info=sensor_info,
             flysight_type=FlysightType(raw_json["flysight_type"]),
-            first_timestamp=raw_json["first_timestamp"],
+            first_sensor_timestamp=raw_json["first_sensor_timestamp"],
             ground_pressure_pa=raw_json["ground_pressure_pa"],
         )
 
@@ -344,7 +346,7 @@ def _raw_data_to_dataframe(
     `time` column, and a normalized `elapsed_time` column will be derived using the device's first
     encountered timestamp.
     """
-    if device_info.first_timestamp is None:
+    if device_info.first_sensor_timestamp is None:
         raise ValueError("First timestamp for logging session not specified.")
 
     parsed_sensor_data: dict[str, polars.DataFrame] = {}
@@ -364,7 +366,7 @@ def _raw_data_to_dataframe(
             ) from e
 
         # All sensor DataFrames get elapsed time, then we can dispatch further by sensor type
-        df = df.with_columns(elapsed_time=((df["time"] - device_info.first_timestamp)))
+        df = df.with_columns(elapsed_time=((df["time"] - device_info.first_sensor_timestamp)))
         df = _calculate_derived_columns(df=df, sensor=sensor, device_info=device_info)
 
         parsed_sensor_data[sensor] = df
@@ -382,8 +384,8 @@ def parse_v2_sensor_data(log_filepath: Path) -> tuple[SensorDataFrames, Flysight
 
     header, sensor_data = _split_sensor_data(data_lines)
     device_info = _parse_header(header)
-    grouped_sensor_data, first_timestamp = _partition_sensor_data(sensor_data)
-    device_info.first_timestamp = first_timestamp
+    grouped_sensor_data, first_sensor_timestamp = _partition_sensor_data(sensor_data)
+    device_info.first_sensor_timestamp = first_sensor_timestamp
 
     parsed_sensor_data = _raw_data_to_dataframe(grouped_sensor_data, device_info)
 
@@ -436,13 +438,14 @@ def parse_v2_track_data(log_filepath: Path) -> tuple[polars.DataFrame, FlysightV
     return parsed_sensor_data, device_info
 
 
-@dataclass
+@dataclass(slots=True)
 class FlysightV2FlightLog:  # noqa: D101
     track_data: polars.DataFrame
     sensor_data: SensorDataFrames
     device_info: FlysightV2
 
-    _is_trimmed: bool = False  # If True, then device_info.first_timestamp is likely out of sync
+    # If True, then device_info.first_sensor_timestamp is likely out of sync
+    _is_trimmed: bool = False
 
     def to_csv(self, base_dir: Path, normalize_gps: bool = False) -> None:
         """
@@ -629,6 +632,44 @@ class FlysightV2FlightLog:  # noqa: D101
         )
 
 
+def calculate_sync_delta(track_data: polars.DataFrame, time_sensor: polars.DataFrame) -> float:
+    """
+    Calculate the time delta required, in seconds, to align the track & sensor data.
+
+    When added to the track data's elapsed time, the resulting elapsed time should align with the
+    elapsed time recorded by the sensor data. Empirical checks seem to show that the sensor data
+    typically begins prior to the first recorded GPS timestamp in the track data, so this value
+    will typically be positive.
+
+    The sensor data contains regular time logs, given as (timestamp, GPS time of week, GPS week)
+    (e.g. `$TIME,60077.615,316515.000,2311`), which can be used to calculate the GPS timestamp of
+    the reading.
+
+    NOTE: I believe, but have not confirmed, that the U-Blox chip already accounts for leap seconds,
+    so the correction is omitted from this calculation.
+    """
+    tow_delta = dt.timedelta(weeks=time_sensor["week"][0], seconds=time_sensor["tow"][0])
+    gps_dt = GPS_EPOCH + tow_delta
+    print(f"GPS DT {gps_dt}")
+    sensor_start = gps_dt - dt.timedelta(seconds=time_sensor["elapsed_time"][0])
+
+    track_offset: float = (track_data["time"][0] - sensor_start).total_seconds()
+    return track_offset
+
+
+def _add_sync_column(track_data: polars.DataFrame, track_offset: float) -> polars.DataFrame:
+    """
+    Insert an `elapsed_time_sensor` column into the provided track data using the specified offset.
+
+    NOTE: It is assumed that `track_offset` is calculated in such a way that when added to the track
+    data's elapsed time it provides a time vector that aligns with the recorded sensor data.
+    """
+    track_data = track_data.with_columns(
+        elapsed_time_sensor=(polars.col("elapsed_time") + track_offset)
+    )
+    return track_data
+
+
 def parse_v2_log_directory(
     log_directory: Path,
     normalize_gps: bool = False,
@@ -643,6 +684,9 @@ def parse_v2_log_directory(
         * `RAW.UBX` - Raw UBlox sensor output
         * `SENSOR.CSV` - Onboard sensor data
         * `TRACK.CSV` - GPS sensor data
+
+    When utilizing this pipeline, an `elapsed_time_sensor` column is added to the track `DataFrame`,
+    providing a synchronized elapsed time that can be used to align the sensor & track `DataFrame`s.
 
     If `normalize_gps` is `True`, the GPS track data is normalized to start at `(0, 0)`
     """
@@ -659,6 +703,9 @@ def parse_v2_log_directory(
     track_data, _ = parse_v2_track_data(track_filepath)
     if normalize_gps:
         track_data = normalize_gps_location(track_data)
+
+    track_offset = calculate_sync_delta(track_data, sensor_data["TIME"])
+    track_data = _add_sync_column(track_data, track_offset)
 
     return FlysightV2FlightLog(
         track_data=track_data,

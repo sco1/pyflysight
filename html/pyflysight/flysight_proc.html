@@ -47,6 +47,21 @@ a recursive glob.</p>
 may or may not be case-sensitive.</p>
 <p>If <code>normalize_gps</code> is <code>True</code>, the GPS track data is normalized to start at <code>(0, 0)</code></p></div>
 </dd>
+<dt id="pyflysight.flysight_proc.calculate_sync_delta"><code class="name flex">
+<span>def <span class="ident">calculate_sync_delta</span></span>(<span>track_data: polars.DataFrame, time_sensor: polars.DataFrame) ‑> float</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Calculate the time delta required, in seconds, to align the track &amp; sensor data.</p>
+<p>When added to the track data's elapsed time, the resulting elapsed time should align with the
+elapsed time recorded by the sensor data. Empirical checks seem to show that the sensor data
+typically begins prior to the first recorded GPS timestamp in the track data, so this value
+will typically be positive.</p>
+<p>The sensor data contains regular time logs, given as (timestamp, GPS time of week, GPS week)
+(e.g. <code>$TIME,60077.615,316515.000,2311</code>), which can be used to calculate the GPS timestamp of
+the reading.</p>
+<p>NOTE: I believe, but have not confirmed, that the U-Blox chip already accounts for leap seconds,
+so the correction is omitted from this calculation.</p></div>
+</dd>
 <dt id="pyflysight.flysight_proc.load_flysight"><code class="name flex">
 <span>def <span class="ident">load_flysight</span></span>(<span>filepath: Path, normalize_gps: bool = False) ‑> polars.dataframe.frame.DataFrame</span>
 </code></dt>
@@ -69,6 +84,8 @@ default, the units row is discarded.</p>
 * <code>RAW.UBX</code> - Raw UBlox sensor output
 * <code>SENSOR.CSV</code> - Onboard sensor data
 * <code>TRACK.CSV</code> - GPS sensor data</p>
+<p>When utilizing this pipeline, an <code>elapsed_time_sensor</code> column is added to the track <code>DataFrame</code>,
+providing a synchronized elapsed time that can be used to align the sensor &amp; track <code>DataFrame</code>s.</p>
 <p>If <code>normalize_gps</code> is <code>True</code>, the GPS track data is normalized to start at <code>(0, 0)</code></p></div>
 </dd>
 <dt id="pyflysight.flysight_proc.parse_v2_sensor_data"><code class="name flex">
@@ -92,22 +109,22 @@ default, the units row is discarded.</p>
 <dl>
 <dt id="pyflysight.flysight_proc.FlysightV2"><code class="flex name class">
 <span>class <span class="ident">FlysightV2</span></span>
-<span>(</span><span>firmware_version: str, device_id: str, session_id: str, sensor_info: dict[str, <a title="pyflysight.flysight_proc.SensorInfo" href="#pyflysight.flysight_proc.SensorInfo">SensorInfo</a>], flysight_type: FlysightType = 2, first_timestamp: float | None = None, ground_pressure_pa: int | float = 101325)</span>
+<span>(</span><span>firmware_version: str, device_id: str, session_id: str, sensor_info: dict[str, <a title="pyflysight.flysight_proc.SensorInfo" href="#pyflysight.flysight_proc.SensorInfo">SensorInfo</a>], flysight_type: FlysightType = 2, first_sensor_timestamp: float | None = None, ground_pressure_pa: int | float = 101325)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Store device metadata for a corresponding FLysight V2 data logger.</p>
 <p>Sensor information is provided as a dictionary keyed by a sensor ID, assumed to be shared
 between the unit information contained in the header and each row of the sensor's records.</p>
-<p><code>first_timestamp</code> refers to the <code>time</code> value of the first data record &amp; used to calculate the
-running <code>elapsed_time</code> column during the parsing pipeline. This timestamp value must be set &amp;
-should be set later by the provided parsing pipeline.</p>
+<p><code>first_sensor_timestamp</code> refers to the <code>time</code> value of the first data record &amp; used to calculate
+the running <code>elapsed_time</code> column during the parsing pipeline. This timestamp value must be set
+&amp; should be set later by the provided parsing pipeline.</p>
 <p><code>ground_pressure_pa</code> is the atmospheric pressure at ground level, in Pascals, used by some
 pressure altitude calculations. This defaults to standard day sea level pressure.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@dataclass
+<pre><code class="python">@dataclass(slots=True)
 class FlysightV2:
     &#34;&#34;&#34;
     Store device metadata for a corresponding FLysight V2 data logger.
@@ -115,9 +132,9 @@ class FlysightV2:
     Sensor information is provided as a dictionary keyed by a sensor ID, assumed to be shared
     between the unit information contained in the header and each row of the sensor&#39;s records.
 
-    `first_timestamp` refers to the `time` value of the first data record &amp; used to calculate the
-    running `elapsed_time` column during the parsing pipeline. This timestamp value must be set &amp;
-    should be set later by the provided parsing pipeline.
+    `first_sensor_timestamp` refers to the `time` value of the first data record &amp; used to calculate
+    the running `elapsed_time` column during the parsing pipeline. This timestamp value must be set
+    &amp; should be set later by the provided parsing pipeline.
 
     `ground_pressure_pa` is the atmospheric pressure at ground level, in Pascals, used by some
     pressure altitude calculations. This defaults to standard day sea level pressure.
@@ -129,7 +146,7 @@ class FlysightV2:
     sensor_info: dict[str, SensorInfo]
     flysight_type: FlysightType = FlysightType.VERSION_2
 
-    first_timestamp: float | None = None
+    first_sensor_timestamp: float | None = None
     ground_pressure_pa: int | float = 101_325
 
     @classmethod
@@ -154,11 +171,22 @@ class FlysightV2:
             session_id=raw_json[&#34;session_id&#34;],
             sensor_info=sensor_info,
             flysight_type=FlysightType(raw_json[&#34;flysight_type&#34;]),
-            first_timestamp=raw_json[&#34;first_timestamp&#34;],
+            first_sensor_timestamp=raw_json[&#34;first_sensor_timestamp&#34;],
             ground_pressure_pa=raw_json[&#34;ground_pressure_pa&#34;],
         )</code></pre>
 </details>
-<h3>Class variables</h3>
+<h3>Static methods</h3>
+<dl>
+<dt id="pyflysight.flysight_proc.FlysightV2.from_json"><code class="name flex">
+<span>def <span class="ident">from_json</span></span>(<span>raw_json: dict[str, t.Any]) ‑> <a title="pyflysight.flysight_proc.FlysightV2" href="#pyflysight.flysight_proc.FlysightV2">FlysightV2</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Generate a new instance from a raw device data JSON file.</p>
+<p>It is assumed that the JSON file is generated by <code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.to_csv" href="#pyflysight.flysight_proc.FlysightV2FlightLog.to_csv">FlysightV2FlightLog.to_csv()</a></code>, only minimal
+checking is done for JSON validity (top level keys match <code><a title="pyflysight.flysight_proc.FlysightV2" href="#pyflysight.flysight_proc.FlysightV2">FlysightV2</a></code>'s fields).</p></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
 <dl>
 <dt id="pyflysight.flysight_proc.FlysightV2.device_id"><code class="name">var <span class="ident">device_id</span> : str</code></dt>
 <dd>
@@ -168,7 +196,7 @@ class FlysightV2:
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="pyflysight.flysight_proc.FlysightV2.first_timestamp"><code class="name">var <span class="ident">first_timestamp</span> : float | None</code></dt>
+<dt id="pyflysight.flysight_proc.FlysightV2.first_sensor_timestamp"><code class="name">var <span class="ident">first_sensor_timestamp</span> : float | None</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -189,17 +217,6 @@ class FlysightV2:
 <div class="desc"></div>
 </dd>
 </dl>
-<h3>Static methods</h3>
-<dl>
-<dt id="pyflysight.flysight_proc.FlysightV2.from_json"><code class="name flex">
-<span>def <span class="ident">from_json</span></span>(<span>raw_json: dict[str, t.Any]) ‑> <a title="pyflysight.flysight_proc.FlysightV2" href="#pyflysight.flysight_proc.FlysightV2">FlysightV2</a></span>
-</code></dt>
-<dd>
-<div class="desc"><p>Generate a new instance from a raw device data JSON file.</p>
-<p>It is assumed that the JSON file is generated by <code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.to_csv" href="#pyflysight.flysight_proc.FlysightV2FlightLog.to_csv">FlysightV2FlightLog.to_csv()</a></code>, only minimal
-checking is done for JSON validity (top level keys match <code><a title="pyflysight.flysight_proc.FlysightV2" href="#pyflysight.flysight_proc.FlysightV2">FlysightV2</a></code>'s fields).</p></div>
-</dd>
-</dl>
 </dd>
 <dt id="pyflysight.flysight_proc.FlysightV2FlightLog"><code class="flex name class">
 <span>class <span class="ident">FlysightV2FlightLog</span></span>
@@ -211,13 +228,14 @@ checking is done for JSON validity (top level keys match <code><a title="pyflysi
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@dataclass
+<pre><code class="python">@dataclass(slots=True)
 class FlysightV2FlightLog:  # noqa: D101
     track_data: polars.DataFrame
     sensor_data: SensorDataFrames
     device_info: FlysightV2
 
-    _is_trimmed: bool = False  # If True, then device_info.first_timestamp is likely out of sync
+    # If True, then device_info.first_sensor_timestamp is likely out of sync
+    _is_trimmed: bool = False
 
     def to_csv(self, base_dir: Path, normalize_gps: bool = False) -&gt; None:
         &#34;&#34;&#34;
@@ -403,21 +421,6 @@ class FlysightV2FlightLog:  # noqa: D101
             device_info=device_info,
         )</code></pre>
 </details>
-<h3>Class variables</h3>
-<dl>
-<dt id="pyflysight.flysight_proc.FlysightV2FlightLog.device_info"><code class="name">var <span class="ident">device_info</span> : <a title="pyflysight.flysight_proc.FlysightV2" href="#pyflysight.flysight_proc.FlysightV2">FlysightV2</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="pyflysight.flysight_proc.FlysightV2FlightLog.sensor_data"><code class="name">var <span class="ident">sensor_data</span> : dict[str, polars.dataframe.frame.DataFrame]</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="pyflysight.flysight_proc.FlysightV2FlightLog.track_data"><code class="name">var <span class="ident">track_data</span> : polars.dataframe.frame.DataFrame</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
 <h3>Static methods</h3>
 <dl>
 <dt id="pyflysight.flysight_proc.FlysightV2FlightLog.from_csv"><code class="name flex">
@@ -442,6 +445,21 @@ but <code>device_data_2</code> and <code>device_data_3</code> must be located us
 <code>/a/b/device_data_2</code> and <code>/a/b/device_data_3</code>, respectively.</p>
 <p>It is assumed that the data directory is generated by <code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.to_csv" href="#pyflysight.flysight_proc.FlysightV2FlightLog.to_csv">FlysightV2FlightLog.to_csv()</a></code>, minimal
 error checking is performed prior to attempting to reload the data.</p></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="pyflysight.flysight_proc.FlysightV2FlightLog.device_info"><code class="name">var <span class="ident">device_info</span> : <a title="pyflysight.flysight_proc.FlysightV2" href="#pyflysight.flysight_proc.FlysightV2">FlysightV2</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.flysight_proc.FlysightV2FlightLog.sensor_data"><code class="name">var <span class="ident">sensor_data</span> : dict[str, polars.dataframe.frame.DataFrame]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.flysight_proc.FlysightV2FlightLog.track_data"><code class="name">var <span class="ident">track_data</span> : polars.dataframe.frame.DataFrame</code></dt>
+<dd>
+<div class="desc"></div>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -548,6 +566,7 @@ overwritten.</p>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="pyflysight.flysight_proc.batch_load_flysight" href="#pyflysight.flysight_proc.batch_load_flysight">batch_load_flysight</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.calculate_sync_delta" href="#pyflysight.flysight_proc.calculate_sync_delta">calculate_sync_delta</a></code></li>
 <li><code><a title="pyflysight.flysight_proc.load_flysight" href="#pyflysight.flysight_proc.load_flysight">load_flysight</a></code></li>
 <li><code><a title="pyflysight.flysight_proc.parse_v2_log_directory" href="#pyflysight.flysight_proc.parse_v2_log_directory">parse_v2_log_directory</a></code></li>
 <li><code><a title="pyflysight.flysight_proc.parse_v2_sensor_data" href="#pyflysight.flysight_proc.parse_v2_sensor_data">parse_v2_sensor_data</a></code></li>
@@ -558,10 +577,10 @@ overwritten.</p>
 <ul>
 <li>
 <h4><code><a title="pyflysight.flysight_proc.FlysightV2" href="#pyflysight.flysight_proc.FlysightV2">FlysightV2</a></code></h4>
-<ul class="two-column">
+<ul class="">
 <li><code><a title="pyflysight.flysight_proc.FlysightV2.device_id" href="#pyflysight.flysight_proc.FlysightV2.device_id">device_id</a></code></li>
 <li><code><a title="pyflysight.flysight_proc.FlysightV2.firmware_version" href="#pyflysight.flysight_proc.FlysightV2.firmware_version">firmware_version</a></code></li>
-<li><code><a title="pyflysight.flysight_proc.FlysightV2.first_timestamp" href="#pyflysight.flysight_proc.FlysightV2.first_timestamp">first_timestamp</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.FlysightV2.first_sensor_timestamp" href="#pyflysight.flysight_proc.FlysightV2.first_sensor_timestamp">first_sensor_timestamp</a></code></li>
 <li><code><a title="pyflysight.flysight_proc.FlysightV2.flysight_type" href="#pyflysight.flysight_proc.FlysightV2.flysight_type">flysight_type</a></code></li>
 <li><code><a title="pyflysight.flysight_proc.FlysightV2.from_json" href="#pyflysight.flysight_proc.FlysightV2.from_json">from_json</a></code></li>
 <li><code><a title="pyflysight.flysight_proc.FlysightV2.ground_pressure_pa" href="#pyflysight.flysight_proc.FlysightV2.ground_pressure_pa">ground_pressure_pa</a></code></li>
