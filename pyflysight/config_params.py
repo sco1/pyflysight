@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import io
 from dataclasses import dataclass, fields
 from enum import IntEnum
@@ -5,12 +7,10 @@ from enum import IntEnum
 # NOTE: All dataclass field names should match the values expected by FlySight's config parser
 
 
-@dataclass
+@dataclass(slots=True)
 class FlysightSetting:
     _header: str = ""
     _header_text: str | None = None
-
-    _multi: bool = False
 
     def to_buffer(self, buff: io.StringIO) -> None:
         """
@@ -58,7 +58,7 @@ class GPSModel(IntEnum):
     AIRBORNE_LT_4G = 8
 
 
-@dataclass
+@dataclass(slots=True)
 class GPSSettings(FlysightSetting):
     Model: GPSModel = GPSModel.AIRBORNE_LT_1G
     Rate: int = 200  # milliseconds
@@ -146,7 +146,7 @@ class GyroFS(IntEnum):
     DEG_S_2000 = 3
 
 
-@dataclass
+@dataclass(slots=True)
 class IMUSettings(FlysightSetting):
     Baro_ODR: BaroODR = BaroODR.HZ_10
     Hum_ODR: HumODR = HumODR.HZ_1
@@ -189,7 +189,7 @@ class ToneVolume(IntEnum):
     LOUDEST = 8
 
 
-@dataclass
+@dataclass(slots=True)
 class ToneSettings(FlysightSetting):
     Mode: ToneMeasurementMode = ToneMeasurementMode.GLIDE_RATIO
     Min: int = 0
@@ -200,7 +200,7 @@ class ToneSettings(FlysightSetting):
     _header: str = "; Tone settings"
 
 
-@dataclass
+@dataclass(slots=True)
 class ThresholdSettings(FlysightSetting):
     V_Thresh: int = 1000
     H_Thresh: int = 0
@@ -225,7 +225,7 @@ class FlatLine(IntEnum):
     YES = 1
 
 
-@dataclass
+@dataclass(slots=True)
 class RateSettings(FlysightSetting):
     Mode_2: Mode2 = Mode2.CHANGE_VALUE_1
     Min_Val_2: int = 300
@@ -265,7 +265,7 @@ class SpeechUnits(IntEnum):
     MPH_F = 1
 
 
-@dataclass
+@dataclass(slots=True)
 class SpeechSettings(FlysightSetting):
     Sp_Rate: int = 0
     Sp_Volume: SpeechVolume = SpeechVolume.MORE_LOUDER
@@ -282,7 +282,7 @@ class UseSAS(IntEnum):
     YES = 1
 
 
-@dataclass
+@dataclass(slots=True)
 class MiscellaneousSettings(FlysightSetting):
     Use_SAS: UseSAS = UseSAS.YES
     TZ_Offset: int = 0
@@ -305,7 +305,7 @@ class InitMode(IntEnum):
     PLAY_FILE = 2
 
 
-@dataclass
+@dataclass(slots=True)
 class InitializationSettings(FlysightSetting):
     Init_Mode: InitMode = InitMode.DO_NOTHING
     Init_File: int = 0
@@ -335,7 +335,7 @@ class AlarmType(IntEnum):
     PLAY_FILE = 4
 
 
-@dataclass
+@dataclass(slots=True)
 class AlarmSettings(FlysightSetting):
     Win_Above: int = 0
     Win_Below: int = 0
@@ -345,7 +345,7 @@ class AlarmSettings(FlysightSetting):
     _header_text: str | None = ALARM_HEADER
 
 
-@dataclass
+@dataclass(slots=True)
 class AlarmWindowSettings(FlysightSetting):
     Alarm_Elev: int = 0
     Alarm_Type: AlarmType = AlarmType.NO_ALARM
@@ -353,7 +353,10 @@ class AlarmWindowSettings(FlysightSetting):
 
     _header: str = "; Alarm windows"
     _header_text: str | None = None
-    _multi: bool = True
+
+    @classmethod
+    def factory(cls) -> list[AlarmWindowSettings]:  # noqa: D102
+        return [cls()]
 
 
 # Altitude mode settings
@@ -372,7 +375,7 @@ class AltUnits(IntEnum):
     FEET = 1
 
 
-@dataclass
+@dataclass(slots=True)
 class AltitudeSettings(FlysightSetting):
     Alt_Units: AltUnits = AltUnits.FEET
     Alt_Step: int = 0
@@ -393,14 +396,17 @@ SILENCE_WINDOW_HEADER = """\
 """
 
 
-@dataclass
+@dataclass(slots=True)
 class SilenceWindowSettings(FlysightSetting):
     Win_Top: int = 0
     Win_Bottom: int = 0
 
     _header: str = "; Silence windows"
     _header_text: str | None = SILENCE_WINDOW_HEADER
-    _multi: bool = True
+
+    @classmethod
+    def factory(cls) -> list[SilenceWindowSettings]:  # noqa: D102
+        return [cls()]
 
 
 ALL_SETTINGS = (

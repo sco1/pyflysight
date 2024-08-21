@@ -3,7 +3,7 @@ from __future__ import annotations
 import datetime as dt
 import json
 import typing as t
-from collections import defaultdict, deque
+from collections import abc, defaultdict, deque
 from dataclasses import asdict, dataclass, fields
 from pathlib import Path
 
@@ -11,9 +11,11 @@ import polars
 from polars.exceptions import ShapeError
 
 from pyflysight import FlysightType, NUMERIC_T
-from pyflysight.log_utils import get_idx
+from pyflysight.log_utils import get_idx, normalize_gps_location
 
 HEADER_PARTITION_KEYWORD = "$DATA"
+
+GPS_EPOCH = dt.datetime(year=1980, month=1, day=6)
 
 GroupedSensorData: t.TypeAlias = dict[str, list[list[float]]]
 SensorDataFrames: t.TypeAlias = dict[str, polars.DataFrame]
@@ -35,7 +37,7 @@ def _calc_derived_track_vals(flog: polars.DataFrame) -> polars.DataFrame:
     return flog
 
 
-def load_flysight(filepath: Path) -> polars.DataFrame:
+def load_flysight(filepath: Path, normalize_gps: bool = False) -> polars.DataFrame:
     """
     Parse the provided FlySight log into a `DataFrame`.
 
@@ -45,10 +47,15 @@ def load_flysight(filepath: Path) -> polars.DataFrame:
     The following derived columns are added to the output `DataFrame`:
         * `elapsed_time`
         * `groundspeed` (m/s)
+
+    If `normalize_gps` is `True`, the GPS track data is normalized to start at `(0, 0)`
     """
     flight_log = polars.read_csv(filepath, skip_rows_after_header=1)
     flight_log = flight_log.with_columns(flight_log["time"].str.to_datetime())
     flight_log = _calc_derived_track_vals(flight_log)
+
+    if normalize_gps:
+        flight_log = normalize_gps_location(flight_log)
 
     return flight_log
 
@@ -56,6 +63,7 @@ def load_flysight(filepath: Path) -> polars.DataFrame:
 def batch_load_flysight(
     top_dir: Path,
     pattern: str = r"*.CSV",
+    normalize_gps: bool = False,
 ) -> dict[str, dict[str, polars.DataFrame]]:
     """
     Batch parse a directory of FlySight logs into a dictionary of `DataFrame`s.
@@ -69,12 +77,14 @@ def batch_load_flysight(
 
     NOTE: File case sensitivity is deferred to the OS; `pattern` is passed to glob as-is so matches
     may or may not be case-sensitive.
+
+    If `normalize_gps` is `True`, the GPS track data is normalized to start at `(0, 0)`
     """
     parsed_logs: dict[str, dict[str, polars.DataFrame]] = defaultdict(dict)
     for log_file in top_dir.glob(pattern):
         # Log files are grouped by date, need to retain this since it's not in the CSV filename
         log_date = log_file.parent.stem
-        parsed_logs[log_date][log_file.stem] = load_flysight(log_file)
+        parsed_logs[log_date][log_file.stem] = load_flysight(log_file, normalize_gps=normalize_gps)
 
     return parsed_logs
 
@@ -110,7 +120,7 @@ class SensorInfo(t.NamedTuple):
     id_: str = ""
 
 
-@dataclass
+@dataclass(slots=True)
 class FlysightV2:
     """
     Store device metadata for a corresponding FLysight V2 data logger.
@@ -118,9 +128,9 @@ class FlysightV2:
     Sensor information is provided as a dictionary keyed by a sensor ID, assumed to be shared
     between the unit information contained in the header and each row of the sensor's records.
 
-    `first_timestamp` refers to the `time` value of the first data record & used to calculate the
-    running `elapsed_time` column during the parsing pipeline. This timestamp value must be set &
-    should be set later by the provided parsing pipeline.
+    `first_sensor_timestamp` refers to the `time` value of the first data record & used to calculate
+    the running `elapsed_time` column during the parsing pipeline. This timestamp value must be set
+    & should be set later by the provided parsing pipeline.
 
     `ground_pressure_pa` is the atmospheric pressure at ground level, in Pascals, used by some
     pressure altitude calculations. This defaults to standard day sea level pressure.
@@ -132,7 +142,7 @@ class FlysightV2:
     sensor_info: dict[str, SensorInfo]
     flysight_type: FlysightType = FlysightType.VERSION_2
 
-    first_timestamp: float | None = None
+    first_sensor_timestamp: float | None = None
     ground_pressure_pa: int | float = 101_325
 
     @classmethod
@@ -157,7 +167,7 @@ class FlysightV2:
             session_id=raw_json["session_id"],
             sensor_info=sensor_info,
             flysight_type=FlysightType(raw_json["flysight_type"]),
-            first_timestamp=raw_json["first_timestamp"],
+            first_sensor_timestamp=raw_json["first_sensor_timestamp"],
             ground_pressure_pa=raw_json["ground_pressure_pa"],
         )
 
@@ -273,6 +283,29 @@ def _partition_sensor_data(data_lines: t.Sequence[str]) -> tuple[GroupedSensorDa
     return sensor_data, initial_timestamp
 
 
+def _calculate_pressure_altitude(
+    df: polars.DataFrame, ground_pressure_pa: float, use_filtered: bool = False
+) -> polars.DataFrame:
+    """
+    Derive pressure altitude columns from the provided pressure data, assuming standard lapse rate.
+
+    The provided dataframe is assumed to contain a `pressure` data column; this function returns a
+    dataframe containing `press_alt_m` and `press_alt_ft` columns.
+
+    If `use_filtered` is `True`, a `pressure_filt` column is assumed to be present & is used
+    instead.
+    """
+    if use_filtered:
+        col = df["pressure_filt"]
+    else:
+        col = df["pressure"]
+
+    press_alt_m = (44_330 * (1 - (col / ground_pressure_pa).pow(1 / 5.225))).alias("press_alt_m")
+    press_alt_ft = (press_alt_m * 3.2808).alias("press_alt_ft")
+
+    return polars.DataFrame((press_alt_m, press_alt_ft))
+
+
 def _calculate_derived_columns(
     df: polars.DataFrame,
     sensor: str,
@@ -291,12 +324,8 @@ def _calculate_derived_columns(
     If no specific calculations are required, the `DataFrame` is passed through unchanged.
     """
     if sensor == "BARO":
-        press_alt_m = (
-            44_330 * (1 - (df["pressure"] / device_info.ground_pressure_pa).pow(1 / 5.225))
-        ).alias("press_alt_m")
-        press_alt_ft = (press_alt_m * 3.2808).alias("press_alt_ft")
-
-        df = df.hstack([press_alt_m, press_alt_ft])
+        alts = _calculate_pressure_altitude(df, ground_pressure_pa=device_info.ground_pressure_pa)
+        df = df.hstack(alts)
 
     if sensor == "IMU":
         df = df.with_columns(
@@ -317,7 +346,7 @@ def _raw_data_to_dataframe(
     `time` column, and a normalized `elapsed_time` column will be derived using the device's first
     encountered timestamp.
     """
-    if device_info.first_timestamp is None:
+    if device_info.first_sensor_timestamp is None:
         raise ValueError("First timestamp for logging session not specified.")
 
     parsed_sensor_data: dict[str, polars.DataFrame] = {}
@@ -337,7 +366,7 @@ def _raw_data_to_dataframe(
             ) from e
 
         # All sensor DataFrames get elapsed time, then we can dispatch further by sensor type
-        df = df.with_columns(elapsed_time=((df["time"] - device_info.first_timestamp)))
+        df = df.with_columns(elapsed_time=((df["time"] - device_info.first_sensor_timestamp)))
         df = _calculate_derived_columns(df=df, sensor=sensor, device_info=device_info)
 
         parsed_sensor_data[sensor] = df
@@ -355,8 +384,8 @@ def parse_v2_sensor_data(log_filepath: Path) -> tuple[SensorDataFrames, Flysight
 
     header, sensor_data = _split_sensor_data(data_lines)
     device_info = _parse_header(header)
-    grouped_sensor_data, first_timestamp = _partition_sensor_data(sensor_data)
-    device_info.first_timestamp = first_timestamp
+    grouped_sensor_data, first_sensor_timestamp = _partition_sensor_data(sensor_data)
+    device_info.first_sensor_timestamp = first_sensor_timestamp
 
     parsed_sensor_data = _raw_data_to_dataframe(grouped_sensor_data, device_info)
 
@@ -409,26 +438,32 @@ def parse_v2_track_data(log_filepath: Path) -> tuple[polars.DataFrame, FlysightV
     return parsed_sensor_data, device_info
 
 
-@dataclass
+@dataclass(slots=True)
 class FlysightV2FlightLog:  # noqa: D101
     track_data: polars.DataFrame
     sensor_data: SensorDataFrames
     device_info: FlysightV2
 
-    _is_trimmed: bool = False  # If True, then device_info.first_timestamp is likely out of sync
+    # If True, then device_info.first_sensor_timestamp is likely out of sync
+    _is_trimmed: bool = False
 
-    def to_csv(self, base_dir: Path) -> None:
+    def to_csv(self, base_dir: Path, normalize_gps: bool = False) -> None:
         """
         Output logged data to a collection of CSV files relative to the provided base directory.
 
         Sensor data is named by sensor name & nested under `base_dir`:
         `base_dir/device_id/session_id/*`. Note that any existing data in this directory will be
         overwritten.
+
+        If `normalize_gps` is `True`, the GPS track data is normalized to start at `(0, 0)`
         """
         out_dir = base_dir / f"{self.device_info.device_id}/{self.device_info.session_id}"
         out_dir.mkdir(parents=True, exist_ok=True)
 
         out_filepath = out_dir / "TRACK.CSV"
+        if normalize_gps:
+            self.normalize_gps()
+
         self.track_data.write_csv(out_filepath)
 
         for sensor_name, sensor_data in self.sensor_data.items():
@@ -466,6 +501,73 @@ class FlysightV2FlightLog:  # noqa: D101
         self.track_data = self.track_data.with_columns(elapsed_time=new_time)
 
         self._is_trimmed = True
+
+    def normalize_gps(self, start_coord: tuple[float, float] = (0, 0)) -> None:
+        """Shift parsed GPS coordinates so they begin at the provided starting location."""
+        self.track_data = normalize_gps_location(self.track_data, start_coord=start_coord)
+
+    def filter_accel(
+        self,
+        filter_func: abc.Callable[[polars.Series], polars.Series],
+        filter_derived: bool = False,
+    ) -> None:
+        """
+        Filter the accleration data columns using the specified filter function.
+
+        The derived total acceleration column is also recomputed using the filtered component data.
+
+        The filtering function is specified as a callable that accepts & returns a `polars.Series`
+        object (i.e. a data column). Filtered data is saved to a set of new columns with a `"_filt"`
+        suffix.
+
+        If `filter_derived` is `True`, the filter function is also applied to the derived total
+        acceleration column.
+        """
+        df = self.sensor_data["IMU"]
+        cols = ("ax", "ay", "az")
+
+        # Calc accel in parallel & then total accel afterwards
+        df = df.with_columns(polars.col(cols).map_batches(filter_func).name.suffix("_filt"))
+        df = df.with_columns(
+            total_accel_filt=polars.sum_horizontal(polars.col("^a._filt$").pow(2)).pow(1 / 2)
+        )
+
+        if filter_derived:
+            df = df.with_columns(polars.col("total_accel_filt").map_batches(filter_func))
+
+        self.sensor_data["IMU"] = df
+
+    def filter_baro(
+        self,
+        filter_func: abc.Callable[[polars.Series], polars.Series],
+        filter_derived: bool = False,
+    ) -> None:
+        """
+        Filter the barometric pressure data column using the specified filter function.
+
+        The derived pressure altitude columns are also recomputed using the filtered component data.
+
+        The filtering function is specified as a callable that accepts & returns a `polars.Series`
+        object (i.e. a data column). Filtered data is saved to a set of new columns with a `"_filt"`
+        suffix.
+
+        If `filter_derived` is `True`, the filter function is also applied to the derived pressure
+        altitude columns.
+        """
+        df = self.sensor_data["BARO"]
+        cols = ("pressure",)
+
+        df = df.with_columns(polars.col(cols).map_batches(filter_func).name.suffix("_filt"))
+        alts = _calculate_pressure_altitude(
+            df, self.device_info.ground_pressure_pa, use_filtered=True
+        ).with_columns(polars.all().name.suffix("_filt"))
+        df = df.hstack(alts)
+
+        if filter_derived:
+            derived_cols = ("press_alt_m_filt", "press_alt_ft_filt")
+            df = df.with_columns(polars.col(derived_cols).map_batches(filter_func))
+
+        self.sensor_data["BARO"] = df
 
     @classmethod
     def from_csv(cls, base_dir: Path) -> FlysightV2FlightLog:
@@ -530,8 +632,49 @@ class FlysightV2FlightLog:  # noqa: D101
         )
 
 
+def calculate_sync_delta(track_data: polars.DataFrame, time_sensor: polars.DataFrame) -> float:
+    """
+    Calculate the time delta required, in seconds, to align the track & sensor data.
+
+    When added to the track data's elapsed time, the resulting elapsed time should align with the
+    elapsed time recorded by the sensor data. Empirical checks seem to show that the sensor data
+    typically begins prior to the first recorded GPS timestamp in the track data, so this value
+    will typically be positive.
+
+    The sensor data contains regular time logs, given as (timestamp, GPS time of week, GPS week)
+    (e.g. `$TIME,60077.615,316515.000,2311`), which can be used to calculate the GPS timestamp of
+    the reading.
+
+    NOTE: I believe, but have not confirmed, that the U-Blox chip already accounts for leap seconds,
+    so the correction is omitted from this calculation.
+    """
+    tow_delta = dt.timedelta(weeks=time_sensor["week"][0], seconds=time_sensor["tow"][0])
+    gps_dt = GPS_EPOCH + tow_delta
+    print(f"GPS DT {gps_dt}")
+    sensor_start = gps_dt - dt.timedelta(seconds=time_sensor["elapsed_time"][0])
+
+    track_offset: float = (track_data["time"][0] - sensor_start).total_seconds()
+    return track_offset
+
+
+def _add_sync_column(track_data: polars.DataFrame, track_offset: float) -> polars.DataFrame:
+    """
+    Insert an `elapsed_time_sensor` column into the provided track data using the specified offset.
+
+    NOTE: It is assumed that `track_offset` is calculated in such a way that when added to the track
+    data's elapsed time it provides a time vector that aligns with the recorded sensor data.
+    """
+    track_data = track_data.with_columns(
+        elapsed_time_sensor=(polars.col("elapsed_time") + track_offset)
+    )
+    return track_data
+
+
 def parse_v2_log_directory(
-    log_directory: Path, sensor_filename: str = "SENSOR.CSV", track_filename: str = "TRACK.CSV"
+    log_directory: Path,
+    normalize_gps: bool = False,
+    sensor_filename: str = "SENSOR.CSV",
+    track_filename: str = "TRACK.CSV",
 ) -> FlysightV2FlightLog:
     """
     Data parsing pipeline for a directory of Flysight V2 logs.
@@ -541,6 +684,11 @@ def parse_v2_log_directory(
         * `RAW.UBX` - Raw UBlox sensor output
         * `SENSOR.CSV` - Onboard sensor data
         * `TRACK.CSV` - GPS sensor data
+
+    When utilizing this pipeline, an `elapsed_time_sensor` column is added to the track `DataFrame`,
+    providing a synchronized elapsed time that can be used to align the sensor & track `DataFrame`s.
+
+    If `normalize_gps` is `True`, the GPS track data is normalized to start at `(0, 0)`
     """
     sensor_filepath = log_directory / sensor_filename
     if not sensor_filepath.exists():
@@ -551,7 +699,14 @@ def parse_v2_log_directory(
         raise ValueError(f"Could not locate 'TRACK.CSV` in directory: '{log_directory}'")
 
     sensor_data, device_info = parse_v2_sensor_data(sensor_filepath)
+
     track_data, _ = parse_v2_track_data(track_filepath)
+    if normalize_gps:
+        track_data = normalize_gps_location(track_data)
+
+    track_offset = calculate_sync_delta(track_data, sensor_data["TIME"])
+    track_data = _add_sync_column(track_data, track_offset)
+
     return FlysightV2FlightLog(
         track_data=track_data,
         sensor_data=sensor_data,

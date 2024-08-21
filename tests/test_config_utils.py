@@ -4,8 +4,13 @@ from pathlib import Path
 
 import pytest
 
-from pyflysight.config_params import FlysightSetting
-from pyflysight.config_utils import FlysightV1Config, FlysightV2Config, parse_config_params
+from pyflysight.config_params import AlarmSettings, AlarmType, AlarmWindowSettings, FlysightSetting
+from pyflysight.config_utils import (
+    FlysightConfig,
+    FlysightV1Config,
+    FlysightV2Config,
+    parse_config_params,
+)
 from tests import SAMPLE_DATA_DIR
 
 
@@ -28,6 +33,30 @@ def test_setting_dump_to_buffer() -> None:
     NoHeader().to_buffer(buff)
 
     assert buff.getvalue() == TRUTH_SETTING_STRING_DUMP
+
+
+@dataclass
+class Windowed(FlysightConfig):
+    settings: AlarmSettings
+    windows: list[AlarmWindowSettings]
+
+
+TRUTH_MULTI_WINDOW_CONFIG = SAMPLE_DATA_DIR / "config/ALARM_WINDOW_SAMPLE.TXT"
+
+
+def test_window_setting_dump(tmp_path: Path) -> None:
+    cfg = Windowed(
+        settings=AlarmSettings(),
+        windows=[
+            AlarmWindowSettings(Alarm_Elev=2700, Alarm_Type=AlarmType.BEEP),
+            AlarmWindowSettings(Alarm_Elev=1800, Alarm_Type=AlarmType.CHIRP_UP),
+            AlarmWindowSettings(Alarm_Elev=900, Alarm_Type=AlarmType.CHIRP_DOWN),
+        ],
+    )
+    conf = tmp_path / "CONFIG.TXT"
+    cfg.to_file(conf)
+
+    assert conf.read_text() == TRUTH_MULTI_WINDOW_CONFIG.read_text()
 
 
 TRUTH_DEFAULT_CONFIG_V1 = SAMPLE_DATA_DIR / "config/GENERATED_V1_DEFAULT_CONFIG.TXT"
@@ -56,18 +85,13 @@ def test_default_settings_dump_v2(tmp_path: Path) -> None:
 def test_config_json_round_trip(
     tmp_path: Path, config_base: FlysightV1Config | FlysightV2Config
 ) -> None:
-    # Rather than deal with the headache of comparing all fields (since enums are lost), check that
-    # the instance loaded from json serializes the same as the original
     out_json = tmp_path / "config.json"
-    deserialized_out_json = tmp_path / "dserialized_out.json"
 
     fsc = config_base()  # type: ignore[operator]
     fsc.to_json(out_json)
 
     fsc_from_json = fsc.from_json(out_json)
-    fsc_from_json.to_json(deserialized_out_json)
-
-    assert out_json.read_text() == deserialized_out_json.read_text()
+    assert fsc_from_json == fsc
 
 
 def test_v1_config_load_v2_config_raises(tmp_path: Path) -> None:
@@ -76,7 +100,7 @@ def test_v1_config_load_v2_config_raises(tmp_path: Path) -> None:
     fsc = FlysightV2Config()
     fsc.to_json(out_json)
 
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError, match="FlysightV1Config"):
         FlysightV1Config.from_json(out_json)
 
 

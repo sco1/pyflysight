@@ -34,7 +34,7 @@ hljs.highlightAll();
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="pyflysight.flysight_proc.batch_load_flysight"><code class="name flex">
-<span>def <span class="ident">batch_load_flysight</span></span>(<span>top_dir: Path, pattern: str = '*.CSV') ‑> dict[str, dict[str, polars.dataframe.frame.DataFrame]]</span>
+<span>def <span class="ident">batch_load_flysight</span></span>(<span>top_dir: Path, pattern: str = '*.CSV', normalize_gps: bool = False) ‑> dict[str, dict[str, polars.dataframe.frame.DataFrame]]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Batch parse a directory of FlySight logs into a dictionary of <code>DataFrame</code>s.</p>
@@ -44,10 +44,26 @@ is of the form <code>{log date: {log_time: DataFrame}}</code>.</p>
 <p>Log file discovery is not recursive by default, the <code>pattern</code> kwarg can be adjusted to support
 a recursive glob.</p>
 <p>NOTE: File case sensitivity is deferred to the OS; <code>pattern</code> is passed to glob as-is so matches
-may or may not be case-sensitive.</p></div>
+may or may not be case-sensitive.</p>
+<p>If <code>normalize_gps</code> is <code>True</code>, the GPS track data is normalized to start at <code>(0, 0)</code></p></div>
+</dd>
+<dt id="pyflysight.flysight_proc.calculate_sync_delta"><code class="name flex">
+<span>def <span class="ident">calculate_sync_delta</span></span>(<span>track_data: polars.DataFrame, time_sensor: polars.DataFrame) ‑> float</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Calculate the time delta required, in seconds, to align the track &amp; sensor data.</p>
+<p>When added to the track data's elapsed time, the resulting elapsed time should align with the
+elapsed time recorded by the sensor data. Empirical checks seem to show that the sensor data
+typically begins prior to the first recorded GPS timestamp in the track data, so this value
+will typically be positive.</p>
+<p>The sensor data contains regular time logs, given as (timestamp, GPS time of week, GPS week)
+(e.g. <code>$TIME,60077.615,316515.000,2311</code>), which can be used to calculate the GPS timestamp of
+the reading.</p>
+<p>NOTE: I believe, but have not confirmed, that the U-Blox chip already accounts for leap seconds,
+so the correction is omitted from this calculation.</p></div>
 </dd>
 <dt id="pyflysight.flysight_proc.load_flysight"><code class="name flex">
-<span>def <span class="ident">load_flysight</span></span>(<span>filepath: Path) ‑> polars.dataframe.frame.DataFrame</span>
+<span>def <span class="ident">load_flysight</span></span>(<span>filepath: Path, normalize_gps: bool = False) ‑> polars.dataframe.frame.DataFrame</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Parse the provided FlySight log into a <code>DataFrame</code>.</p>
@@ -55,10 +71,11 @@ may or may not be case-sensitive.</p></div>
 default, the units row is discarded.</p>
 <p>The following derived columns are added to the output <code>DataFrame</code>:
 * <code>elapsed_time</code>
-* <code>groundspeed</code> (m/s)</p></div>
+* <code>groundspeed</code> (m/s)</p>
+<p>If <code>normalize_gps</code> is <code>True</code>, the GPS track data is normalized to start at <code>(0, 0)</code></p></div>
 </dd>
 <dt id="pyflysight.flysight_proc.parse_v2_log_directory"><code class="name flex">
-<span>def <span class="ident">parse_v2_log_directory</span></span>(<span>log_directory: Path, sensor_filename: str = 'SENSOR.CSV', track_filename: str = 'TRACK.CSV') ‑> <a title="pyflysight.flysight_proc.FlysightV2FlightLog" href="#pyflysight.flysight_proc.FlysightV2FlightLog">FlysightV2FlightLog</a></span>
+<span>def <span class="ident">parse_v2_log_directory</span></span>(<span>log_directory: Path, normalize_gps: bool = False, sensor_filename: str = 'SENSOR.CSV', track_filename: str = 'TRACK.CSV') ‑> <a title="pyflysight.flysight_proc.FlysightV2FlightLog" href="#pyflysight.flysight_proc.FlysightV2FlightLog">FlysightV2FlightLog</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Data parsing pipeline for a directory of Flysight V2 logs.</p>
@@ -66,7 +83,10 @@ default, the units row is discarded.</p>
 * <code>EVENT.CSV</code> - Debugging output, optionally present based on firmware version
 * <code>RAW.UBX</code> - Raw UBlox sensor output
 * <code>SENSOR.CSV</code> - Onboard sensor data
-* <code>TRACK.CSV</code> - GPS sensor data</p></div>
+* <code>TRACK.CSV</code> - GPS sensor data</p>
+<p>When utilizing this pipeline, an <code>elapsed_time_sensor</code> column is added to the track <code>DataFrame</code>,
+providing a synchronized elapsed time that can be used to align the sensor &amp; track <code>DataFrame</code>s.</p>
+<p>If <code>normalize_gps</code> is <code>True</code>, the GPS track data is normalized to start at <code>(0, 0)</code></p></div>
 </dd>
 <dt id="pyflysight.flysight_proc.parse_v2_sensor_data"><code class="name flex">
 <span>def <span class="ident">parse_v2_sensor_data</span></span>(<span>log_filepath: Path) ‑> tuple[dict[str, polars.dataframe.frame.DataFrame], <a title="pyflysight.flysight_proc.FlysightV2" href="#pyflysight.flysight_proc.FlysightV2">FlysightV2</a>]</span>
@@ -89,22 +109,22 @@ default, the units row is discarded.</p>
 <dl>
 <dt id="pyflysight.flysight_proc.FlysightV2"><code class="flex name class">
 <span>class <span class="ident">FlysightV2</span></span>
-<span>(</span><span>firmware_version: str, device_id: str, session_id: str, sensor_info: dict[str, <a title="pyflysight.flysight_proc.SensorInfo" href="#pyflysight.flysight_proc.SensorInfo">SensorInfo</a>], flysight_type: FlysightType = 2, first_timestamp: float | None = None, ground_pressure_pa: int | float = 101325)</span>
+<span>(</span><span>firmware_version: str, device_id: str, session_id: str, sensor_info: dict[str, <a title="pyflysight.flysight_proc.SensorInfo" href="#pyflysight.flysight_proc.SensorInfo">SensorInfo</a>], flysight_type: FlysightType = 2, first_sensor_timestamp: float | None = None, ground_pressure_pa: int | float = 101325)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Store device metadata for a corresponding FLysight V2 data logger.</p>
 <p>Sensor information is provided as a dictionary keyed by a sensor ID, assumed to be shared
 between the unit information contained in the header and each row of the sensor's records.</p>
-<p><code>first_timestamp</code> refers to the <code>time</code> value of the first data record &amp; used to calculate the
-running <code>elapsed_time</code> column during the parsing pipeline. This timestamp value must be set &amp;
-should be set later by the provided parsing pipeline.</p>
+<p><code>first_sensor_timestamp</code> refers to the <code>time</code> value of the first data record &amp; used to calculate
+the running <code>elapsed_time</code> column during the parsing pipeline. This timestamp value must be set
+&amp; should be set later by the provided parsing pipeline.</p>
 <p><code>ground_pressure_pa</code> is the atmospheric pressure at ground level, in Pascals, used by some
 pressure altitude calculations. This defaults to standard day sea level pressure.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@dataclass
+<pre><code class="python">@dataclass(slots=True)
 class FlysightV2:
     &#34;&#34;&#34;
     Store device metadata for a corresponding FLysight V2 data logger.
@@ -112,9 +132,9 @@ class FlysightV2:
     Sensor information is provided as a dictionary keyed by a sensor ID, assumed to be shared
     between the unit information contained in the header and each row of the sensor&#39;s records.
 
-    `first_timestamp` refers to the `time` value of the first data record &amp; used to calculate the
-    running `elapsed_time` column during the parsing pipeline. This timestamp value must be set &amp;
-    should be set later by the provided parsing pipeline.
+    `first_sensor_timestamp` refers to the `time` value of the first data record &amp; used to calculate
+    the running `elapsed_time` column during the parsing pipeline. This timestamp value must be set
+    &amp; should be set later by the provided parsing pipeline.
 
     `ground_pressure_pa` is the atmospheric pressure at ground level, in Pascals, used by some
     pressure altitude calculations. This defaults to standard day sea level pressure.
@@ -126,7 +146,7 @@ class FlysightV2:
     sensor_info: dict[str, SensorInfo]
     flysight_type: FlysightType = FlysightType.VERSION_2
 
-    first_timestamp: float | None = None
+    first_sensor_timestamp: float | None = None
     ground_pressure_pa: int | float = 101_325
 
     @classmethod
@@ -151,11 +171,22 @@ class FlysightV2:
             session_id=raw_json[&#34;session_id&#34;],
             sensor_info=sensor_info,
             flysight_type=FlysightType(raw_json[&#34;flysight_type&#34;]),
-            first_timestamp=raw_json[&#34;first_timestamp&#34;],
+            first_sensor_timestamp=raw_json[&#34;first_sensor_timestamp&#34;],
             ground_pressure_pa=raw_json[&#34;ground_pressure_pa&#34;],
         )</code></pre>
 </details>
-<h3>Class variables</h3>
+<h3>Static methods</h3>
+<dl>
+<dt id="pyflysight.flysight_proc.FlysightV2.from_json"><code class="name flex">
+<span>def <span class="ident">from_json</span></span>(<span>raw_json: dict[str, t.Any]) ‑> <a title="pyflysight.flysight_proc.FlysightV2" href="#pyflysight.flysight_proc.FlysightV2">FlysightV2</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Generate a new instance from a raw device data JSON file.</p>
+<p>It is assumed that the JSON file is generated by <code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.to_csv" href="#pyflysight.flysight_proc.FlysightV2FlightLog.to_csv">FlysightV2FlightLog.to_csv()</a></code>, only minimal
+checking is done for JSON validity (top level keys match <code><a title="pyflysight.flysight_proc.FlysightV2" href="#pyflysight.flysight_proc.FlysightV2">FlysightV2</a></code>'s fields).</p></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
 <dl>
 <dt id="pyflysight.flysight_proc.FlysightV2.device_id"><code class="name">var <span class="ident">device_id</span> : str</code></dt>
 <dd>
@@ -165,7 +196,7 @@ class FlysightV2:
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="pyflysight.flysight_proc.FlysightV2.first_timestamp"><code class="name">var <span class="ident">first_timestamp</span> : float | None</code></dt>
+<dt id="pyflysight.flysight_proc.FlysightV2.first_sensor_timestamp"><code class="name">var <span class="ident">first_sensor_timestamp</span> : float | None</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -186,17 +217,6 @@ class FlysightV2:
 <div class="desc"></div>
 </dd>
 </dl>
-<h3>Static methods</h3>
-<dl>
-<dt id="pyflysight.flysight_proc.FlysightV2.from_json"><code class="name flex">
-<span>def <span class="ident">from_json</span></span>(<span>raw_json: dict[str, t.Any]) ‑> <a title="pyflysight.flysight_proc.FlysightV2" href="#pyflysight.flysight_proc.FlysightV2">FlysightV2</a></span>
-</code></dt>
-<dd>
-<div class="desc"><p>Generate a new instance from a raw device data JSON file.</p>
-<p>It is assumed that the JSON file is generated by <code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.to_csv" href="#pyflysight.flysight_proc.FlysightV2FlightLog.to_csv">FlysightV2FlightLog.to_csv()</a></code>, only minimal
-checking is done for JSON validity (top level keys match <code><a title="pyflysight.flysight_proc.FlysightV2" href="#pyflysight.flysight_proc.FlysightV2">FlysightV2</a></code>'s fields).</p></div>
-</dd>
-</dl>
 </dd>
 <dt id="pyflysight.flysight_proc.FlysightV2FlightLog"><code class="flex name class">
 <span>class <span class="ident">FlysightV2FlightLog</span></span>
@@ -208,26 +228,32 @@ checking is done for JSON validity (top level keys match <code><a title="pyflysi
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">@dataclass
+<pre><code class="python">@dataclass(slots=True)
 class FlysightV2FlightLog:  # noqa: D101
     track_data: polars.DataFrame
     sensor_data: SensorDataFrames
     device_info: FlysightV2
 
-    _is_trimmed: bool = False  # If True, then device_info.first_timestamp is likely out of sync
+    # If True, then device_info.first_sensor_timestamp is likely out of sync
+    _is_trimmed: bool = False
 
-    def to_csv(self, base_dir: Path) -&gt; None:
+    def to_csv(self, base_dir: Path, normalize_gps: bool = False) -&gt; None:
         &#34;&#34;&#34;
         Output logged data to a collection of CSV files relative to the provided base directory.
 
         Sensor data is named by sensor name &amp; nested under `base_dir`:
         `base_dir/device_id/session_id/*`. Note that any existing data in this directory will be
         overwritten.
+
+        If `normalize_gps` is `True`, the GPS track data is normalized to start at `(0, 0)`
         &#34;&#34;&#34;
         out_dir = base_dir / f&#34;{self.device_info.device_id}/{self.device_info.session_id}&#34;
         out_dir.mkdir(parents=True, exist_ok=True)
 
         out_filepath = out_dir / &#34;TRACK.CSV&#34;
+        if normalize_gps:
+            self.normalize_gps()
+
         self.track_data.write_csv(out_filepath)
 
         for sensor_name, sensor_data in self.sensor_data.items():
@@ -265,6 +291,73 @@ class FlysightV2FlightLog:  # noqa: D101
         self.track_data = self.track_data.with_columns(elapsed_time=new_time)
 
         self._is_trimmed = True
+
+    def normalize_gps(self, start_coord: tuple[float, float] = (0, 0)) -&gt; None:
+        &#34;&#34;&#34;Shift parsed GPS coordinates so they begin at the provided starting location.&#34;&#34;&#34;
+        self.track_data = normalize_gps_location(self.track_data, start_coord=start_coord)
+
+    def filter_accel(
+        self,
+        filter_func: abc.Callable[[polars.Series], polars.Series],
+        filter_derived: bool = False,
+    ) -&gt; None:
+        &#34;&#34;&#34;
+        Filter the accleration data columns using the specified filter function.
+
+        The derived total acceleration column is also recomputed using the filtered component data.
+
+        The filtering function is specified as a callable that accepts &amp; returns a `polars.Series`
+        object (i.e. a data column). Filtered data is saved to a set of new columns with a `&#34;_filt&#34;`
+        suffix.
+
+        If `filter_derived` is `True`, the filter function is also applied to the derived total
+        acceleration column.
+        &#34;&#34;&#34;
+        df = self.sensor_data[&#34;IMU&#34;]
+        cols = (&#34;ax&#34;, &#34;ay&#34;, &#34;az&#34;)
+
+        # Calc accel in parallel &amp; then total accel afterwards
+        df = df.with_columns(polars.col(cols).map_batches(filter_func).name.suffix(&#34;_filt&#34;))
+        df = df.with_columns(
+            total_accel_filt=polars.sum_horizontal(polars.col(&#34;^a._filt$&#34;).pow(2)).pow(1 / 2)
+        )
+
+        if filter_derived:
+            df = df.with_columns(polars.col(&#34;total_accel_filt&#34;).map_batches(filter_func))
+
+        self.sensor_data[&#34;IMU&#34;] = df
+
+    def filter_baro(
+        self,
+        filter_func: abc.Callable[[polars.Series], polars.Series],
+        filter_derived: bool = False,
+    ) -&gt; None:
+        &#34;&#34;&#34;
+        Filter the barometric pressure data column using the specified filter function.
+
+        The derived pressure altitude columns are also recomputed using the filtered component data.
+
+        The filtering function is specified as a callable that accepts &amp; returns a `polars.Series`
+        object (i.e. a data column). Filtered data is saved to a set of new columns with a `&#34;_filt&#34;`
+        suffix.
+
+        If `filter_derived` is `True`, the filter function is also applied to the derived pressure
+        altitude columns.
+        &#34;&#34;&#34;
+        df = self.sensor_data[&#34;BARO&#34;]
+        cols = (&#34;pressure&#34;,)
+
+        df = df.with_columns(polars.col(cols).map_batches(filter_func).name.suffix(&#34;_filt&#34;))
+        alts = _calculate_pressure_altitude(
+            df, self.device_info.ground_pressure_pa, use_filtered=True
+        ).with_columns(polars.all().name.suffix(&#34;_filt&#34;))
+        df = df.hstack(alts)
+
+        if filter_derived:
+            derived_cols = (&#34;press_alt_m_filt&#34;, &#34;press_alt_ft_filt&#34;)
+            df = df.with_columns(polars.col(derived_cols).map_batches(filter_func))
+
+        self.sensor_data[&#34;BARO&#34;] = df
 
     @classmethod
     def from_csv(cls, base_dir: Path) -&gt; FlysightV2FlightLog:
@@ -328,21 +421,6 @@ class FlysightV2FlightLog:  # noqa: D101
             device_info=device_info,
         )</code></pre>
 </details>
-<h3>Class variables</h3>
-<dl>
-<dt id="pyflysight.flysight_proc.FlysightV2FlightLog.device_info"><code class="name">var <span class="ident">device_info</span> : <a title="pyflysight.flysight_proc.FlysightV2" href="#pyflysight.flysight_proc.FlysightV2">FlysightV2</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="pyflysight.flysight_proc.FlysightV2FlightLog.sensor_data"><code class="name">var <span class="ident">sensor_data</span> : dict[str, polars.dataframe.frame.DataFrame]</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="pyflysight.flysight_proc.FlysightV2FlightLog.track_data"><code class="name">var <span class="ident">track_data</span> : polars.dataframe.frame.DataFrame</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
 <h3>Static methods</h3>
 <dl>
 <dt id="pyflysight.flysight_proc.FlysightV2FlightLog.from_csv"><code class="name flex">
@@ -369,16 +447,62 @@ but <code>device_data_2</code> and <code>device_data_3</code> must be located us
 error checking is performed prior to attempting to reload the data.</p></div>
 </dd>
 </dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="pyflysight.flysight_proc.FlysightV2FlightLog.device_info"><code class="name">var <span class="ident">device_info</span> : <a title="pyflysight.flysight_proc.FlysightV2" href="#pyflysight.flysight_proc.FlysightV2">FlysightV2</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.flysight_proc.FlysightV2FlightLog.sensor_data"><code class="name">var <span class="ident">sensor_data</span> : dict[str, polars.dataframe.frame.DataFrame]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pyflysight.flysight_proc.FlysightV2FlightLog.track_data"><code class="name">var <span class="ident">track_data</span> : polars.dataframe.frame.DataFrame</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
+<dt id="pyflysight.flysight_proc.FlysightV2FlightLog.filter_accel"><code class="name flex">
+<span>def <span class="ident">filter_accel</span></span>(<span>self, filter_func: abc.Callable[[polars.Series], polars.Series], filter_derived: bool = False) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Filter the accleration data columns using the specified filter function.</p>
+<p>The derived total acceleration column is also recomputed using the filtered component data.</p>
+<p>The filtering function is specified as a callable that accepts &amp; returns a <code>polars.Series</code>
+object (i.e. a data column). Filtered data is saved to a set of new columns with a <code>"_filt"</code>
+suffix.</p>
+<p>If <code>filter_derived</code> is <code>True</code>, the filter function is also applied to the derived total
+acceleration column.</p></div>
+</dd>
+<dt id="pyflysight.flysight_proc.FlysightV2FlightLog.filter_baro"><code class="name flex">
+<span>def <span class="ident">filter_baro</span></span>(<span>self, filter_func: abc.Callable[[polars.Series], polars.Series], filter_derived: bool = False) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Filter the barometric pressure data column using the specified filter function.</p>
+<p>The derived pressure altitude columns are also recomputed using the filtered component data.</p>
+<p>The filtering function is specified as a callable that accepts &amp; returns a <code>polars.Series</code>
+object (i.e. a data column). Filtered data is saved to a set of new columns with a <code>"_filt"</code>
+suffix.</p>
+<p>If <code>filter_derived</code> is <code>True</code>, the filter function is also applied to the derived pressure
+altitude columns.</p></div>
+</dd>
+<dt id="pyflysight.flysight_proc.FlysightV2FlightLog.normalize_gps"><code class="name flex">
+<span>def <span class="ident">normalize_gps</span></span>(<span>self, start_coord: tuple[float, float] = (0, 0)) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Shift parsed GPS coordinates so they begin at the provided starting location.</p></div>
+</dd>
 <dt id="pyflysight.flysight_proc.FlysightV2FlightLog.to_csv"><code class="name flex">
-<span>def <span class="ident">to_csv</span></span>(<span>self, base_dir: Path) ‑> None</span>
+<span>def <span class="ident">to_csv</span></span>(<span>self, base_dir: Path, normalize_gps: bool = False) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Output logged data to a collection of CSV files relative to the provided base directory.</p>
 <p>Sensor data is named by sensor name &amp; nested under <code>base_dir</code>:
 <code>base_dir/device_id/session_id/*</code>. Note that any existing data in this directory will be
-overwritten.</p></div>
+overwritten.</p>
+<p>If <code>normalize_gps</code> is <code>True</code>, the GPS track data is normalized to start at <code>(0, 0)</code></p></div>
 </dd>
 <dt id="pyflysight.flysight_proc.FlysightV2FlightLog.trim_log"><code class="name flex">
 <span>def <span class="ident">trim_log</span></span>(<span>self, elapsed_start: NUMERIC_T, elapsed_end: NUMERIC_T) ‑> None</span>
@@ -442,6 +566,7 @@ overwritten.</p></div>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="pyflysight.flysight_proc.batch_load_flysight" href="#pyflysight.flysight_proc.batch_load_flysight">batch_load_flysight</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.calculate_sync_delta" href="#pyflysight.flysight_proc.calculate_sync_delta">calculate_sync_delta</a></code></li>
 <li><code><a title="pyflysight.flysight_proc.load_flysight" href="#pyflysight.flysight_proc.load_flysight">load_flysight</a></code></li>
 <li><code><a title="pyflysight.flysight_proc.parse_v2_log_directory" href="#pyflysight.flysight_proc.parse_v2_log_directory">parse_v2_log_directory</a></code></li>
 <li><code><a title="pyflysight.flysight_proc.parse_v2_sensor_data" href="#pyflysight.flysight_proc.parse_v2_sensor_data">parse_v2_sensor_data</a></code></li>
@@ -452,10 +577,10 @@ overwritten.</p></div>
 <ul>
 <li>
 <h4><code><a title="pyflysight.flysight_proc.FlysightV2" href="#pyflysight.flysight_proc.FlysightV2">FlysightV2</a></code></h4>
-<ul class="two-column">
+<ul class="">
 <li><code><a title="pyflysight.flysight_proc.FlysightV2.device_id" href="#pyflysight.flysight_proc.FlysightV2.device_id">device_id</a></code></li>
 <li><code><a title="pyflysight.flysight_proc.FlysightV2.firmware_version" href="#pyflysight.flysight_proc.FlysightV2.firmware_version">firmware_version</a></code></li>
-<li><code><a title="pyflysight.flysight_proc.FlysightV2.first_timestamp" href="#pyflysight.flysight_proc.FlysightV2.first_timestamp">first_timestamp</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.FlysightV2.first_sensor_timestamp" href="#pyflysight.flysight_proc.FlysightV2.first_sensor_timestamp">first_sensor_timestamp</a></code></li>
 <li><code><a title="pyflysight.flysight_proc.FlysightV2.flysight_type" href="#pyflysight.flysight_proc.FlysightV2.flysight_type">flysight_type</a></code></li>
 <li><code><a title="pyflysight.flysight_proc.FlysightV2.from_json" href="#pyflysight.flysight_proc.FlysightV2.from_json">from_json</a></code></li>
 <li><code><a title="pyflysight.flysight_proc.FlysightV2.ground_pressure_pa" href="#pyflysight.flysight_proc.FlysightV2.ground_pressure_pa">ground_pressure_pa</a></code></li>
@@ -467,7 +592,10 @@ overwritten.</p></div>
 <h4><code><a title="pyflysight.flysight_proc.FlysightV2FlightLog" href="#pyflysight.flysight_proc.FlysightV2FlightLog">FlysightV2FlightLog</a></code></h4>
 <ul class="two-column">
 <li><code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.device_info" href="#pyflysight.flysight_proc.FlysightV2FlightLog.device_info">device_info</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.filter_accel" href="#pyflysight.flysight_proc.FlysightV2FlightLog.filter_accel">filter_accel</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.filter_baro" href="#pyflysight.flysight_proc.FlysightV2FlightLog.filter_baro">filter_baro</a></code></li>
 <li><code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.from_csv" href="#pyflysight.flysight_proc.FlysightV2FlightLog.from_csv">from_csv</a></code></li>
+<li><code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.normalize_gps" href="#pyflysight.flysight_proc.FlysightV2FlightLog.normalize_gps">normalize_gps</a></code></li>
 <li><code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.sensor_data" href="#pyflysight.flysight_proc.FlysightV2FlightLog.sensor_data">sensor_data</a></code></li>
 <li><code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.to_csv" href="#pyflysight.flysight_proc.FlysightV2FlightLog.to_csv">to_csv</a></code></li>
 <li><code><a title="pyflysight.flysight_proc.FlysightV2FlightLog.track_data" href="#pyflysight.flysight_proc.FlysightV2FlightLog.track_data">track_data</a></code></li>

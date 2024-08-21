@@ -1,19 +1,13 @@
 from __future__ import annotations
 
+import inspect
 import io
 import json
+import typing as t
 from dataclasses import asdict, dataclass, field, fields
 from pathlib import Path
 
 from pyflysight import config_params as cp
-
-
-def _init_alarm_windows() -> list[cp.AlarmWindowSettings]:
-    return [cp.AlarmWindowSettings()]
-
-
-def _init_silence_window_settings() -> list[cp.SilenceWindowSettings]:
-    return [cp.SilenceWindowSettings()]
 
 
 def _write_headers(buff: io.StringIO, settings: cp.FlysightSetting) -> None:  # noqa: D101
@@ -34,8 +28,12 @@ class FlysightConfig:  # noqa: D101
 
             if isinstance(setting, list):
                 _write_headers(buff, setting[0])
-                for chunk in setting:
+                for i, chunk in enumerate(setting, start=1):
                     chunk.to_buffer(buff)
+
+                    # Newline delimit windows but do not add an extra newline at the end
+                    if i < len(setting):
+                        buff.write("\n")
             else:
                 _write_headers(buff, setting)
                 setting.to_buffer(buff)
@@ -48,6 +46,30 @@ class FlysightConfig:  # noqa: D101
     def to_json(self, filepath: Path) -> None:  # noqa: D102
         with filepath.open("w") as f:
             json.dump(asdict(self), f, indent=4)
+
+
+def _remap_fields(
+    parent_class: type[FlysightConfig], in_json: dict[str, t.Any]
+) -> dict[str, t.Any]:
+    """Re-initialize nested config dataclasses from the provided raw json."""
+    factory_map = {f.name: f.default_factory for f in fields(parent_class)}
+    converted_fields = {}
+    for k, v in in_json.items():
+        if k not in factory_map:
+            raise ValueError(f"Field '{k}' not found as field of {parent_class.__name__}")
+
+        if inspect.isclass(factory_map[k]):
+            # Non-windowed config fields will have a default factory that's just the config class,
+            # so we can pass the args directly
+            converted_fields[k] = factory_map[k](**v)  # type: ignore[misc]
+        elif inspect.ismethod(factory_map[k]):  # pragma: no branch
+            # Config window fields use a classmethod as the default factory to initialize a list
+            # with the default window config, so we have to grab the parent class from this method
+            # and then can reconstitute the list of windows
+            pc = factory_map[k].__self__  # type: ignore[union-attr]
+            converted_fields[k] = [pc(**w) for w in v]
+
+    return converted_fields
 
 
 @dataclass(slots=True)
@@ -83,10 +105,12 @@ class FlysightV2Config(FlysightConfig):
     misc_settings: cp.MiscellaneousSettings = field(default_factory=cp.MiscellaneousSettings)
     init_settings: cp.InitializationSettings = field(default_factory=cp.InitializationSettings)
     alarm_settings: cp.AlarmSettings = field(default_factory=cp.AlarmSettings)
-    alarm_windows: list[cp.AlarmWindowSettings] = field(default_factory=_init_alarm_windows)
+    alarm_windows: list[cp.AlarmWindowSettings] = field(
+        default_factory=cp.AlarmWindowSettings.factory
+    )
     alt_settings: cp.AltitudeSettings = field(default_factory=cp.AltitudeSettings)
     silence_windows: list[cp.SilenceWindowSettings] = field(
-        default_factory=_init_silence_window_settings
+        default_factory=cp.SilenceWindowSettings.factory
     )
 
     @classmethod
@@ -101,7 +125,8 @@ class FlysightV2Config(FlysightConfig):
         with filepath.open("r") as f:
             config_d = json.load(f)
 
-        return cls(**config_d)
+        fixed_fields = _remap_fields(cls, config_d)
+        return cls(**fixed_fields)
 
 
 @dataclass(slots=True)
@@ -136,10 +161,12 @@ class FlysightV1Config(FlysightConfig):
     misc_settings: cp.MiscellaneousSettings = field(default_factory=cp.MiscellaneousSettings)
     init_settings: cp.InitializationSettings = field(default_factory=cp.InitializationSettings)
     alarm_settings: cp.AlarmSettings = field(default_factory=cp.AlarmSettings)
-    alarm_windows: list[cp.AlarmWindowSettings] = field(default_factory=_init_alarm_windows)
+    alarm_windows: list[cp.AlarmWindowSettings] = field(
+        default_factory=cp.AlarmWindowSettings.factory
+    )
     alt_settings: cp.AltitudeSettings = field(default_factory=cp.AltitudeSettings)
     silence_windows: list[cp.SilenceWindowSettings] = field(
-        default_factory=_init_silence_window_settings
+        default_factory=cp.SilenceWindowSettings.factory
     )
 
     @classmethod
@@ -153,7 +180,8 @@ class FlysightV1Config(FlysightConfig):
         with filepath.open("r") as f:
             config_d = json.load(f)
 
-        return cls(**config_d)
+        fixed_fields = _remap_fields(cls, config_d)
+        return cls(**fixed_fields)
 
 
 def parse_config_params(config_filepath: Path) -> dict[str, str]:

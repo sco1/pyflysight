@@ -12,7 +12,10 @@ class TrimBy(StrEnum):  # noqa: D101
 
 
 def windowtrim_flight_log(
-    log_dir: Path, trim_by: TrimBy = TrimBy.PRESSURE_ALTITUDE, write_csv: bool = False
+    log_dir: Path,
+    trim_by: TrimBy = TrimBy.PRESSURE_ALTITUDE,
+    write_csv: bool = False,
+    normalize_gps: bool = False,
 ) -> FlysightV2FlightLog:
     """
     Interactively window the log data from the provided log directory.
@@ -32,6 +35,9 @@ def windowtrim_flight_log(
 
     l_bound, r_bound = flexible_window(x_data=xdata, y_data=ydata, position=10, window_width=20)
     flight_log.trim_log(elapsed_start=l_bound, elapsed_end=r_bound)
+
+    if normalize_gps:
+        flight_log.normalize_gps()
 
     if write_csv:
         flight_log.to_csv(log_dir)

@@ -1,3 +1,4 @@
+import datetime as dt
 from pathlib import Path
 from textwrap import dedent
 
@@ -13,6 +14,7 @@ from pyflysight.flysight_proc import (
     _partition_sensor_data,
     _raw_data_to_dataframe,
     _split_sensor_data,
+    calculate_sync_delta,
     parse_v2_log_directory,
     parse_v2_sensor_data,
     parse_v2_track_data,
@@ -205,7 +207,7 @@ DEVICE_INFO_WITH_TIMESTAMP = FlysightV2(
     device_id="abc123",
     session_id="abc123",
     sensor_info={"BARO": TRUTH_SENSOR_INFO},
-    first_timestamp=0.5,
+    first_sensor_timestamp=0.5,
 )
 
 
@@ -251,7 +253,7 @@ IMU_INFO_WITH_TIMESTAMP = FlysightV2(
     device_id="abc123",
     session_id="abc123",
     sensor_info={"IMU": IMU_SENSOR_INFO},
-    first_timestamp=0.5,
+    first_sensor_timestamp=0.5,
 )
 
 SAMPLE_IMU_DATA = {"IMU": [[0.01, 0, 0, 0, 1, 2, 3, 26.26]]}
@@ -309,6 +311,52 @@ def test_directory_pipeline() -> None:
     data_log = parse_v2_log_directory(data_directory)
 
     # Actual parsing already tested upstream, don't need to repeat
-    assert data_log.track_data.shape == (1, 13)
+    assert data_log.track_data.shape == (1, 14)
     assert "IMU" in data_log.sensor_data
     assert data_log.device_info.device_id == "003e0038484e501420353131"
+
+
+def test_directory_pipeline_normalize_gps() -> None:
+    data_directory = SAMPLE_DATA_DIR / "24-04-20/04-20-00"
+    data_log = parse_v2_log_directory(data_directory, normalize_gps=True)
+
+    # Normalization helper tested elsewhere, just check here that the flag is being acted on
+    assert data_log.track_data["lat"][0] == pytest.approx(0)
+    assert data_log.track_data["lon"][0] == pytest.approx(0)
+
+
+def test_v2_flightlog_normalize_gps() -> None:
+    data_directory = SAMPLE_DATA_DIR / "24-04-20/04-20-00"
+
+    # Have already tested that the coordinate is correctly parsed
+    data_log = parse_v2_log_directory(data_directory, normalize_gps=False)
+
+    data_log.normalize_gps()
+    assert data_log.track_data["lat"][0] == pytest.approx(0)
+    assert data_log.track_data["lon"][0] == pytest.approx(0)
+
+
+def test_time_sync_delta_calculation() -> None:
+    track_data = polars.DataFrame(
+        {
+            "time": [dt.datetime(year=2024, month=4, day=20)],
+        }
+    )
+    time_sensor = polars.DataFrame(
+        {
+            "tow": [518400],
+            "week": [2310],
+            "elapsed_time": [1.0],
+        }
+    )
+
+    track_offset = calculate_sync_delta(track_data, time_sensor)
+    assert track_offset == pytest.approx(1)
+
+
+def test_directory_pipeline_inserts_sync_column() -> None:
+    data_directory = SAMPLE_DATA_DIR / "24-04-20/04-20-00"
+    data_log = parse_v2_log_directory(data_directory)
+
+    assert "elapsed_time_sensor" in data_log.track_data.columns
+    assert data_log.track_data["elapsed_time_sensor"][0] == pytest.approx(1)

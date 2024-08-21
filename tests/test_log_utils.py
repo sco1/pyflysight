@@ -2,9 +2,16 @@ from pathlib import Path
 
 import polars
 import pytest
+from polars.testing import assert_frame_equal
 
 from pyflysight import FlysightType, NUMERIC_T
-from pyflysight.log_utils import classify_log_dir, get_idx, iter_log_dirs, locate_log_subdir
+from pyflysight.log_utils import (
+    classify_log_dir,
+    get_idx,
+    iter_log_dirs,
+    locate_log_subdir,
+    normalize_gps_location,
+)
 
 SAMPLE_DATAFRAME = polars.DataFrame(
     {
@@ -128,3 +135,22 @@ def test_iter_dir(
     found_dirs = iter_log_dirs(top_dir=tmp_path, flysight_type=hw_type)
     found_dirnames = {ld.log_dir.name for ld in found_dirs}
     assert found_dirnames == truth_parent_dirnames
+
+
+def test_gps_normalize() -> None:
+    track_df = polars.DataFrame(
+        {
+            "lat": [1.0, 2.0],
+            "lon": [1.0, 3.0],
+        }
+    )
+
+    truth_normal = polars.DataFrame(
+        {
+            "lat": [0.0, 1.0],
+            "lon": [0.0, 2.0],
+        }
+    )
+
+    normalized_track = normalize_gps_location(track_df)
+    assert_frame_equal(normalized_track, truth_normal)
