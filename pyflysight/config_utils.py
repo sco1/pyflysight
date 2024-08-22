@@ -83,16 +83,18 @@ class FlysightV2Config(FlysightConfig):
     go out of sync.
 
     See:
-        https://flysight.ca/wiki/index.php?title=Configuring_FlySight
-        https://github.com/flysight/flysight-2-firmware
+      * https://flysight.ca/wiki/index.php?title=Configuring_FlySight
+      * https://github.com/flysight/flysight-2-firmware
 
-    NOTE: The FlySight support wiki and firmware source may not be synchronized, in these cases
-    an attempt is made to match the behavior described by the firmware source code.
+    Warning:
+        The FlySight support wiki and firmware source may not be synchronized, in these cases an
+        attempt is made to match the behavior described by the firmware source code.
 
-    NOTE: While most configuration parameters are set in the device's `CONFIG.TXT`, located at the
-    root of the device, there are a few configuration variables set by `FLYSIGHT.TXT` that are not
-    enumerated here. These are mostly hardware-specific configuration values (e.g. charging
-    amperage) and are not related to regular use of the device.
+    Info:
+        While most configuration parameters are set in the device's `CONFIG.TXT`, located at the
+        root of the device, there are a few configuration variables set by `FLYSIGHT.TXT` that are
+        not enumerated here. These are mostly hardware-specific configuration values (e.g. charging
+        amperage) and are not related to regular use of the device.
     """
 
     # Fields are defined in the order we want them to appear
@@ -118,9 +120,10 @@ class FlysightV2Config(FlysightConfig):
         """
         Create a new instance from a previously serialized configuration.
 
-        NOTE: Configuration files serialized from a V1 device configuration will return a valid
-        instance, where any V2-specific parameters (e.g. IMU settings) will be set to their
-        default values.
+        Info:
+            Configuration files serialized from a V1 device configuration will return a valid
+            instance, where any V2-specific parameters (e.g. IMU settings) will be set to their
+            default values.
         """
         with filepath.open("r") as f:
             config_d = json.load(f)
@@ -140,16 +143,18 @@ class FlysightV1Config(FlysightConfig):
     go out of sync.
 
     See:
-        https://flysight.ca/wiki/index.php?title=Configuring_FlySight
-        https://github.com/flysight/flysight
+     * https://flysight.ca/wiki/index.php?title=Configuring_FlySight
+     * https://github.com/flysight/flysight
 
-    NOTE: The FlySight support wiki and firmware source may not be synchronized, in these cases
-    an attempt is made to match the behavior described by the firmware source code.
+    Warning:
+        The FlySight support wiki and firmware source may not be synchronized, in these cases an
+        attempt is made to match the behavior described by the firmware source code.
 
-    NOTE: While most configuration parameters are set in the device's `CONFIG.TXT`, located at the
-    root of the device, there are a few configuration variables set by `FLYSIGHT.TXT` that are not
-    enumerated here. These are mostly hardware-specific configuration values (e.g. charging
-    amperage) and are not related to regular use of the device.
+    Info:
+        While most configuration parameters are set in the device's `CONFIG.TXT`, located at the
+        root of the device, there are a few configuration variables set by `FLYSIGHT.TXT` that are
+        not enumerated here. These are mostly hardware-specific configuration values (e.g. charging
+        amperage) and are not related to regular use of the device.
     """
 
     # Fields are defined in the order we want them to appear
@@ -174,8 +179,9 @@ class FlysightV1Config(FlysightConfig):
         """
         Create a new instance from a previously serialized configuration.
 
-        NOTE: Configuration files generated for a V2 device will raise a `TypeError` due to the
-        extra configuration parameters present.
+        Warning:
+            Configuration files generated for a V2 device will raise a `TypeError` due to the extra
+            configuration parameters present.
         """
         with filepath.open("r") as f:
             config_d = json.load(f)

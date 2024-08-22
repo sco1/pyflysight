@@ -77,8 +77,9 @@ def batch_load_flysight(
     Log file discovery is not recursive by default, the `pattern` kwarg can be adjusted to support
     a recursive glob.
 
-    NOTE: File case sensitivity is deferred to the OS; `pattern` is passed to glob as-is so matches
-    may or may not be case-sensitive.
+    Warning:
+        File case sensitivity is deferred to the OS; `pattern` is passed to glob as-is so matches
+        may or may not be case-sensitive.
 
     If `normalize_gps` is `True`, the GPS track data is normalized to start at `(0, 0)`
     """
@@ -482,7 +483,8 @@ class FlysightV2FlightLog:  # noqa: D101
         """
         Trim the sensor & track logs to data between the provided start and end elapsed times.
 
-        NOTE: The elapsed time column is re-normalized to the provided trim window.
+        Note:
+            The elapsed time column is re-normalized to the provided trim window.
         """
         for sensor, df in self.sensor_data.items():
             l_idx = get_idx(df, elapsed_start)
@@ -649,8 +651,9 @@ def calculate_sync_delta(track_data: polars.DataFrame, time_sensor: polars.DataF
     (e.g. `$TIME,60077.615,316515.000,2311`), which can be used to calculate the GPS timestamp of
     the reading.
 
-    NOTE: I believe, but have not confirmed, that the U-Blox chip already accounts for leap seconds,
-    so the correction is omitted from this calculation.
+    Note:
+        I believe, but have not confirmed, that the U-Blox chip already accounts for leap seconds,
+        so the correction is omitted from this calculation.
     """
     tow_delta = dt.timedelta(weeks=time_sensor["week"][0], seconds=time_sensor["tow"][0])
     gps_dt = GPS_EPOCH + tow_delta
@@ -665,8 +668,9 @@ def _add_sync_column(track_data: polars.DataFrame, track_offset: float) -> polar
     """
     Insert an `elapsed_time_sensor` column into the provided track data using the specified offset.
 
-    NOTE: It is assumed that `track_offset` is calculated in such a way that when added to the track
-    data's elapsed time it provides a time vector that aligns with the recorded sensor data.
+    Note:
+        It is assumed that `track_offset` is calculated in such a way that when added to the track
+        data's elapsed time it provides a time vector that aligns with the recorded sensor data.
     """
     track_data = track_data.with_columns(
         elapsed_time_sensor=(polars.col("elapsed_time") + track_offset)
