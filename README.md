@@ -36,11 +36,8 @@ Commands:
 ```
 <!-- [[[end]]] -->
 
-## CLI Usage
-🚨 **NOTE:** CLI functionality is currently still under development. 🚨
-
-## Internal Data Representation
-See: [Data Format](/doc/data_format.md) for a more detailed breakdown of the expected data file formats.
+## Programmatic Access
+See: [https://sco1.github.io/pyflysight/](https://sco1.github.io/pyflysight/) for library documentation.
 
 `pyflysight` exposes helpers for parsing your flight data from their CSV representation into a [Polars](https://docs.pola.rs/) dataframe. All dataframes derive an `elapsed_time` column, calculated as the delta of the row timestamp from the first seen timestamp of the data file. All GPS dataframes calculate a `groundspeed` column from the northing and easting GPS velocity components.
 
@@ -73,7 +70,7 @@ Both the `SENSOR.CSV` and `TRACK.CSV` files share a similar data format: a serie
 Data trimming & CSV export is handled programmatically by methods of `pyflysight.flysight_proc.FlysightV2FlightLog`. The CSV output is designed to be round-trippable.
 
 ## Hardware Revisions
-![hardware comparison](/doc/hardware_revs.png)
+![hardware comparison](https://raw.githubusercontent.com/sco1/pyflysight/main/docs/img/hardware_revs.png)
 
 Flysight released a new hardware revision in Summer 2023 with many improvements over the original, including the addition of additional sensors. In addition to the GPS information logged by the Flysight V1, the Flysight V2 adds IMU & environmental data streams to your flight logs. The main user-facing change is a difference in log output.
 

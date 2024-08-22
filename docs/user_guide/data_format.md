@@ -32,6 +32,7 @@ The Flysight V2 hardware revision outputs a collection of files containing fligh
 ```
 
 Currently output files are:
+
   * `RAW.UBX` - The raw binary data stream from the onboard u-blox hardware; the protocol used has not been investigated
   * `SENSOR.CSV` - Data records from the onboard sensors (minus GPS)
   * `TRACK.CSV` - Data records from the GPS sensor
@@ -40,6 +41,7 @@ Currently output files are:
 Both the sensor and track data CSV files share a similar format: a series of header lines, followed by a delimiter (`$DATA`), and then one or more rows of data records.
 
 Currently encountered information contained in the header file is as follows:
+
   * `$FLYS` - Unsure what this is :)
   * `$VAR` - Device information
   * Sensor information is provided as one or more pairs of rows:
@@ -73,6 +75,7 @@ $IMU,59970.376,-0.427,1.770,1.953,-0.01464,-0.00732,0.94287,25.64
 ```
 
 Currently seen sensors are:
+
   * `$BARO`
     * Time
     * Pressure
@@ -111,6 +114,7 @@ $GNSS,2024-04-20T04:20:00.000Z,33.6568828,-117.7466357,630.077,-31.92,48.42,-34.
 ```
 
 Currently seen sensors are:
+
   * `$GNSS`
     * Time (ISO format)
     * Lat

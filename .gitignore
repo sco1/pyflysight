@@ -45,4 +45,7 @@ htmlcov
 # mypy
 .mypy_cache/
 
+# mkdocs
+site/
+
 sample_data/

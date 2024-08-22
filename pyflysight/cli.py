@@ -4,6 +4,7 @@ from pathlib import Path
 
 import typer
 from sco1_misc.prompts import prompt_for_dir, prompt_for_file
+from typer.main import get_command
 
 from pyflysight import FlysightType
 from pyflysight.config_utils import FlysightConfig, FlysightV1Config, FlysightV2Config
@@ -309,6 +310,9 @@ def batch(
         _check_log_dir(ld.log_dir, verbose=verbose)
         _trim_pipeline(ld.log_dir, normalize_gps=normalize_gps, verbose=verbose)
 
+
+# For mkdocs-click, this must be after all the commands have been defined
+pyflysight_click = get_command(pyflysight_cli)
 
 if __name__ == "__main__":  # pragma: no cover
     pyflysight_cli()

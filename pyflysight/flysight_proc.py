@@ -26,8 +26,9 @@ def _calc_derived_track_vals(flog: polars.DataFrame) -> polars.DataFrame:
     Calculate derived columns from the provided flight log data.
 
     The following derived columns are added to the output `DataFrame`:
-        * `elapsed_time`
-        * `groundspeed` (m/s)
+
+      * `elapsed_time`
+      * `groundspeed` (m/s)
     """
     flog = flog.with_columns(
         elapsed_time=((flog["time"] - flog["time"][0]).dt.total_milliseconds() / 1000),
@@ -45,8 +46,9 @@ def load_flysight(filepath: Path, normalize_gps: bool = False) -> polars.DataFra
     default, the units row is discarded.
 
     The following derived columns are added to the output `DataFrame`:
-        * `elapsed_time`
-        * `groundspeed` (m/s)
+
+      * `elapsed_time`
+      * `groundspeed` (m/s)
 
     If `normalize_gps` is `True`, the GPS track data is normalized to start at `(0, 0)`
     """
@@ -180,9 +182,10 @@ def _parse_header(header_lines: t.Sequence[str]) -> FlysightV2:
     followed by pairs of rows for sensor information.
 
     Device metadata is prefixed by `$VAR`, and we retain the following information:
-        * `FIRMWARE_VER`
-        * `DEVICE_ID`
-        * `SESSION_ID`
+
+      * `FIRMWARE_VER`
+      * `DEVICE_ID`
+      * `SESSION_ID`
 
     All other metadata is ignored.
 
@@ -315,11 +318,12 @@ def _calculate_derived_columns(
     Calculate sensor-specific derived quantities for the provided `DataFrame`.
 
     The following columns are derived:
-        * `BARO`
-            * `press_alt_m` - derived from `pressure` assuming standard lapse rate
-            * `press_alt_ft` - converted from `press_alt_m`
-        * `IMU`
-            * `total_accel` - vector sum of xyz acceleration components
+
+      * `BARO`
+        * `press_alt_m` - derived from `pressure` assuming standard lapse rate
+        * `press_alt_ft` - converted from `press_alt_m`
+      * `IMU`
+        * `total_accel` - vector sum of xyz acceleration components
 
     If no specific calculations are required, the `DataFrame` is passed through unchanged.
     """
@@ -680,10 +684,11 @@ def parse_v2_log_directory(
     Data parsing pipeline for a directory of Flysight V2 logs.
 
     The Flysight V2 outputs a timestamped (`YY-mm-DD/HH-MM-SS/*`) directory of files:
-        * `EVENT.CSV` - Debugging output, optionally present based on firmware version
-        * `RAW.UBX` - Raw UBlox sensor output
-        * `SENSOR.CSV` - Onboard sensor data
-        * `TRACK.CSV` - GPS sensor data
+
+      * `EVENT.CSV` - Debugging output, optionally present based on firmware version
+      * `RAW.UBX` - Raw UBlox sensor output
+      * `SENSOR.CSV` - Onboard sensor data
+      * `TRACK.CSV` - GPS sensor data
 
     When utilizing this pipeline, an `elapsed_time_sensor` column is added to the track `DataFrame`,
     providing a synchronized elapsed time that can be used to align the sensor & track `DataFrame`s.
