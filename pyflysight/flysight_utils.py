@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import shutil
 import time
 import typing as t
@@ -23,9 +25,10 @@ def iter_flysight_drives() -> abc.Generator[Path, None, None]:
 
     FlySight devices should have a `FLYSIGHT.TXT` file in their root directory.
 
-    NOTE: If called immediately after a device is plugged in (e.g. if being called in a polling
-    loop), the OS may still be completing other tasks prior to assigning the device its actual drive
-    letter. While in this state, attempts to read from the device will raise an `OSError`.
+    Warning:
+        If called immediately after a device is plugged in (e.g. if being called in a polling loop),
+        the OS may still be completing other tasks prior to assigning the device its actual drive
+        letter. While in this state, attempts to read from the device will raise an `OSError`.
     """
     for p in psutil.disk_partitions():
         mount = Path(p.mountpoint)
@@ -39,9 +42,10 @@ def get_flysight_drives() -> tuple[Path]:
 
     FlySight devices should have a `FLYSIGHT.TXT` file in their root directory.
 
-    NOTE: If called immediately after a device is plugged in (e.g. if being called in a polling
-    loop), the OS may still be completing other tasks prior to assigning the device its actual drive
-    letter. While in this state, attempts to read from the device will raise an `OSError`.
+    Warning:
+        If called immediately after a device is plugged in (e.g. if being called in a polling loop),
+        the OS may still be completing other tasks prior to assigning the device its actual drive
+        letter. While in this state, attempts to read from the device will raise an `OSError`.
     """
     return tuple(iter_flysight_drives())  # type: ignore[return-value]
 
@@ -145,6 +149,11 @@ class FlysightMetadata(t.NamedTuple):  # noqa: D101
     firmware: str
     n_logs: int
 
+    @classmethod
+    def from_drive(cls, device_root: Path) -> FlysightMetadata:
+        """Parse the provided FlySight device for some descriptive metadata."""
+        return get_device_metadata(device_root)
+
 
 def get_device_metadata(device_root: Path) -> FlysightMetadata:
     """Parse the provided FlySight device for some descriptive metadata."""
@@ -189,10 +198,11 @@ def copy_logs(
     """
     Copy the log file tree from the provided device root to the specified destination directory.
 
-    NOTE: This function operates on directories of log files only. FlySight V1 hardware groups
-    flight logs by UTC date & time, so each directory may have multiple flight logs present.
-    FlySight V2 hardware groups flight logs per logging session, so each flight log will have its
-    own directory.
+    Note:
+        This function operates on directories of log files only. FlySight V1 hardware groups flight
+        logs by UTC date & time, so each directory may have multiple flight logs present. FlySight
+        V2 hardware groups flight logs per logging session, so each flight log will have its own
+        directory.
 
     The number of directories copied and deleted is optionally returned for downstream notification
     purposes.
@@ -206,8 +216,9 @@ def copy_logs(
     If `remove_after` is `True`, the log directory will be deleted from the FlySight device after
     log data is copied to the destination.
 
-    WARNING: `exist_ok=True` and `remove_after=True` are both destructive operations. Overwritten
-    and/or deleted data will be lost permanently.
+    Warning:
+        `exist_ok=True` and `remove_after=True` are both destructive operations. Overwritten and/or
+        deleted data will be lost permanently.
     """
     flysight_type = classify_hardware_type(device_root)
     n_dirs_copied = 0
@@ -241,7 +252,8 @@ def erase_logs(device_root: Path, filter_func: abc.Callable[[Path], bool] | None
     A filtering function may be optionally specified as a callable that accepts a path to a single
     directory of log files and returns `False` if the directory should not be erased.
 
-    WARNING: This is a destructive operation. Data is removed permanently and cannot be recovered.
+    Warning:
+        This is a destructive operation. Data is removed permanently and cannot be recovered.
     """
     flysight_type = classify_hardware_type(device_root)
     for ld in iter_log_dirs(top_dir=device_root, flysight_type=flysight_type):

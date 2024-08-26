@@ -26,8 +26,9 @@ def _calc_derived_track_vals(flog: polars.DataFrame) -> polars.DataFrame:
     Calculate derived columns from the provided flight log data.
 
     The following derived columns are added to the output `DataFrame`:
-        * `elapsed_time`
-        * `groundspeed` (m/s)
+
+      * `elapsed_time`
+      * `groundspeed` (m/s)
     """
     flog = flog.with_columns(
         elapsed_time=((flog["time"] - flog["time"][0]).dt.total_milliseconds() / 1000),
@@ -45,8 +46,9 @@ def load_flysight(filepath: Path, normalize_gps: bool = False) -> polars.DataFra
     default, the units row is discarded.
 
     The following derived columns are added to the output `DataFrame`:
-        * `elapsed_time`
-        * `groundspeed` (m/s)
+
+      * `elapsed_time`
+      * `groundspeed` (m/s)
 
     If `normalize_gps` is `True`, the GPS track data is normalized to start at `(0, 0)`
     """
@@ -75,8 +77,9 @@ def batch_load_flysight(
     Log file discovery is not recursive by default, the `pattern` kwarg can be adjusted to support
     a recursive glob.
 
-    NOTE: File case sensitivity is deferred to the OS; `pattern` is passed to glob as-is so matches
-    may or may not be case-sensitive.
+    Warning:
+        File case sensitivity is deferred to the OS; `pattern` is passed to glob as-is so matches
+        may or may not be case-sensitive.
 
     If `normalize_gps` is `True`, the GPS track data is normalized to start at `(0, 0)`
     """
@@ -180,9 +183,10 @@ def _parse_header(header_lines: t.Sequence[str]) -> FlysightV2:
     followed by pairs of rows for sensor information.
 
     Device metadata is prefixed by `$VAR`, and we retain the following information:
-        * `FIRMWARE_VER`
-        * `DEVICE_ID`
-        * `SESSION_ID`
+
+      * `FIRMWARE_VER`
+      * `DEVICE_ID`
+      * `SESSION_ID`
 
     All other metadata is ignored.
 
@@ -315,11 +319,12 @@ def _calculate_derived_columns(
     Calculate sensor-specific derived quantities for the provided `DataFrame`.
 
     The following columns are derived:
-        * `BARO`
-            * `press_alt_m` - derived from `pressure` assuming standard lapse rate
-            * `press_alt_ft` - converted from `press_alt_m`
-        * `IMU`
-            * `total_accel` - vector sum of xyz acceleration components
+
+      * `BARO`
+        * `press_alt_m` - derived from `pressure` assuming standard lapse rate
+        * `press_alt_ft` - converted from `press_alt_m`
+      * `IMU`
+        * `total_accel` - vector sum of xyz acceleration components
 
     If no specific calculations are required, the `DataFrame` is passed through unchanged.
     """
@@ -478,7 +483,8 @@ class FlysightV2FlightLog:  # noqa: D101
         """
         Trim the sensor & track logs to data between the provided start and end elapsed times.
 
-        NOTE: The elapsed time column is re-normalized to the provided trim window.
+        Note:
+            The elapsed time column is re-normalized to the provided trim window.
         """
         for sensor, df in self.sensor_data.items():
             l_idx = get_idx(df, elapsed_start)
@@ -645,8 +651,9 @@ def calculate_sync_delta(track_data: polars.DataFrame, time_sensor: polars.DataF
     (e.g. `$TIME,60077.615,316515.000,2311`), which can be used to calculate the GPS timestamp of
     the reading.
 
-    NOTE: I believe, but have not confirmed, that the U-Blox chip already accounts for leap seconds,
-    so the correction is omitted from this calculation.
+    Note:
+        I believe, but have not confirmed, that the U-Blox chip already accounts for leap seconds,
+        so the correction is omitted from this calculation.
     """
     tow_delta = dt.timedelta(weeks=time_sensor["week"][0], seconds=time_sensor["tow"][0])
     gps_dt = GPS_EPOCH + tow_delta
@@ -661,8 +668,9 @@ def _add_sync_column(track_data: polars.DataFrame, track_offset: float) -> polar
     """
     Insert an `elapsed_time_sensor` column into the provided track data using the specified offset.
 
-    NOTE: It is assumed that `track_offset` is calculated in such a way that when added to the track
-    data's elapsed time it provides a time vector that aligns with the recorded sensor data.
+    Note:
+        It is assumed that `track_offset` is calculated in such a way that when added to the track
+        data's elapsed time it provides a time vector that aligns with the recorded sensor data.
     """
     track_data = track_data.with_columns(
         elapsed_time_sensor=(polars.col("elapsed_time") + track_offset)
@@ -680,10 +688,11 @@ def parse_v2_log_directory(
     Data parsing pipeline for a directory of Flysight V2 logs.
 
     The Flysight V2 outputs a timestamped (`YY-mm-DD/HH-MM-SS/*`) directory of files:
-        * `EVENT.CSV` - Debugging output, optionally present based on firmware version
-        * `RAW.UBX` - Raw UBlox sensor output
-        * `SENSOR.CSV` - Onboard sensor data
-        * `TRACK.CSV` - GPS sensor data
+
+      * `EVENT.CSV` - Debugging output, optionally present based on firmware version
+      * `RAW.UBX` - Raw UBlox sensor output
+      * `SENSOR.CSV` - Onboard sensor data
+      * `TRACK.CSV` - GPS sensor data
 
     When utilizing this pipeline, an `elapsed_time_sensor` column is added to the track `DataFrame`,
     providing a synchronized elapsed time that can be used to align the sensor & track `DataFrame`s.

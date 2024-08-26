@@ -1,0 +1,43 @@
+site_name: PyFlySight
+site_url: https://sco1.github.io/pyflysight/
+repo_url: https://github.com/sco1/pyflysight
+
+markdown_extensions:
+  - admonition
+  - mkdocs-click
+  - pymdownx.snippets:
+      check_paths: true
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_root_heading: true
+            show_symbol_type_heading: true
+            show_signature_annotations: true
+            separate_signature: true
+            line_length: 100
+            show_source: false
+            show_if_no_docstring: true
+            merge_init_into_class: true
+
+nav:
+  - Home: index.md
+  - User Guide:
+    - CLI: user_guide/cli.md
+    - Log Parsing: user_guide/log_parsing.md
+    - FlySight Log Format: user_guide/data_format.md
+    - Device Configuration: user_guide/device_configuration.md
+    - Device Interaction: user_guide/device_interaction.md
+    - Log Utilities: user_guide/log_utilities.md
+    - Trim App: user_guide/trim_app.md
+  - About:
+    - Issue Tracker: https://github.com/sco1/pyflysight/issues
+    - Release Notes: about/changelog.md
+    - Contributing: about/contributing.md
+    - License: about/license.md
+
+watch:
+  - pyflysight

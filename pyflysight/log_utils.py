@@ -47,9 +47,11 @@ def locate_log_subdir(top_dir: Path, flysight_type: FlysightType) -> Path:
     """
     Resolve the child log directory contained under the provided top level directory.
 
-    NOTE: It is assumed that the provided `top_dir` contains only one valid directory of log files.
+    Note:
+        It is assumed that the provided `top_dir` contains only one valid directory of log files.
 
-    NOTE: Directories containing trimmed log data are currently not considered.
+    Note:
+        Directories containing trimmed log data are currently not considered.
     """
     if flysight_type == FlysightType.VERSION_1:
         query = "*.CSV"
@@ -79,11 +81,14 @@ def iter_log_dirs(
     A specific Flysight hardware revision can be targeted using the `flysight_type` argument; if
     specified as `None`, both hardware types will be searched for.
 
-    NOTE: Order of yielded directories is not guaranteed.
+    Note:
+        Order of yielded directories is not guaranteed.
 
-    NOTE: Directories containing trimmed log data are currently not considered.
+    Note:
+        Directories containing trimmed log data are currently not considered.
 
-    NOTE: FlySight V2 devices may have a root `TEMP` directory that contains a flight log output,
+    Note:
+        FlySight V2 devices may have a root `TEMP` directory that contains a flight log output,
     this directory is excluded from being yielded.
     """
     possible_parents = {f.parent for f in top_dir.rglob("*.CSV")}
