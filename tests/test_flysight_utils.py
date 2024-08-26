@@ -145,6 +145,7 @@ def test_get_v1_device_metadata(tmp_path: Path) -> None:
         n_logs=3,
     )
     assert get_device_metadata(flysight_device) == truth_metadata
+    assert FlysightMetadata.from_drive(flysight_device) == truth_metadata
 
 
 def test_get_v2_device_metadata(tmp_path: Path) -> None:
@@ -156,6 +157,7 @@ def test_get_v2_device_metadata(tmp_path: Path) -> None:
         n_logs=2,
     )
     assert get_device_metadata(flysight_device) == truth_metadata
+    assert FlysightMetadata.from_drive(flysight_device) == truth_metadata
 
 
 def test_copy_v1_logs(tmp_path: Path) -> None:

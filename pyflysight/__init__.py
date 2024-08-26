@@ -1,6 +1,9 @@
 import typing as t
 from enum import IntEnum
 
+HEADER_PARTITION_KEYWORD = "$DATA"
+
+
 NUMERIC_T: t.TypeAlias = float | int
 
 

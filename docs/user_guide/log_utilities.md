@@ -9,3 +9,4 @@
 ## Parsed Data Helpers
 ### ::: pyflysight.log_utils.get_idx
 ### ::: pyflysight.log_utils.normalize_gps_location
+### ::: pyflysight.log_utils.normalize_gps_location_plaintext

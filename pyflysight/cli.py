@@ -110,8 +110,9 @@ def write_default(
     """
     Write default configuration.
 
-    WARNING: This action is destructive. All existing configuration information & formatting will be
-    permanently lost.
+    Warning:
+        This action is destructive. All existing configuration information & formatting will be
+        permanently lost.
     """
     if flysight_root is None:
         flysight_root = _ask_select_flysight()
@@ -135,8 +136,9 @@ def write_from_json(
     """
     Write previously serialized paramters.
 
-    WARNING: This action is destructive. All existing configuration information & formatting will be
-    permanently lost.
+    Warning:
+        This action is destructive. All existing configuration information & formatting will be
+        permanently lost.
     """
     if flysight_root is None:
         flysight_root = _ask_select_flysight()
@@ -169,8 +171,9 @@ def write_from_other(
     """
     Copy configuration from file.
 
-    WARNING: This action is destructive. All existing configuration information & formatting will be
-    permanently lost.
+    Warning:
+        This action is destructive. All existing configuration information & formatting will be
+        permanently lost.
     """
     if flysight_root is None:
         flysight_root = _ask_select_flysight()
@@ -227,8 +230,9 @@ def clear(
     """
     Clear all logs on device.
 
-    WARNING: This action is destructive. All logs on the device will be permanently deleted and
-    cannot be recovered.
+    Warning:
+        This action is destructive. All logs on the device will be permanently deleted and cannot be
+        recovered.
     """
     if flysight_root is None:
         flysight_root = _ask_select_flysight()
@@ -283,7 +287,8 @@ def single(
     """
     Trim single flight log.
 
-    NOTE: Log trimming is currently only implemented for FlySight V2 hardware.
+    Note:
+        Log trimming is currently only implemented for FlySight V2 hardware.
     """
     if log_dir is None:
         log_dir = prompt_for_dir(title="Select Log Directory For Processing")
@@ -301,7 +306,8 @@ def batch(
     """
     Batch trim a directory of flight logs.
 
-    NOTE: Log trimming is currently only implemented for FlySight V2 hardware.
+    Note:
+        Log trimming is currently only implemented for FlySight V2 hardware.
     """
     if log_dir is None:
         log_dir = prompt_for_dir(title="Select Directory For Batch Processing")

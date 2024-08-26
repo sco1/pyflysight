@@ -10,10 +10,8 @@ from pathlib import Path
 import polars
 from polars.exceptions import ShapeError
 
-from pyflysight import FlysightType, NUMERIC_T
+from pyflysight import FlysightType, HEADER_PARTITION_KEYWORD, NUMERIC_T
 from pyflysight.log_utils import get_idx, normalize_gps_location
-
-HEADER_PARTITION_KEYWORD = "$DATA"
 
 GPS_EPOCH = dt.datetime(year=1980, month=1, day=6)
 

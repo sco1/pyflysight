@@ -5,12 +5,14 @@ import pytest
 from polars.testing import assert_frame_equal
 
 from pyflysight import FlysightType, NUMERIC_T
+from pyflysight.flysight_proc import load_flysight, parse_v2_track_data
 from pyflysight.log_utils import (
     classify_log_dir,
     get_idx,
     iter_log_dirs,
     locate_log_subdir,
     normalize_gps_location,
+    normalize_gps_location_plaintext,
 )
 
 SAMPLE_DATAFRAME = polars.DataFrame(
@@ -154,3 +156,60 @@ def test_gps_normalize() -> None:
 
     normalized_track = normalize_gps_location(track_df)
     assert_frame_equal(normalized_track, truth_normal)
+
+
+SAMPLE_V1_TRACK = """\
+time,lat,lon,hMSL,velN,velE,velD,hAcc,vAcc,sAcc,heading,cAcc,gpsFix,numSV
+,(deg),(deg),(m),(m/s),(m/s),(m/s),(m),(m),(m/s),(deg),(deg),,
+2021-04-20T12:34:20.00Z,33.0,-117.0,15.060,-0.63,0.98,0.29,207.635,481.468,7.15,0.0,180.0,3,4
+2021-04-20T12:34:20.20Z,34.0,-115.0,15.060,-0.63,0.98,0.29,207.635,481.468,7.15,0.0,180.0,3,4
+"""
+
+# Shared between V1 & V2 tests
+TRUTH_PLAINTEXT_NORMALIZED = polars.DataFrame(
+    {
+        "lat": [0.0, 1.0],
+        "lon": [0.0, 2.0],
+    }
+)
+
+
+def test_gps_normalize_plaintext_fsv1(tmp_path: Path) -> None:
+    log_data = tmp_path / "24-04-20.CSV"
+    log_data.write_text(SAMPLE_V1_TRACK)
+
+    normalize_gps_location_plaintext(log_data, FlysightType.VERSION_1)
+
+    converted_log = load_flysight(log_data)
+    assert_frame_equal(converted_log[("lat", "lon")], TRUTH_PLAINTEXT_NORMALIZED)
+
+
+SAMPLE_V2_TRACK = """\
+$FLYS,1
+$VAR,FIRMWARE_VER,v2024.05.25.pairing_request
+$VAR,DEVICE_ID,003e0038484e501420353131
+$VAR,SESSION_ID,3e10c2f6b1ea4604758b8926
+$COL,GNSS,time,lat,lon,hMSL,velN,velE,velD,hAcc,vAcc,sAcc,numSV
+$UNIT,GNSS,,deg,deg,m,m/s,m/s,m/s,m,m,m/s,
+$DATA
+$GNSS,2024-04-20T04:20:00.00Z,33.0,-117.0,630.077,-31.92,48.42,-34.93,136.117,170.718,4.74,4
+$GNSS,2024-04-20T04:20:20.00Z,34.0,-115.0,630.077,-31.92,48.42,-34.93,136.117,170.718,4.74,4
+"""
+
+
+def test_gps_normalize_plaintext_fsv2(tmp_path: Path) -> None:
+    log_data = tmp_path / "24-04-20.CSV"
+    log_data.write_text(SAMPLE_V2_TRACK)
+
+    normalize_gps_location_plaintext(log_data, FlysightType.VERSION_2)
+
+    converted_log, _ = parse_v2_track_data(log_data)
+    assert_frame_equal(converted_log[("lat", "lon")], TRUTH_PLAINTEXT_NORMALIZED)
+
+
+def test_gps_normalize_plaintext_inplace_no_copy(tmp_path: Path) -> None:
+    log_data = tmp_path / "24-04-20.CSV"
+    log_data.write_text(SAMPLE_V2_TRACK)
+    normalize_gps_location_plaintext(log_data, FlysightType.VERSION_2, inplace=True)
+
+    assert not list(tmp_path.glob("TRACK_old.CSV"))

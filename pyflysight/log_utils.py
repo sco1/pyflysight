@@ -1,10 +1,12 @@
+import io
+import shutil
 import typing as t
 from collections import abc
 from pathlib import Path
 
 import polars
 
-from pyflysight import FlysightType, NUMERIC_T
+from pyflysight import FlysightType, HEADER_PARTITION_KEYWORD, NUMERIC_T
 
 
 def get_idx(log_data: polars.DataFrame, query: NUMERIC_T, ref_col: str = "elapsed_time") -> int:
@@ -89,7 +91,7 @@ def iter_log_dirs(
 
     Note:
         FlySight V2 devices may have a root `TEMP` directory that contains a flight log output,
-    this directory is excluded from being yielded.
+        this directory is excluded from being yielded.
     """
     possible_parents = {f.parent for f in top_dir.rglob("*.CSV")}
 
@@ -124,3 +126,63 @@ def normalize_gps_location(
     )
 
     return track_data
+
+
+def normalize_gps_location_plaintext(
+    track_file: Path,
+    flysight_type: FlysightType,
+    start_coord: tuple[float, float] = (0, 0),
+    inplace: bool = False,
+) -> None:
+    """
+    Shift plaintext GPS coordinates so they begin at the provided starting location.
+
+    If `inplace` is `True`, the existing track file will be overwritten. Otherwise, the unmodified
+    track file will be copied to a new `TRACK_old.CSV` file in the same directory.
+
+    Warning:
+        Inplace modification is a destructive operation, all existing data will be lost and cannot
+        be recovered.
+    """
+    if not inplace:
+        track_copy = track_file.with_stem("TRACK_old")
+        shutil.copy(track_file, track_copy)
+
+    # Buffer one end for now, if memory usage ends up being an issue for some reason can swap to
+    # using a tempfile
+    buff = io.StringIO()
+    with track_file.open("r") as f:
+        # Write headers straight through
+        if flysight_type == FlysightType.VERSION_1:
+            for _ in range(2):
+                buff.write(next(f))
+        elif flysight_type == FlysightType.VERSION_2:  # pragma: no branch
+            for line in f:  # pragma: no branch
+                buff.write(line)
+                if line.startswith(HEADER_PARTITION_KEYWORD):
+                    break
+
+        lat_delta = lon_delta = 0.0
+        for line in f:
+            comps = line.split(",")
+            if flysight_type == FlysightType.VERSION_1:
+                idx = (1, 2)
+            elif flysight_type == FlysightType.VERSION_2:  # pragma: no branch
+                idx = (2, 3)
+
+            lat, lon = (float(comps[i]) for i in idx)
+
+            if lat_delta == 0:
+                # Calculate deltas from the first data line
+                # If by extreme chance the delta still ends up being zero, buy a lottery ticket
+                lat_delta = start_coord[0] - lat
+                lon_delta = start_coord[1] - lon
+
+            lat += lat_delta
+            lon += lon_delta
+
+            comps[idx[0]] = str(lat)
+            comps[idx[1]] = str(lon)
+            buff.write(",".join(comps))
+
+    track_file.write_text(buff.getvalue())
