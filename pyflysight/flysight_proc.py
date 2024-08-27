@@ -19,6 +19,17 @@ GroupedSensorData: t.TypeAlias = dict[str, list[list[float]]]
 SensorDataFrames: t.TypeAlias = dict[str, polars.DataFrame]
 
 
+@dataclass(slots=True)
+class FlysightV1:
+    flysight_type: FlysightType = FlysightType.VERSION_1
+
+
+@dataclass(slots=True)
+class FlysightV1FlightLog:
+    track_data: polars.DataFrame
+    device_info: FlysightV1
+
+
 def _calc_derived_track_vals(flog: polars.DataFrame) -> polars.DataFrame:
     """
     Calculate derived columns from the provided flight log data.
@@ -36,7 +47,7 @@ def _calc_derived_track_vals(flog: polars.DataFrame) -> polars.DataFrame:
     return flog
 
 
-def load_flysight(filepath: Path, normalize_gps: bool = False) -> polars.DataFrame:
+def load_flysight(filepath: Path, normalize_gps: bool = False) -> FlysightV1FlightLog:
     """
     Parse the provided FlySight log into a `DataFrame`.
 
@@ -57,14 +68,14 @@ def load_flysight(filepath: Path, normalize_gps: bool = False) -> polars.DataFra
     if normalize_gps:
         flight_log = normalize_gps_location(flight_log)
 
-    return flight_log
+    return FlysightV1FlightLog(track_data=flight_log, device_info=FlysightV1())
 
 
 def batch_load_flysight(
     top_dir: Path,
     pattern: str = r"*.CSV",
     normalize_gps: bool = False,
-) -> dict[str, dict[str, polars.DataFrame]]:
+) -> dict[str, dict[str, FlysightV1FlightLog]]:
     """
     Batch parse a directory of FlySight logs into a dictionary of `DataFrame`s.
 
@@ -81,7 +92,7 @@ def batch_load_flysight(
 
     If `normalize_gps` is `True`, the GPS track data is normalized to start at `(0, 0)`
     """
-    parsed_logs: dict[str, dict[str, polars.DataFrame]] = defaultdict(dict)
+    parsed_logs: dict[str, dict[str, FlysightV1FlightLog]] = defaultdict(dict)
     for log_file in top_dir.glob(pattern):
         # Log files are grouped by date, need to retain this since it's not in the CSV filename
         log_date = log_file.parent.stem

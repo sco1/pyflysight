@@ -20,7 +20,7 @@ def test_log_parse() -> None:
 
     DERIVED_COLS = ("time", "elapsed_time", "groundspeed")
     for col_name in DERIVED_COLS:
-        checks.is_col(flight_log, col_name)
+        checks.is_col(flight_log.track_data, col_name)
 
     truth_dt = dt.datetime.strptime("2021-04-20T12:34:20.00Z", r"%Y-%m-%dT%H:%M:%S.%f%z")
     TRUTH_DERIVED = polars.DataFrame(
@@ -30,7 +30,7 @@ def test_log_parse() -> None:
             "groundspeed": [1.165],
         }
     )
-    assert_frame_equal(flight_log.select(DERIVED_COLS), TRUTH_DERIVED, rtol=1e-3)
+    assert_frame_equal(flight_log.track_data.select(DERIVED_COLS), TRUTH_DERIVED, rtol=1e-3)
 
 
 def test_log_parse_normalize_gps() -> None:
@@ -38,8 +38,8 @@ def test_log_parse_normalize_gps() -> None:
     flight_log = flysight_proc.load_flysight(sample_flight_log, normalize_gps=True)
 
     # Normalization helper tested elsewhere, just check here that the flag is being acted on
-    assert flight_log["lat"][0] == pytest.approx(0)
-    assert flight_log["lon"][0] == pytest.approx(0)
+    assert flight_log.track_data["lat"][0] == pytest.approx(0)
+    assert flight_log.track_data["lon"][0] == pytest.approx(0)
 
 
 def test_batch_log_parse() -> None:
@@ -61,8 +61,8 @@ def test_batch_log_parse_normalize_gps() -> None:
 
     # Normalization helper tested elsewhere, just check here that the flag is being acted on
     for fl in flight_logs["sample_data"].values():
-        assert fl["lat"][0] == pytest.approx(0)
-        assert fl["lon"][0] == pytest.approx(0)
+        assert fl.track_data["lat"][0] == pytest.approx(0)
+        assert fl.track_data["lon"][0] == pytest.approx(0)
 
 
 SAMPLE_DATA_TO_SPLIT = dedent(

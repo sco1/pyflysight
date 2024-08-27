@@ -8,6 +8,11 @@
 ## FlySight V2
 ### ::: pyflysight.flysight_proc.parse_v2_log_directory
 
+# FlySight V1
+## Objects
+### ::: pyflysight.flysight_proc.FlysightV1
+### ::: pyflysight.flysight_proc.FlysightV1FlightLog
+
 # FlySight V2
 ## Objects
 ### ::: pyflysight.flysight_proc.SensorInfo
