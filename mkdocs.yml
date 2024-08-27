@@ -7,6 +7,13 @@ markdown_extensions:
   - mkdocs-click
   - pymdownx.snippets:
       check_paths: true
+  - pymdownx.saneheaders
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      repo_url_shortener: true
+      normalize_issue_symbols: true
+      user: sco1
+      repo: pyflysight
 
 plugins:
   - search
