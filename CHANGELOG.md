@@ -1,6 +1,15 @@
 # Changelog
 Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (`<major>`.`<minor>`.`<patch>`)
 
+## [0.7.0]
+### Added
+* #15 Add `pyflysight.flysight_proc.FlysightV1` and `pyflysight.flysight_proc.FlysightV1FlightLog` container classes for interfacing with FlySight V1 track data & metadata
+* #30 Add optional normalization of GPS coordinates in plaintext log files
+
+### Changed
+* (Internal) #21 Utilize MkDocs for documentation generation
+* #15 FlySight V1 related parsing helpers now utilize `pyflysight.flysight_proc.FlysightV1FlightLog` instances rather than bare `DataFrame`s
+
 ## [0.6.0]
 ### Added
 * #24 Add optional normalization of parsed GPS coordinates
@@ -23,6 +32,7 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (`<ma
 
 ### Added
 * Add additional helpers to `pyflysight.config_utils` and `pyflysight.flysight_utils`
+* (Internal) #21 Add documentation autogeneration using `pdoc3`
 
 ## [v0.4.0]
 ### Added
