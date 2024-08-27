@@ -19,15 +19,36 @@ GroupedSensorData: t.TypeAlias = dict[str, list[list[float]]]
 SensorDataFrames: t.TypeAlias = dict[str, polars.DataFrame]
 
 
+class SensorInfo(t.NamedTuple):
+    """Store sensor record column & unit information, assumed to be of equal length."""
+
+    columns: list[str]
+    units: list[str]
+    id_: str = ""
+
+
 @dataclass(slots=True)
 class FlysightV1:
+    """
+    Store device metadata for a corresponding FlySight V1 data logger.
+
+    Note:
+        Though it only has one sensor (GPS), column names and units are stored in a `"GNSS"` column
+        in order to better align with the structure of the FlySight V2 data.
+    """
+
+    sensor_info: dict[str, SensorInfo]
     flysight_type: FlysightType = FlysightType.VERSION_1
 
 
 @dataclass(slots=True)
-class FlysightV1FlightLog:
+class FlysightV1FlightLog:  # noqa: D101
     track_data: polars.DataFrame
     device_info: FlysightV1
+
+    def normalize_gps(self, start_coord: tuple[float, float] = (0, 0)) -> None:
+        """Shift parsed GPS coordinates so they begin at the provided starting location."""
+        self.track_data = normalize_gps_location(self.track_data, start_coord=start_coord)
 
 
 def _calc_derived_track_vals(flog: polars.DataFrame) -> polars.DataFrame:
@@ -51,8 +72,7 @@ def load_flysight(filepath: Path, normalize_gps: bool = False) -> FlysightV1Flig
     """
     Parse the provided FlySight log into a `DataFrame`.
 
-    FlySight logs are assumed to contain 2 header rows, one for labels and the other for units. By
-    default, the units row is discarded.
+    FlySight logs are assumed to contain 2 header rows, one for labels and the other for units.
 
     The following derived columns are added to the output `DataFrame`:
 
@@ -61,6 +81,24 @@ def load_flysight(filepath: Path, normalize_gps: bool = False) -> FlysightV1Flig
 
     If `normalize_gps` is `True`, the GPS track data is normalized to start at `(0, 0)`
     """
+    # Parse header separately, then defer data parsing to Polars
+    # While we do have another function for splitting the header & data lines, it requires loading
+    # in the entire file
+    with filepath.open(mode="r") as f:
+        header_lines = [next(f).strip().split(",") for _ in range(2)]
+
+    # Massage the unit information so it better matches what comes out of the FlySight V2
+    unit_strs = [u.strip("()") for u in header_lines[1]]
+    unit_strs[0] = "datetime"  # Unit string not provided in log
+
+    sensor_info = SensorInfo(
+        columns=header_lines[0],
+        units=unit_strs,
+        id_="GNSS",
+    )
+
+    device_info = FlysightV1(sensor_info={"GNSS": sensor_info})
+
     flight_log = polars.read_csv(filepath, skip_rows_after_header=1)
     flight_log = flight_log.with_columns(flight_log["time"].str.to_datetime())
     flight_log = _calc_derived_track_vals(flight_log)
@@ -68,7 +106,7 @@ def load_flysight(filepath: Path, normalize_gps: bool = False) -> FlysightV1Flig
     if normalize_gps:
         flight_log = normalize_gps_location(flight_log)
 
-    return FlysightV1FlightLog(track_data=flight_log, device_info=FlysightV1())
+    return FlysightV1FlightLog(track_data=flight_log, device_info=device_info)
 
 
 def batch_load_flysight(
@@ -109,8 +147,8 @@ def _split_sensor_data(
     """
     Split the provided data lines into their corresponding header & data sections.
 
-    Flysight V1 sections do not have a partition keyword, but are assumed to have just 2 data lines.
-    Flysight V2 sections are assumed to be delimited by `partition_keyword` (`"$DATA"`, by default).
+    FlySight V1 sections do not have a partition keyword, but are assumed to have just 2 data lines.
+    FlySight V2 sections are assumed to be delimited by `partition_keyword` (`"$DATA"`, by default).
     """
     if hardware_type == FlysightType.VERSION_1:
         return list(data_lines[:2]), list(data_lines[2::])
@@ -124,18 +162,10 @@ def _split_sensor_data(
         )
 
 
-class SensorInfo(t.NamedTuple):
-    """Store sensor record column & unit information, assumed to be of equal length."""
-
-    columns: list[str]
-    units: list[str]
-    id_: str = ""
-
-
 @dataclass(slots=True)
 class FlysightV2:
     """
-    Store device metadata for a corresponding FLysight V2 data logger.
+    Store device metadata for a corresponding FlySight V2 data logger.
 
     Sensor information is provided as a dictionary keyed by a sensor ID, assumed to be shared
     between the unit information contained in the header and each row of the sensor's records.
@@ -186,9 +216,9 @@ class FlysightV2:
 
 def _parse_header(header_lines: t.Sequence[str]) -> FlysightV2:
     """
-    Parse the provided flysight header lines into a `FlysightV2` device info instance.
+    Parse the provided FlySight header lines into a `FlysightV2` device info instance.
 
-    Flysight's V2 CSV data log headers are assumed to begin with a series of device metadata
+    FlySight's V2 CSV data log headers are assumed to begin with a series of device metadata
     followed by pairs of rows for sensor information.
 
     Device metadata is prefixed by `$VAR`, and we retain the following information:
@@ -245,7 +275,7 @@ def _parse_header(header_lines: t.Sequence[str]) -> FlysightV2:
         _, sensor_id, *column_strings = sensor_header.split(",")
         _, _, *unit_strings = sensor_units.split(",")
 
-        # The Flysight V2 track file does not appear to provide a unit string for its time column,
+        # The FlySight V2 track file does not appear to provide a unit string for its time column,
         # which is a datetime string rather than a float that the other sensor records utilize
         if sensor_id == "GNSS" and not unit_strings[0]:
             unit_strings[0] = "datetime"
@@ -390,9 +420,9 @@ def _raw_data_to_dataframe(
 
 def parse_v2_sensor_data(log_filepath: Path) -> tuple[SensorDataFrames, FlysightV2]:
     """
-    Data parsing pipeline for a Flysight V2 sensor log CSV file.
+    Data parsing pipeline for a FlySight V2 sensor log CSV file.
 
-    Sensor data files should come off the Flysight as `SENSOR.CSV`.
+    Sensor data files should come off the FlySight as `SENSOR.CSV`.
     """
     data_lines = log_filepath.read_text().splitlines()
 
@@ -412,7 +442,7 @@ def _raw_v2_track_to_dataframe(
     """
     Convert raw GNSS track information into its corresponding `DataFrame`.
 
-    Data is assumed to be an iterable of the raw string lines from the Flysight V2's track CSV file.
+    Data is assumed to be an iterable of the raw string lines from the FlySight V2's track CSV file.
 
     Headers are replaced using the device's metadata. It is assumed that the first column is a UTC
     datetime, and a normalized `elapsed_time` column will be derived using the device's first
@@ -440,9 +470,9 @@ def _raw_v2_track_to_dataframe(
 
 def parse_v2_track_data(log_filepath: Path) -> tuple[polars.DataFrame, FlysightV2]:
     """
-    Data parsing pipeline for a Flysight V2 track log CSV file.
+    Data parsing pipeline for a FlySight V2 track log CSV file.
 
-    Sensor data files should come off the Flysight as `TRACK.CSV`.
+    Sensor data files should come off the FlySight as `TRACK.CSV`.
     """
     data_lines = log_filepath.read_text().splitlines()
     header, sensor_data = _split_sensor_data(data_lines)
@@ -694,9 +724,9 @@ def parse_v2_log_directory(
     track_filename: str = "TRACK.CSV",
 ) -> FlysightV2FlightLog:
     """
-    Data parsing pipeline for a directory of Flysight V2 logs.
+    Data parsing pipeline for a directory of FlySight V2 logs.
 
-    The Flysight V2 outputs a timestamped (`YY-mm-DD/HH-MM-SS/*`) directory of files:
+    The FlySight V2 outputs a timestamped (`YY-mm-DD/HH-MM-SS/*`) directory of files:
 
       * `EVENT.CSV` - Debugging output, optionally present based on firmware version
       * `RAW.UBX` - Raw UBlox sensor output

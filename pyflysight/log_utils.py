@@ -26,13 +26,13 @@ def get_idx(log_data: polars.DataFrame, query: NUMERIC_T, ref_col: str = "elapse
 
 def classify_log_dir(log_dir: Path) -> FlysightType:
     """
-    Identify Flysight hardware revision based on the log directory contents.
+    Identify FlySight hardware revision based on the log directory contents.
 
     It is assumed that the provided log directory contains a single log session; no recursion is
     performed.
 
     The hueristic used is a simple one: if the directory contains a `SENSOR.CSV` file then it is
-    assumed to be a Flysight V2 log sesssion, otherwise V1. Trimmed data files, if present, are not
+    assumed to be a FlySight V2 log sesssion, otherwise V1. Trimmed data files, if present, are not
     considered.
     """
     csv_stems = {file.stem for file in log_dir.glob("*.CSV")}
@@ -80,7 +80,7 @@ def iter_log_dirs(
     """
     Iterate through children of the specified top level directory & yield log directories.
 
-    A specific Flysight hardware revision can be targeted using the `flysight_type` argument; if
+    A specific FlySight hardware revision can be targeted using the `flysight_type` argument; if
     specified as `None`, both hardware types will be searched for.
 
     Note:

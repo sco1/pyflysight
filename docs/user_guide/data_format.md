@@ -1,7 +1,7 @@
-# Flysight Data Format
-## Flysight V1
+# FlySight Data Format
+## FlySight V1
 ### File Structure
-The Flysight V1 hardware revision outputs a single CSV file containing GPS track information. Flight logs are grouped into a directory by GPS date, and each flight session CSV is named based on the initial GPS time.
+The FlySight V1 hardware revision outputs a single CSV file containing GPS track information. Flight logs are grouped into a directory by GPS date, and each flight session CSV is named based on the initial GPS time.
 
 ```
 .
@@ -18,9 +18,9 @@ time,lat,lon,hMSL,velN,velE,velD,hAcc,vAcc,sAcc,heading,cAcc,gpsFix,numSV
 
 The track file CSV contains 2 header lines, one with column name and one with data units, followed by one or more rows of track data.
 
-## Flysight V2
+## FlySight V2
 ### File Structure
-The Flysight V2 hardware revision outputs a collection of files containing flight log information. Flight logs are grouped into directories by GPS date, then GPS time, based on the initial GPS time.
+The FlySight V2 hardware revision outputs a collection of files containing flight log information. Flight logs are grouped into directories by GPS date, then GPS time, based on the initial GPS time.
 
 ```
 .

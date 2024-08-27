@@ -73,7 +73,7 @@ def _ask_select_flysight() -> Path:
 @device_app.command()
 def list(wait_for: int = typer.Option(0, min=0)) -> None:
     """
-    List connected Flysight devices.
+    List connected FlySight devices.
 
     If `wait_for` is > 0, the OS will be polled for up to `wait_for` seconds for at least one
     FlySight device to be connected.
