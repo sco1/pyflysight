@@ -9,6 +9,7 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (`<ma
 ### Changed
 * (Internal) #21 Utilize MkDocs for documentation generation
 * #15 FlySight V1 related parsing helpers now utilize `pyflysight.flysight_proc.FlysightV1FlightLog` instances rather than bare `DataFrame`s
+* (Internal) Migrate to uv from poetry
 
 ## [0.6.0]
 ### Added
