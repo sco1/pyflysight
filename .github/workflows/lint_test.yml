@@ -95,6 +95,8 @@ jobs:
       with:
         name: cov_py${{ matrix.python-version }}
         path: .coverage
+        if-no-files-found: error
+        include-hidden-files: true
 
     - name: Minimize uv cache
       run: uv cache prune --ci
