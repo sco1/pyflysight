@@ -5,6 +5,7 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (`<ma
 ### Added
 * #15 Add `pyflysight.flysight_proc.FlysightV1` and `pyflysight.flysight_proc.FlysightV1FlightLog` container classes for interfacing with FlySight V1 track data & metadata
 * #30 Add optional normalization of GPS coordinates in plaintext log files
+* #34 Add CLI pipeline for parsing FlySight V2 flight logs into more user-friendly CSV files.
 
 ### Changed
 * (Internal) #21 Utilize MkDocs for documentation generation

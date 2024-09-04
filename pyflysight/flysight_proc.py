@@ -516,7 +516,7 @@ class FlysightV2FlightLog:  # noqa: D101
 
         device_info_filepath = out_dir / "device_info.json"
         with device_info_filepath.open("w") as f:
-            json.dump(asdict(self.device_info), f)
+            json.dump(asdict(self.device_info), f, indent=4)
 
     def trim_log(self, elapsed_start: NUMERIC_T, elapsed_end: NUMERIC_T) -> None:
         """
@@ -696,7 +696,6 @@ def calculate_sync_delta(track_data: polars.DataFrame, time_sensor: polars.DataF
     """
     tow_delta = dt.timedelta(weeks=time_sensor["week"][0], seconds=time_sensor["tow"][0])
     gps_dt = GPS_EPOCH + tow_delta
-    print(f"GPS DT {gps_dt}")
     sensor_start = gps_dt - dt.timedelta(seconds=time_sensor["elapsed_time"][0])
 
     track_offset: float = (track_data["time"][0] - sensor_start).total_seconds()

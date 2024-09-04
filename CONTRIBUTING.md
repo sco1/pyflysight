@@ -1,6 +1,6 @@
 # Contributing
 ## Development Environment
-Development of this project is done using the supported Python version most recently released. Note that tests are run against all supported versions of Python; see: [Testing & Coverage](#testing--coverage) for additional information.
+Development of this project is done using the supported Python version most recently released. Note that tests are run against all supported versions of Python; see: [Testing & Coverage](#testing-and-coverage) for additional information.
 
 This project uses [uv](https://docs.astral.sh/uv) to manage dependencies. With your fork cloned to your local machine, you can install the project and its dependencies to create a development environment using:
 
@@ -23,7 +23,7 @@ $ mypy .
 
 Note that `mypy` is not included as a pre-commit hook.
 
-## Testing & Coverage
+## Testing and Coverage
 A [pytest](https://docs.pytest.org/en/latest/) suite is provided, with coverage reporting from [`pytest-cov`](https://github.com/pytest-dev/pytest-cov). A [`tox`](https://github.com/tox-dev/tox/) configuration is provided to test across all supported versions of Python. Testing will be skipped locally for Python versions that cannot be found; all supported versions are tested in CI.
 
 ```bash

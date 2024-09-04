@@ -8,6 +8,7 @@ from typer.main import get_command
 
 from pyflysight import FlysightType
 from pyflysight.config_utils import FlysightConfig, FlysightV1Config, FlysightV2Config
+from pyflysight.flysight_proc import parse_v2_log_directory
 from pyflysight.flysight_utils import (
     classify_hardware_type,
     copy_logs,
@@ -30,6 +31,9 @@ device_app.add_typer(config_app, name="config", help="Device configuration utili
 
 log_app = typer.Typer(add_completion=False, help="FlySight device log utilities.")
 pyflysight_cli.add_typer(log_app, name="logs")
+
+v2_log_convert_app = typer.Typer(add_completion=False, help="FlySight V2 log conversion.")
+pyflysight_cli.add_typer(v2_log_convert_app, name="log_convert")
 
 trim_app = typer.Typer(add_completion=False)
 pyflysight_cli.add_typer(trim_app, name="trim", help="FlySight log trimming.")
@@ -264,7 +268,7 @@ def _check_log_dir(log_dir: Path, verbose: bool) -> None:
 
     if flysight_type == FlysightType.VERSION_1:
         if verbose:
-            print("Error: Log trimming is currently not implemented for FlySight V1 hardware.")
+            print("Error: Functionality is currently not implemented for FlySight V1 hardware.")
         return
 
 
@@ -315,6 +319,56 @@ def batch(
     for ld in iter_log_dirs(log_dir, flysight_type=FlysightType.VERSION_2):
         _check_log_dir(ld.log_dir, verbose=verbose)
         _trim_pipeline(ld.log_dir, normalize_gps=normalize_gps, verbose=verbose)
+
+
+def _v2_log_parse2csv_pipeline(log_dir: Path, verbose: bool, normalize_gps: bool) -> None:
+    if verbose:
+        print(f"Converting: {log_dir}...", end="")
+
+    fl = parse_v2_log_directory(log_dir, normalize_gps=normalize_gps)
+    fl.to_csv(log_dir)  # No need to pass normalize_gps a second time
+
+    if verbose:
+        print("Done!")
+
+
+@v2_log_convert_app.command(name="single")
+def single_convert(
+    log_dir: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
+    normalize_gps: bool = typer.Option(False),
+    verbose: bool = typer.Option(True),
+) -> None:
+    """
+    Parse a single FlySight V2 flight log into a user-friendly CSV collection.
+
+    See the documentation for `pyflysight.flysight_proc.FlysightV2FlightLog.to_csv` for a
+    description of the output behavior.
+    """
+    if log_dir is None:
+        log_dir = prompt_for_dir(title="Select Log Directory For Processing")
+
+    _check_log_dir(log_dir, verbose=verbose)
+    _v2_log_parse2csv_pipeline(log_dir, normalize_gps=normalize_gps, verbose=verbose)
+
+
+@v2_log_convert_app.command(name="batch")
+def batch_convert(
+    log_dir: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
+    normalize_gps: bool = typer.Option(False),
+    verbose: bool = typer.Option(True),
+) -> None:
+    """
+    Batch parse a directory of FlySight V2 flight logs into a user-friendly CSV collection.
+
+    See the documentation for `pyflysight.flysight_proc.FlysightV2FlightLog.to_csv` for a
+    description of the output behavior.
+    """
+    if log_dir is None:
+        log_dir = prompt_for_dir(title="Select Directory For Batch Processing")
+
+    for ld in iter_log_dirs(log_dir, flysight_type=FlysightType.VERSION_2):
+        _check_log_dir(ld.log_dir, verbose=verbose)
+        _v2_log_parse2csv_pipeline(ld.log_dir, normalize_gps=normalize_gps, verbose=verbose)
 
 
 # For mkdocs-click, this must be after all the commands have been defined
