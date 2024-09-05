@@ -125,11 +125,11 @@ jobs:
 
     - name: Report coverage
       run: |
-        echo '**Combined Coverage**' >> $GITHUB_STEP_SUMMARY
-        echo '```' >> $GITHUB_STEP_SUMMARY
-        coverage report -m --skip-covered >> $GITHUB_STEP_SUMMARY
-        echo '```' >> $GITHUB_STEP_SUMMARY
         coverage html
+
+        # Report a markdown version to the action summary
+        echo '**Combined Coverage**' >> $GITHUB_STEP_SUMMARY
+        coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
 
     - name: Publish cov HTML
       uses: actions/upload-artifact@v4
