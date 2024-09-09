@@ -17,8 +17,8 @@ def get_idx(log_data: polars.DataFrame, query: NUMERIC_T, ref_col: str = "elapse
     delta = (log_data[ref_col] - query).abs()
     min_idx = delta.arg_min()
 
-    if min_idx is None:
-        # Not sure how to actually get here
+    if min_idx is None:  # pragma: no cover
+        # Not sure how to actually get here in real life
         raise ValueError(f"Could not locate closest value, is the '{ref_col}' column empty?")
 
     return min_idx
