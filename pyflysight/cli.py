@@ -8,6 +8,7 @@ from typer.main import get_command
 
 from pyflysight import FlysightType
 from pyflysight.config_utils import FlysightConfig, FlysightV1Config, FlysightV2Config
+from pyflysight.flysight_proc import parse_v2_log_directory
 from pyflysight.flysight_utils import (
     classify_hardware_type,
     copy_logs,
@@ -31,6 +32,9 @@ device_app.add_typer(config_app, name="config", help="Device configuration utili
 log_app = typer.Typer(add_completion=False, help="FlySight device log utilities.")
 pyflysight_cli.add_typer(log_app, name="logs")
 
+v2_log_convert_app = typer.Typer(add_completion=False, help="FlySight V2 log conversion.")
+pyflysight_cli.add_typer(v2_log_convert_app, name="log_convert")
+
 trim_app = typer.Typer(add_completion=False)
 pyflysight_cli.add_typer(trim_app, name="trim", help="FlySight log trimming.")
 
@@ -51,7 +55,7 @@ def _print_connected_drives(flysight_drives: t.Iterable[Path]) -> None:
         print(md_str)
 
 
-def _ask_select_flysight() -> Path:
+def _ask_select_flysight() -> Path:  # pragma: no cover
     """List connected FlySight drives and prompt user for selection."""
     flysight_drives = get_flysight_drives()
     if not flysight_drives:
@@ -71,9 +75,9 @@ def _ask_select_flysight() -> Path:
 
 
 @device_app.command()
-def list(wait_for: int = typer.Option(0, min=0)) -> None:
+def list(wait_for: int = typer.Option(0, min=0)) -> None:  # pragma: no cover
     """
-    List connected Flysight devices.
+    List connected FlySight devices.
 
     If `wait_for` is > 0, the OS will be polled for up to `wait_for` seconds for at least one
     FlySight device to be connected.
@@ -106,7 +110,7 @@ def _try_write_config(device_root: Path, config: FlysightConfig, backup_existing
 def write_default(
     flysight_root: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
     backup_existing: bool = typer.Option(True),
-) -> None:
+) -> None:  # pragma: no cover
     """
     Write default configuration.
 
@@ -132,7 +136,7 @@ def write_from_json(
     flysight_root: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
     config_source: Path = typer.Option(None, exists=True, file_okay=True, dir_okay=False),
     backup_existing: bool = typer.Option(True),
-) -> None:
+) -> None:  # pragma: no cover
     """
     Write previously serialized paramters.
 
@@ -167,7 +171,7 @@ def write_from_other(
     flysight_root: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
     config_source: Path = typer.Option(None, exists=True, file_okay=True, dir_okay=False),
     backup_existing: bool = typer.Option(True),
-) -> None:
+) -> None:  # pragma: no cover
     """
     Copy configuration from file.
 
@@ -203,15 +207,14 @@ def copy(
     flysight_root: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
     dest: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
     exist_ok: bool = typer.Option(True),
-) -> None:
+) -> None:  # pragma: no cover
     """Copy all logs on device to the specified destination."""
     if flysight_root is None:
         flysight_root = _ask_select_flysight()
 
     drive_metadata = get_device_metadata(flysight_root)
     if drive_metadata.n_logs == 0:
-        print("No logs on device to copy.")
-        return
+        _abort_with_message("No logs on device to copy.")
 
     if dest is None:
         dest = prompt_for_dir(title="Select Log Destination")
@@ -226,7 +229,7 @@ def copy(
 def clear(
     flysight_root: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
     force: bool = typer.Option(False),
-) -> None:
+) -> None:  # pragma: no cover
     """
     Clear all logs on device.
 
@@ -239,8 +242,7 @@ def clear(
 
     drive_metadata = get_device_metadata(flysight_root)
     if drive_metadata.n_logs == 0:
-        print("No logs on device to erase.")
-        return
+        _abort_with_message("No logs on device to erase.")
 
     if not force:
         confirm_clear = typer.confirm(f"This will erase {drive_metadata.n_logs} logs. Confirm?")
@@ -253,37 +255,37 @@ def clear(
         _abort_with_message("Error: FlySight device is write protected. ")
 
 
-def _check_log_dir(log_dir: Path, verbose: bool) -> None:
-    """Check log directory parameters & exit CLI if issues are encountered."""
+def _check_log_dir(log_dir: Path, v2_only: bool = False) -> None:
+    """
+    Check log directory parameters & exit CLI if issues are encountered.
+
+    The CLI is aborted if one of the following conditions is met:
+        * No log files in the provided directory
+        * If `v2_only` is `True`, a FlySight V1 flight log directory is provided
+    """
     try:
         flysight_type = classify_log_dir(log_dir)
     except ValueError:
-        if verbose:
-            print("Error: No log files found in provided log directory.")
-        return
+        _abort_with_message("Error: No log files found in provided log directory.")
 
-    if flysight_type == FlysightType.VERSION_1:
-        if verbose:
-            print("Error: Log trimming is currently not implemented for FlySight V1 hardware.")
-        return
+    if v2_only:
+        if flysight_type == FlysightType.VERSION_1:
+            _abort_with_message("Error: Currently not implemented for FlySight V1 hardware.")
 
 
-def _trim_pipeline(log_dir: Path, verbose: bool, normalize_gps: bool) -> None:
-    if verbose:
-        print(f"Trimming: {log_dir}...", end="")
+def _trim_pipeline(log_dir: Path, normalize_gps: bool) -> None:
+    print(f"Trimming: {log_dir}...", end="")
 
     windowtrim_flight_log(log_dir, write_csv=True, normalize_gps=normalize_gps)
 
-    if verbose:
-        print("Done!")
+    print("Done!")
 
 
 @trim_app.command()
 def single(
     log_dir: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
     normalize_gps: bool = typer.Option(False),
-    verbose: bool = typer.Option(True),
-) -> None:
+) -> None:  # pragma: no cover
     """
     Trim single flight log.
 
@@ -293,16 +295,15 @@ def single(
     if log_dir is None:
         log_dir = prompt_for_dir(title="Select Log Directory For Processing")
 
-    _check_log_dir(log_dir, verbose=verbose)
-    _trim_pipeline(log_dir, normalize_gps=normalize_gps, verbose=verbose)
+    _check_log_dir(log_dir, v2_only=True)
+    _trim_pipeline(log_dir, normalize_gps=normalize_gps)
 
 
 @trim_app.command()
 def batch(
     log_dir: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
     normalize_gps: bool = typer.Option(False),
-    verbose: bool = typer.Option(True),
-) -> None:
+) -> None:  # pragma: no cover
     """
     Batch trim a directory of flight logs.
 
@@ -313,8 +314,54 @@ def batch(
         log_dir = prompt_for_dir(title="Select Directory For Batch Processing")
 
     for ld in iter_log_dirs(log_dir, flysight_type=FlysightType.VERSION_2):
-        _check_log_dir(ld.log_dir, verbose=verbose)
-        _trim_pipeline(ld.log_dir, normalize_gps=normalize_gps, verbose=verbose)
+        _check_log_dir(log_dir, v2_only=True)
+        _trim_pipeline(ld.log_dir, normalize_gps=normalize_gps)
+
+
+def _v2_log_parse2csv_pipeline(log_dir: Path, normalize_gps: bool) -> None:
+    print(f"Converting: {log_dir}...", end="")
+
+    fl = parse_v2_log_directory(log_dir, normalize_gps=normalize_gps)
+    fl.to_csv(log_dir)  # No need to pass normalize_gps a second time
+
+    print("Done!")
+
+
+@v2_log_convert_app.command(name="single")
+def single_convert(
+    log_dir: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
+    normalize_gps: bool = typer.Option(False),
+) -> None:  # pragma: no cover
+    """
+    Parse a single FlySight V2 flight log into a user-friendly CSV collection.
+
+    See the documentation for `pyflysight.flysight_proc.FlysightV2FlightLog.to_csv` for a
+    description of the output behavior.
+    """
+    if log_dir is None:
+        log_dir = prompt_for_dir(title="Select Log Directory For Processing")
+
+    _check_log_dir(log_dir, v2_only=True)
+    _v2_log_parse2csv_pipeline(log_dir, normalize_gps=normalize_gps)
+
+
+@v2_log_convert_app.command(name="batch")
+def batch_convert(
+    log_dir: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
+    normalize_gps: bool = typer.Option(False),
+) -> None:  # pragma: no cover
+    """
+    Batch parse a directory of FlySight V2 flight logs into a user-friendly CSV collection.
+
+    See the documentation for `pyflysight.flysight_proc.FlysightV2FlightLog.to_csv` for a
+    description of the output behavior.
+    """
+    if log_dir is None:
+        log_dir = prompt_for_dir(title="Select Directory For Batch Processing")
+
+    for ld in iter_log_dirs(log_dir, flysight_type=FlysightType.VERSION_2):
+        _check_log_dir(log_dir, v2_only=True)
+        _v2_log_parse2csv_pipeline(ld.log_dir, normalize_gps=normalize_gps)
 
 
 # For mkdocs-click, this must be after all the commands have been defined

@@ -14,12 +14,14 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+
+    env:
+      UV_CACHE_DIR: /tmp/.uv-cache
 
     steps:
       - name: Checkout
@@ -28,27 +30,37 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Set up uv
+        run: curl -LsSf https://astral.sh/uv/0.3.5/install.sh | sh
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version-file: "pyproject.toml"
+
+      - name: Restore uv cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.uv-cache
+          key: uv-${{ runner.os }}-${{ hashFiles('uv.lock') }}
+          restore-keys: |
+            uv-${{ runner.os }}-${{ hashFiles('uv.lock') }}
+            uv-${{ runner.os }}
 
       - name: Install dependencies
-        run: |
-          python -m pip install -U pip setuptools importlib-metadata
-          pip install poetry
-          poetry install
+        run: uv sync --all-extras --dev
 
       - name: Build static site
-        run: |
-          poetry run mkdocs build
+        run: uv run mkdocs build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
           path: './site'
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Minimize uv cache
+        run: uv cache prune --ci

@@ -55,6 +55,10 @@ ignore = [
     "D101",
     "D103",
 ]
+"tests/conftest.py" = [
+    "D101",
+    "D103",
+]
 "pyflysight/config_params.py" = [
     "D101",
 ]

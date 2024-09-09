@@ -181,7 +181,7 @@ def test_gps_normalize_plaintext_fsv1(tmp_path: Path) -> None:
     normalize_gps_location_plaintext(log_data, FlysightType.VERSION_1)
 
     converted_log = load_flysight(log_data)
-    assert_frame_equal(converted_log[("lat", "lon")], TRUTH_PLAINTEXT_NORMALIZED)
+    assert_frame_equal(converted_log.track_data[("lat", "lon")], TRUTH_PLAINTEXT_NORMALIZED)
 
 
 SAMPLE_V2_TRACK = """\
