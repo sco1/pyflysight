@@ -1,0 +1,10 @@
+[tool.bumper]
+current_version = "0.8.0"
+
+[[tool.bumper.files]]
+file = "./pyproject.toml"
+search = 'version = "{current_version}"'
+
+[[tool.bumper.files]]
+file = "./README.md"
+search = "pyflysight/{current_version}"
