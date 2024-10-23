@@ -10,12 +10,15 @@ from pyflysight.cli import (
     _check_log_dir,
     _print_connected_drives,
     _trim_pipeline,
+    _try_resolve_single_log,
     _try_write_config,
     _v2_log_parse2csv_pipeline,
 )
 from pyflysight.config_utils import FlysightV2Config
+from pyflysight.exceptions import NoLogsFoundError
 from pyflysight.flysight_proc import FlysightV2FlightLog
 from pyflysight.flysight_utils import FlysightMetadata
+from tests import SAMPLE_DATA_DIR
 
 
 def test_abort_with_message(capsys: pytest.CaptureFixture) -> None:
@@ -85,7 +88,7 @@ def test_check_log_dir_fsv2_noop(capsys: pytest.CaptureFixture, mocker: MockerFi
 
 
 def test_check_log_dir_no_log_errors(capsys: pytest.CaptureFixture, mocker: MockerFixture) -> None:
-    mocker.patch("pyflysight.cli.classify_log_dir", side_effect=ValueError())
+    mocker.patch("pyflysight.cli.classify_log_dir", side_effect=NoLogsFoundError())
 
     with pytest.raises(typer.Abort):
         _check_log_dir(Path(), v2_only=False)  # Since we're mocking the return, path doesn't matter
@@ -125,3 +128,15 @@ def test_parse2csv_pipeline(dummy_flysight_v2: FlysightV2FlightLog, mocker: Mock
 
     patched_parse.assert_called_once()
     patched_csv_dump.assert_called_once_with(p)
+
+
+def test_single_log_resolve() -> None:
+    top_dir = SAMPLE_DATA_DIR / "24-01-01"
+    truth_dir = SAMPLE_DATA_DIR / "24-01-01/04-20-00"
+
+    assert _try_resolve_single_log(top_dir, flysight_type=FlysightType.VERSION_2) == truth_dir
+
+
+def test_single_log_resolve_passthrough() -> None:
+    top_dir = SAMPLE_DATA_DIR / "24-04-20"
+    assert _try_resolve_single_log(top_dir, flysight_type=FlysightType.VERSION_2) == top_dir

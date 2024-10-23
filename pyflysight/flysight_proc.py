@@ -11,6 +11,7 @@ import polars
 from polars.exceptions import ShapeError
 
 from pyflysight import FlysightType, HEADER_PARTITION_KEYWORD, NUMERIC_T
+from pyflysight.exceptions import MultipleChildLogsError, NoProcessedFlightLogError
 from pyflysight.log_utils import get_idx, normalize_gps_location
 
 GPS_EPOCH = dt.datetime(year=1980, month=1, day=6)
@@ -482,9 +483,6 @@ def parse_v2_track_data(log_filepath: Path) -> tuple[polars.DataFrame, FlysightV
     return parsed_sensor_data, device_info
 
 
-class NoProcessedFlightLogError(Exception): ...  # noqa: D101
-
-
 @dataclass(slots=True)
 class FlysightV2FlightLog:  # noqa: D101
     track_data: polars.DataFrame
@@ -652,7 +650,9 @@ class FlysightV2FlightLog:  # noqa: D101
             )
 
         if len(device_info_filepath) != 1:
-            raise ValueError("Must specify a base dir with only one child data directory.")
+            raise MultipleChildLogsError(
+                "Must specify a base dir with only one child data directory."
+            )
 
         with device_info_filepath[0].open() as f:
             raw_device_info = json.load(f)

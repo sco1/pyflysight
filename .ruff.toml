@@ -62,6 +62,9 @@ ignore = [
 "pyflysight/config_params.py" = [
     "D101",
 ]
+"pyflysight/exceptions.py" = [
+    "D101",
+]
 
 [lint.flake8-bugbear]
 extend-immutable-calls = [

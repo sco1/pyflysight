@@ -8,6 +8,7 @@ from typer.main import get_command
 
 from pyflysight import FlysightType
 from pyflysight.config_utils import FlysightConfig, FlysightV1Config, FlysightV2Config
+from pyflysight.exceptions import MultipleChildLogsError, NoLogsFoundError
 from pyflysight.flysight_proc import parse_v2_log_directory
 from pyflysight.flysight_utils import (
     classify_hardware_type,
@@ -18,7 +19,7 @@ from pyflysight.flysight_utils import (
     wait_for_flysight,
     write_config,
 )
-from pyflysight.log_utils import classify_log_dir, iter_log_dirs
+from pyflysight.log_utils import classify_log_dir, iter_log_dirs, locate_log_subdir
 from pyflysight.trim_app import windowtrim_flight_log
 
 pyflysight_cli = typer.Typer(add_completion=False)
@@ -265,7 +266,7 @@ def _check_log_dir(log_dir: Path, v2_only: bool = False) -> None:
     """
     try:
         flysight_type = classify_log_dir(log_dir)
-    except ValueError:
+    except NoLogsFoundError:
         _abort_with_message("Error: No log files found in provided log directory.")
 
     if v2_only:
@@ -279,6 +280,25 @@ def _trim_pipeline(log_dir: Path, normalize_gps: bool) -> None:
     windowtrim_flight_log(log_dir, write_csv=True, normalize_gps=normalize_gps)
 
     print("Done!")
+
+
+def _try_resolve_single_log(top_dir: Path, flysight_type: FlysightType) -> Path:
+    """
+    Helper function for single log pipelines to resolve the log directory.
+
+    This helps allow the user to more coarsely select the processing directory if it is known that
+    the tree only contains a single logging session.
+
+    A resolved directory is only provided if it is the only child logging session in the tree,
+    otherwise it is passed through unchanged.
+
+    Note:
+        Directories containing trimmed V2 log data are currently not considered.
+    """
+    try:
+        return locate_log_subdir(top_dir, flysight_type=flysight_type)
+    except (NoLogsFoundError, MultipleChildLogsError):
+        return top_dir
 
 
 @trim_app.command()
@@ -295,6 +315,7 @@ def single(
     if log_dir is None:
         log_dir = prompt_for_dir(title="Select Log Directory For Processing")
 
+    log_dir = _try_resolve_single_log(log_dir, flysight_type=FlysightType.VERSION_2)
     _check_log_dir(log_dir, v2_only=True)
     _trim_pipeline(log_dir, normalize_gps=normalize_gps)
 
@@ -341,6 +362,7 @@ def single_convert(
     if log_dir is None:
         log_dir = prompt_for_dir(title="Select Log Directory For Processing")
 
+    log_dir = _try_resolve_single_log(log_dir, flysight_type=FlysightType.VERSION_2)
     _check_log_dir(log_dir, v2_only=True)
     _v2_log_parse2csv_pipeline(log_dir, normalize_gps=normalize_gps)
 

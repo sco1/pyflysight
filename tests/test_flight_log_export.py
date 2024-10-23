@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 from polars.testing import assert_frame_equal
 
+from pyflysight.exceptions import MultipleChildLogsError
 from pyflysight.flysight_proc import (
     FlysightV2,
     FlysightV2FlightLog,
@@ -49,7 +50,7 @@ def test_flight_log_from_csv_multiple_children_raises(tmp_path: Path) -> None:
     (tmp_path / "a/device_info.json").touch()
     (tmp_path / "b").mkdir()
     (tmp_path / "b/device_info.json").touch()
-    with pytest.raises(ValueError, match="only one"):
+    with pytest.raises(MultipleChildLogsError):
         FlysightV2FlightLog.from_csv(tmp_path)
 
 

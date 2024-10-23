@@ -10,13 +10,8 @@ import psutil
 
 from pyflysight import FlysightType
 from pyflysight.config_utils import FlysightConfig, parse_config_params
+from pyflysight.exceptions import NoDeviceStateError, UnknownDeviceError
 from pyflysight.log_utils import iter_log_dirs
-
-
-class NoDeviceStateError(ValueError): ...  # noqa: D101
-
-
-class UnknownDeviceError(ValueError): ...  # noqa: D101
 
 
 def iter_flysight_drives() -> abc.Generator[Path, None, None]:

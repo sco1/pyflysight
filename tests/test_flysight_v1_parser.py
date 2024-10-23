@@ -89,7 +89,7 @@ def test_batch_log_parse_normalize_gps() -> None:
     )
 
     # Normalization helper tested elsewhere, just check here that the flag is being acted on
-    for fl in flight_logs["sample_data"].values():
+    for fl in flight_logs[SAMPLE_DATA_DIR.name].values():
         assert fl.track_data["lat"][0] == pytest.approx(0)
         assert fl.track_data["lon"][0] == pytest.approx(0)
 
