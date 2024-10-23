@@ -75,10 +75,11 @@ def test_batch_log_parse() -> None:
     flight_logs = flysight_proc.batch_load_flysight(SAMPLE_DATA_DIR, pattern=sample_log_pattern)
 
     # Check top level dir name
-    assert "sample_data" in flight_logs
+    dir_name = SAMPLE_DATA_DIR.name
+    assert dir_name in flight_logs
 
     # Check that the log files are loaded & keyed correctly
-    assert set(flight_logs["sample_data"]) == BATCH_LOG_STEMS
+    assert set(flight_logs[dir_name]) == BATCH_LOG_STEMS
 
 
 def test_batch_log_parse_normalize_gps() -> None:
@@ -88,7 +89,7 @@ def test_batch_log_parse_normalize_gps() -> None:
     )
 
     # Normalization helper tested elsewhere, just check here that the flag is being acted on
-    for fl in flight_logs["sample_data"].values():
+    for fl in flight_logs[SAMPLE_DATA_DIR.name].values():
         assert fl.track_data["lat"][0] == pytest.approx(0)
         assert fl.track_data["lon"][0] == pytest.approx(0)
 

@@ -5,6 +5,7 @@ import pytest
 from polars.testing import assert_frame_equal
 
 from pyflysight import FlysightType, NUMERIC_T
+from pyflysight.exceptions import MultipleChildLogsError, NoLogsFoundError
 from pyflysight.flysight_proc import load_flysight, parse_v2_track_data
 from pyflysight.log_utils import (
     classify_log_dir,
@@ -44,7 +45,7 @@ def test_get_idx(query: NUMERIC_T, truth_idx: int) -> None:
 
 
 def test_log_dir_characterization_no_csv_raises(tmp_path: Path) -> None:
-    with pytest.raises(ValueError, match="No log files"):
+    with pytest.raises(NoLogsFoundError):
         classify_log_dir(tmp_path)
 
 
@@ -69,10 +70,10 @@ def test_log_dir_classification(
 
 
 def test_locate_log_subdir_no_log_raises(tmp_path: Path) -> None:
-    with pytest.raises(ValueError, match="No log files"):
+    with pytest.raises(NoLogsFoundError):
         locate_log_subdir(tmp_path, FlysightType.VERSION_1)
 
-    with pytest.raises(ValueError, match="No log files"):
+    with pytest.raises(NoLogsFoundError):
         locate_log_subdir(tmp_path, FlysightType.VERSION_2)
 
 
@@ -85,10 +86,10 @@ def test_locate_log_subdir_multiple_logs_raises(tmp_path: Path) -> None:
     log_b.mkdir()
     (log_b / "SENSOR.CSV").touch()
 
-    with pytest.raises(ValueError, match="Multiple matching"):
+    with pytest.raises(MultipleChildLogsError):
         locate_log_subdir(tmp_path, FlysightType.VERSION_1)
 
-    with pytest.raises(ValueError, match="Multiple matching"):
+    with pytest.raises(MultipleChildLogsError):
         locate_log_subdir(tmp_path, FlysightType.VERSION_2)
 
 

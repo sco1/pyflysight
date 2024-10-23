@@ -7,6 +7,7 @@ from pathlib import Path
 import polars
 
 from pyflysight import FlysightType, HEADER_PARTITION_KEYWORD, NUMERIC_T
+from pyflysight.exceptions import MultipleChildLogsError, NoLogsFoundError
 
 
 def get_idx(log_data: polars.DataFrame, query: NUMERIC_T, ref_col: str = "elapsed_time") -> int:
@@ -37,7 +38,7 @@ def classify_log_dir(log_dir: Path) -> FlysightType:
     """
     csv_stems = {file.stem for file in log_dir.glob("*.CSV")}
     if not csv_stems:
-        raise ValueError("No log files found in provided log directory.")
+        raise NoLogsFoundError("No log files found in provided log directory.")
 
     if "SENSOR" in csv_stems:
         return FlysightType.VERSION_2
@@ -53,7 +54,7 @@ def locate_log_subdir(top_dir: Path, flysight_type: FlysightType) -> Path:
         It is assumed that the provided `top_dir` contains only one valid directory of log files.
 
     Note:
-        Directories containing trimmed log data are currently not considered.
+        Directories containing trimmed V2 log data are currently not considered.
     """
     if flysight_type == FlysightType.VERSION_1:
         query = "*.CSV"
@@ -62,9 +63,11 @@ def locate_log_subdir(top_dir: Path, flysight_type: FlysightType) -> Path:
 
     found_files = tuple(top_dir.rglob(query))
     if not found_files:
-        raise ValueError("No log files found in directory or its children.")
+        raise NoLogsFoundError("No log files found in directory or its children.")
     elif len(found_files) > 1:
-        raise ValueError(f"Multiple matching log directories found. Found: {len(found_files)}")
+        raise MultipleChildLogsError(
+            f"Multiple matching log directories found. Found: {len(found_files)}"
+        )
 
     return found_files[0].parent
 

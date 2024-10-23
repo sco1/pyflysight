@@ -1,6 +1,14 @@
 # Changelog
 Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (`<major>`.`<minor>`.`<patch>`)
 
+## [0.8.0]
+### Added
+* #35 Add a `prefer_processed` kwarg to the `pyflysight.flysight_proc.parse_v2_log_directory` helper pipeline to prefer loading a serialized `pyflysight.flysight_proc.FlysightV2FlightLog` instance, if detected, rather than parsing the raw data files
+
+### Changed
+* (Internal) Move some commonly used/caught exceptions to `pyflysight.exceptions` for more granular exception handling
+* #41 `pyflysight log_convert single` and `pyflysight trim single` are now more tolerant of directory specification when provided a top-level directory containing only one child logging session; the child directory should now automatically be resolved prior to processing
+
 ## [0.7.0]
 ### Added
 * #15 Add `pyflysight.flysight_proc.FlysightV1` and `pyflysight.flysight_proc.FlysightV1FlightLog` container classes for interfacing with FlySight V1 track data & metadata

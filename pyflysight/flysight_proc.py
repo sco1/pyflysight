@@ -11,6 +11,7 @@ import polars
 from polars.exceptions import ShapeError
 
 from pyflysight import FlysightType, HEADER_PARTITION_KEYWORD, NUMERIC_T
+from pyflysight.exceptions import MultipleChildLogsError, NoProcessedFlightLogError
 from pyflysight.log_utils import get_idx, normalize_gps_location
 
 GPS_EPOCH = dt.datetime(year=1980, month=1, day=6)
@@ -644,10 +645,14 @@ class FlysightV2FlightLog:  # noqa: D101
         """
         device_info_filepath = tuple(base_dir.rglob("device_info.json"))
         if not device_info_filepath:
-            raise ValueError("No device info JSON found in the given base dir or its children.")
+            raise NoProcessedFlightLogError(
+                "No device info JSON found in the given base dir or its children."
+            )
 
         if len(device_info_filepath) != 1:
-            raise ValueError("Must specify a base dir with only one child data directory.")
+            raise MultipleChildLogsError(
+                "Must specify a base dir with only one child data directory."
+            )
 
         with device_info_filepath[0].open() as f:
             raw_device_info = json.load(f)
@@ -718,6 +723,7 @@ def _add_sync_column(track_data: polars.DataFrame, track_offset: float) -> polar
 
 def parse_v2_log_directory(
     log_directory: Path,
+    prefer_processed: bool = False,
     normalize_gps: bool = False,
     sensor_filename: str = "SENSOR.CSV",
     track_filename: str = "TRACK.CSV",
@@ -735,8 +741,18 @@ def parse_v2_log_directory(
     When utilizing this pipeline, an `elapsed_time_sensor` column is added to the track `DataFrame`,
     providing a synchronized elapsed time that can be used to align the sensor & track `DataFrame`s.
 
+    If `prefer_processed` is `True`, if a serialized `FlysightV2FlightLog` instance is discovered in
+    the target directory it will be loaded rather than parsing the raw data files.
+
     If `normalize_gps` is `True`, the GPS track data is normalized to start at `(0, 0)`
     """
+    if prefer_processed:
+        try:
+            return FlysightV2FlightLog.from_csv(log_directory)
+        except NoProcessedFlightLogError as e:
+            print(e)
+            print("Attempting to parse raw logging session data instead...")
+
     sensor_filepath = log_directory / sensor_filename
     if not sensor_filepath.exists():
         raise ValueError(f"Could not locate 'SENSOR.CSV` in directory: '{log_directory}'")

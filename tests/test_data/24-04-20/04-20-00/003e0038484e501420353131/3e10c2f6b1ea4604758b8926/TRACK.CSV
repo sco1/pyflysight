@@ -1,0 +1,2 @@
+time,lat,lon,hMSL,velN,velE,velD,hAcc,vAcc,sAcc,numSV,elapsed_time,groundspeed,elapsed_time_sensor
+2024-04-20T04:20:00.000000,33.6568828,-117.7466357,630.077,-31.92,48.42,-34.93,136.117,170.718,4.74,4,0.0,57.99467906627297,1.0
