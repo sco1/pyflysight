@@ -360,3 +360,21 @@ def test_directory_pipeline_inserts_sync_column() -> None:
 
     assert "elapsed_time_sensor" in data_log.track_data.columns
     assert data_log.track_data["elapsed_time_sensor"][0] == pytest.approx(1)
+
+
+def test_directory_pipeline_prefer_parsed() -> None:
+    data_directory = SAMPLE_DATA_DIR / "24-04-20/04-20-00"
+
+    # Deserialization already tested elsewhere, so just see that this doesn't fail
+    _ = parse_v2_log_directory(data_directory, prefer_processed=True)
+
+
+def test_directory_pipeline_prefer_parsed_no_parsed_continues(
+    capsys: pytest.CaptureFixture,
+) -> None:
+    data_directory = SAMPLE_DATA_DIR / "24-04-20/10-10-00"
+    _ = parse_v2_log_directory(data_directory, prefer_processed=True)
+
+    # Log parsing already tested elsewhere, so here just see if we've captured the relevant error
+    captured = capsys.readouterr()
+    assert "raw logging session" in captured.out

@@ -8,14 +8,18 @@ jobs:
   build:
     name: Build dist & publish
     runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/pyflysight
     permissions:
       contents: write
+      id-token: write
 
     steps:
     - uses: actions/checkout@v4
 
     - name: Set up uv
-      run: curl -LsSf https://astral.sh/uv/0.3.5/install.sh | sh
+      run: curl -LsSf https://astral.sh/uv/0.4.25/install.sh | sh
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -26,10 +30,9 @@ jobs:
       run: uvx --from build pyproject-build --installer uv
 
     - name: Publish to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1.9
+      uses: pypa/gh-action-pypi-publish@release/v1.10
       with:
-        user: __token__
-        password: ${{ secrets.pypi_api_token }}
+        print-hash: true
 
     - name: Upload wheel to release
       env:
