@@ -31,7 +31,7 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Set up uv
-        run: curl -LsSf https://astral.sh/uv/0.4.25/install.sh | sh
+        run: curl -LsSf https://astral.sh/uv/0.4.30/install.sh | sh
 
       - name: Set up Python
         uses: actions/setup-python@v5
