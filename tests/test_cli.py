@@ -30,8 +30,15 @@ def test_abort_with_message(capsys: pytest.CaptureFixture) -> None:
 
 
 DRIVE_METADATA = (
-    FlysightMetadata(flysight_type=FlysightType.VERSION_1, serial="ab", firmware="1", n_logs=2),
-    FlysightMetadata(flysight_type=FlysightType.VERSION_2, serial="cd", firmware="2", n_logs=1),
+    FlysightMetadata(
+        flysight_type=FlysightType.VERSION_1, serial="ab", firmware="1", n_logs=2, n_temp_logs=0
+    ),
+    FlysightMetadata(
+        flysight_type=FlysightType.VERSION_2, serial="cd", firmware="2", n_logs=1, n_temp_logs=0
+    ),
+    FlysightMetadata(
+        flysight_type=FlysightType.VERSION_2, serial="ef", firmware="2", n_logs=1, n_temp_logs=1
+    ),
 )
 
 TRUTH_PRINTED_METADATA = """\
@@ -41,12 +48,16 @@ TRUTH_PRINTED_METADATA = """\
 1. B: - FlySight V2, Logs Available: 1
     Serial: cd
     Firmware: 2
+2. C: - FlySight V2, Logs Available: 1
+    Serial: ef
+    Firmware: 2
+    TEMP Logs: 1
 """
 
 
 def test_print_connected_drives(mocker: MockerFixture, capsys: pytest.CaptureFixture) -> None:
     mocker.patch("pyflysight.cli.get_device_metadata", side_effect=DRIVE_METADATA)
-    _print_connected_drives((Path("A:"), Path("B:")))
+    _print_connected_drives((Path("A:"), Path("B:"), Path("C:")))
 
     captured = capsys.readouterr()
     assert captured.out == TRUTH_PRINTED_METADATA

@@ -31,7 +31,7 @@ def iter_flysight_drives() -> abc.Generator[Path, None, None]:
             yield mount
 
 
-def get_flysight_drives() -> tuple[Path]:
+def get_flysight_drives() -> tuple[Path]:  # pragma: no cover
     """
     Return a tuple of mounted disk partitions that are likely FlySight devices.
 
@@ -143,6 +143,7 @@ class FlysightMetadata(t.NamedTuple):  # noqa: D101
     serial: str
     firmware: str
     n_logs: int
+    n_temp_logs: int
 
     @classmethod
     def from_drive(cls, device_root: Path) -> FlysightMetadata:
@@ -155,26 +156,29 @@ def get_device_metadata(device_root: Path) -> FlysightMetadata:
     flysight_type = classify_hardware_type(device_root)
     config_params = parse_config_params(device_root / "FLYSIGHT.TXT")
 
-    log_dirs = tuple(iter_log_dirs(device_root, flysight_type=flysight_type))
+    log_dirs = tuple(iter_log_dirs(device_root, flysight_type=flysight_type, include_temp=True))
     if flysight_type == FlysightType.VERSION_1:
         firmware_version = config_params["Firmware version"]
         serial = config_params["Processor serial number"]
 
         # V1 hardware has a directory per day that may contain multiple CSVs
         n_logs = sum(len(tuple(ld.log_dir.glob("*.CSV"))) for ld in log_dirs)
+        n_temp_logs = 0  # FlySight V1 does not use a TEMP directory
 
     elif flysight_type == FlysightType.VERSION_2:  # pragma: no branch
         firmware_version = config_params["Firmware_Ver"]
         serial = config_params["Device_ID"]
 
         # V2 hardware has a log per directory
-        n_logs = len(log_dirs)
+        n_temp_logs = sum(ld.is_temp for ld in log_dirs)
+        n_logs = len(log_dirs) - n_temp_logs
 
     return FlysightMetadata(
         flysight_type=flysight_type,
         serial=serial,
         firmware=firmware_version,
         n_logs=n_logs,
+        n_temp_logs=n_temp_logs,
     )
 
 
@@ -186,6 +190,7 @@ class LogCopyStatus(t.NamedTuple):  # noqa: D101
 def copy_logs(
     device_root: Path,
     dest: Path,
+    include_temp: bool = False,
     filter_func: abc.Callable[[Path], bool] | None = None,
     exist_ok: bool = True,
     remove_after: bool = False,
@@ -193,17 +198,25 @@ def copy_logs(
     """
     Copy the log file tree from the provided device root to the specified destination directory.
 
+    The number of directories copied and deleted is optionally returned for downstream notification
+    purposes.
+
     Note:
         This function operates on directories of log files only. FlySight V1 hardware groups flight
         logs by UTC date & time, so each directory may have multiple flight logs present. FlySight
         V2 hardware groups flight logs per logging session, so each flight log will have its own
         directory.
 
-    The number of directories copied and deleted is optionally returned for downstream notification
-    purposes.
+    If `include_temp` is `True`, any logs in the FlySight V2's `./TEMP` directory are also
+    considered; FlySight V1 devices to not utilize a temp directory.
 
     A filtering function may be optionally specified as a callable that accepts a path to a single
     directory of log files and returns `False` if the directory should not be copied.
+
+    Note:
+        If temporary log directories are being considered & a filtering function is being used, note
+        that these directories utilize a numeric naming scheme (e.g. `/TEMP/0001`) rather than the
+        timestamp scheme used for finalized log sessions.
 
     If `exist_ok` is `False`, an exception will be raised if the target directory already exists in
     the destination.
@@ -218,7 +231,9 @@ def copy_logs(
     flysight_type = classify_hardware_type(device_root)
     n_dirs_copied = 0
     n_dirs_erased = 0
-    for ld in iter_log_dirs(top_dir=device_root, flysight_type=flysight_type):
+    for ld in iter_log_dirs(
+        top_dir=device_root, flysight_type=flysight_type, include_temp=include_temp
+    ):
         if filter_func is not None:
             if not filter_func(ld.log_dir):
                 continue
@@ -240,18 +255,32 @@ def copy_logs(
     return LogCopyStatus(n_dirs_copied=n_dirs_copied, n_dirs_erased=n_dirs_erased)
 
 
-def erase_logs(device_root: Path, filter_func: abc.Callable[[Path], bool] | None = None) -> None:
+def erase_logs(
+    device_root: Path,
+    filter_func: abc.Callable[[Path], bool] | None = None,
+    include_temp: bool = False,
+) -> None:
     """
     Erase all log files from the provided device root.
+
+    Warning:
+        This is a destructive operation. Data is removed permanently and cannot be recovered.
 
     A filtering function may be optionally specified as a callable that accepts a path to a single
     directory of log files and returns `False` if the directory should not be erased.
 
-    Warning:
-        This is a destructive operation. Data is removed permanently and cannot be recovered.
+    If `include_temp` is `True`, any logs in the FlySight V2's `./TEMP` directory are also
+    considered; FlySight V1 devices to not utilize a temp directory.
+
+    Note:
+        If temporary log directories are being considered & a filtering function is being used, note
+        that these directories utilize a numeric naming scheme (e.g. `/TEMP/0001`) rather than the
+        timestamp scheme used for finalized log sessions.
     """
     flysight_type = classify_hardware_type(device_root)
-    for ld in iter_log_dirs(top_dir=device_root, flysight_type=flysight_type):
+    for ld in iter_log_dirs(
+        top_dir=device_root, flysight_type=flysight_type, include_temp=include_temp
+    ):
         if filter_func is not None:
             if not filter_func(ld.log_dir):
                 continue

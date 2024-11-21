@@ -75,10 +75,13 @@ def locate_log_subdir(top_dir: Path, flysight_type: FlysightType) -> Path:
 class LogDir(t.NamedTuple):  # noqa: D101
     log_dir: Path
     flysight_type: FlysightType
+    is_temp: bool = False
 
 
 def iter_log_dirs(
-    top_dir: Path, flysight_type: FlysightType | None = None
+    top_dir: Path,
+    flysight_type: FlysightType | None = None,
+    include_temp: bool = False,
 ) -> abc.Generator[LogDir, None, None]:
     """
     Iterate through children of the specified top level directory & yield log directories.
@@ -86,15 +89,15 @@ def iter_log_dirs(
     A specific FlySight hardware revision can be targeted using the `flysight_type` argument; if
     specified as `None`, both hardware types will be searched for.
 
+    The `include_temp` flag may be set to include logs in the FlySight V2's `./TEMP` directory. This
+    can be helpful for situations where the FlySight V2 device turns off prior to finalizing its
+    current logging session (e.g. battery runs out, hard ground impact).
+
     Note:
         Order of yielded directories is not guaranteed.
 
     Note:
         Directories containing trimmed log data are currently not considered.
-
-    Note:
-        FlySight V2 devices may have a root `TEMP` directory that contains a flight log output,
-        this directory is excluded from being yielded.
     """
     possible_parents = {f.parent for f in top_dir.rglob("*.CSV")}
 
@@ -102,7 +105,11 @@ def iter_log_dirs(
         # FlySight V2 devices may have a TEMP directory that contains temporary logs, this should be
         # excluded
         if "TEMP" in p.parts:
-            continue
+            is_temp = True
+            if not include_temp:
+                continue
+        else:
+            is_temp = False
 
         filenames = {f.name for f in p.glob("*") if f.is_file()}
 
@@ -112,7 +119,7 @@ def iter_log_dirs(
 
         inferred_type = classify_log_dir(p)
         if (flysight_type is None) or (inferred_type == flysight_type):
-            yield LogDir(p, inferred_type)
+            yield LogDir(log_dir=p, flysight_type=inferred_type, is_temp=is_temp)
 
 
 def normalize_gps_location(
