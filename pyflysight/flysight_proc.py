@@ -11,7 +11,12 @@ import polars
 from polars.exceptions import ShapeError
 
 from pyflysight import FlysightType, HEADER_PARTITION_KEYWORD, NUMERIC_T
-from pyflysight.exceptions import MultipleChildLogsError, NoProcessedFlightLogError
+from pyflysight.exceptions import (
+    HeadingParseError,
+    MultipleChildLogsError,
+    NoProcessedFlightLogError,
+    RawLogParseError,
+)
 from pyflysight.log_utils import get_idx, normalize_gps_location
 
 GPS_EPOCH = dt.datetime(year=1980, month=1, day=6)
@@ -158,7 +163,7 @@ def _split_sensor_data(
             if d.startswith(partition_keyword):
                 return list(data_lines[:idx]), list(data_lines[idx + 1 :])  # noqa: E203
 
-        raise ValueError(
+        raise RawLogParseError(
             f"Could not locate line containing '{partition_keyword}', please check data file for issues."  # noqa: E501
         )
 
@@ -258,17 +263,17 @@ def _parse_header(header_lines: t.Sequence[str]) -> FlysightV2:
                 session_id = value
 
     if not firmware_version:
-        raise ValueError("Could not locate device firmware version.")
+        raise HeadingParseError("Could not locate device firmware version.")
 
     if not device_id:
-        raise ValueError("Could not locate device ID.")
+        raise HeadingParseError("Could not locate device ID.")
 
     if not session_id:
-        raise ValueError("Could not locate session ID.")
+        raise HeadingParseError("Could not locate session ID.")
 
     sensor_lines = deque(header_lines[idx:])
     if (len(sensor_lines) % 2) != 0:
-        raise ValueError("At least one sensor type lacks column or unit information.")
+        raise HeadingParseError("At least one sensor type lacks column or unit information.")
 
     sensor_info = {}
     while sensor_lines:
@@ -380,6 +385,21 @@ def _calculate_derived_columns(
     return df
 
 
+def _build_row_length_exception_msg(sensor: str, sensor_data: list[list[float]]) -> str:
+    """Extract the location of a row length mismatch for the given raw sensor data."""
+    expected_len = len(sensor_data[0])
+    for row in sensor_data[1:]:  # pragma: no branch
+        if len(row) != expected_len:
+            break
+
+    err_msg = (
+        f"Mismatched row length for sensor '{sensor}'. "
+        f"First encountered at t~={row[0]:.2f}: contains: {len(row)}, expected: {expected_len}"
+    )
+
+    return err_msg
+
+
 def _raw_data_to_dataframe(
     sensor_data: GroupedSensorData,
     device_info: FlysightV2,
@@ -392,21 +412,26 @@ def _raw_data_to_dataframe(
     encountered timestamp.
     """
     if device_info.first_sensor_timestamp is None:
-        raise ValueError("First timestamp for logging session not specified.")
+        raise RawLogParseError("First timestamp for logging session not specified.")
 
     parsed_sensor_data: dict[str, polars.DataFrame] = {}
     for sensor in sensor_data.keys():
-        df = polars.DataFrame(sensor_data[sensor], orient="row")
+        try:
+            df = polars.DataFrame(sensor_data[sensor], orient="row")
+        except ShapeError as e:
+            raise RawLogParseError(
+                _build_row_length_exception_msg(sensor, sensor_data[sensor])
+            ) from e
 
         try:
             df.columns = device_info.sensor_info[sensor].columns
         except ShapeError as e:
             n_headers = len(device_info.sensor_info[sensor].columns)
-            raise ValueError(
+            raise HeadingParseError(
                 f"Number of column headers for {sensor} do not match the number of data columns present (expected: {df.width}, received: {n_headers})."  # noqa: E501
             ) from e
         except KeyError as e:
-            raise ValueError(
+            raise HeadingParseError(
                 f"Could not locate column header information for {sensor} sensor."
             ) from e
 
