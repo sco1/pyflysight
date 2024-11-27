@@ -6,6 +6,7 @@ import polars
 import pytest
 from polars.testing import assert_frame_equal
 
+from pyflysight.exceptions import HeadingParseError, RawLogParseError
 from pyflysight.flysight_proc import (
     FlysightV2,
     SensorInfo,
@@ -37,7 +38,7 @@ def test_v2_data_split() -> None:
 
 
 def test_data_split_no_partition_raises() -> None:
-    with pytest.raises(ValueError, match="HELLO"):
+    with pytest.raises(RawLogParseError, match="HELLO"):
         _ = _split_sensor_data(SAMPLE_SPLIT_FILE, partition_keyword="$HELLO")
 
 
@@ -79,7 +80,7 @@ SAMPLE_HEADER_NO_FIRMWARE = dedent(
 
 
 def test_header_missing_firmware_raises() -> None:
-    with pytest.raises(ValueError, match="firmware"):
+    with pytest.raises(HeadingParseError, match="firmware"):
         _parse_header(SAMPLE_HEADER_NO_FIRMWARE)
 
 
@@ -93,7 +94,7 @@ SAMPLE_HEADER_NO_DEVICE_ID = dedent(
 
 
 def test_header_missing_device_raises() -> None:
-    with pytest.raises(ValueError, match="device"):
+    with pytest.raises(HeadingParseError, match="device"):
         _parse_header(SAMPLE_HEADER_NO_DEVICE_ID)
 
 
@@ -107,7 +108,7 @@ SAMPLE_HEADER_NO_SESSION_ID = dedent(
 
 
 def test_header_missing_session_raises() -> None:
-    with pytest.raises(ValueError, match="session"):
+    with pytest.raises(HeadingParseError, match="session"):
         _parse_header(SAMPLE_HEADER_NO_SESSION_ID)
 
 
@@ -123,7 +124,7 @@ SAMPLE_HEADER_MISMATCHED_SENSOR_INFO = dedent(
 
 
 def test_header_partial_missing_sensor_info_raises() -> None:
-    with pytest.raises(ValueError, match="lacks column or unit information"):
+    with pytest.raises(HeadingParseError, match="lacks column or unit information"):
         _parse_header(SAMPLE_HEADER_MISMATCHED_SENSOR_INFO)
 
 
@@ -198,7 +199,7 @@ SAMPLE_GROUPED_DATA = {"BARO": [[1.0, 2.0, 3.0]]}
 
 
 def test_dataframe_conversion_no_timestamp_raises() -> None:
-    with pytest.raises(ValueError, match="timestamp"):
+    with pytest.raises(RawLogParseError, match="timestamp"):
         _raw_data_to_dataframe(SAMPLE_GROUPED_DATA, DEVICE_INFO_NO_TIMESTAMP)
 
 
@@ -213,13 +214,13 @@ DEVICE_INFO_WITH_TIMESTAMP = FlysightV2(
 
 def test_dataframe_conversion_mismatch_column_headers_raises() -> None:
     sample_data = {"BARO": [[1.0, 2.0, 3.0, 4.0]]}
-    with pytest.raises(ValueError, match="Number of column headers"):
+    with pytest.raises(HeadingParseError, match="Number of column headers"):
         _raw_data_to_dataframe(sample_data, DEVICE_INFO_WITH_TIMESTAMP)
 
 
 def test_dataframe_conversion_no_column_headers_raises() -> None:
     sample_data = {"abcd": [[1.0, 2.0, 3.0]]}
-    with pytest.raises(ValueError, match="Could not locate"):
+    with pytest.raises(HeadingParseError, match="Could not locate"):
         _raw_data_to_dataframe(sample_data, DEVICE_INFO_WITH_TIMESTAMP)
 
 
@@ -240,6 +241,19 @@ def test_dataframe_pressure_altitude_from_baro() -> None:
 
     assert "press_alt_ft" in df.columns
     assert df.select(polars.col("press_alt_ft").first()).item() == pytest.approx(127_145.96)
+
+
+def test_dataframe_conversion_row_length_mismatch_raises() -> None:
+    sample_data = {
+        "BARO": [[0.0, 1, 2, 3, 4, 5, 6, 7], [0.05, 1, 2, 3, 4, 5, 6, 7], [0.1, 1, 2, 3, 4, 5, 6]]
+    }
+    with pytest.raises(RawLogParseError) as e:
+        _raw_data_to_dataframe(sample_data, DEVICE_INFO_WITH_TIMESTAMP)
+
+    err_str = str(e.value)
+    assert "BARO" in err_str
+    assert "t~=0.10" in err_str
+    assert "contains: 7, expected: 8" in err_str
 
 
 IMU_SENSOR_INFO = SensorInfo(

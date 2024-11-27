@@ -135,6 +135,16 @@ def _build_dummy_v2_device(top_dir: Path) -> Path:
     return flysight_device
 
 
+def _build_dummy_v2_device_with_temp(top_dir: Path) -> Path:
+    flysight_device = _build_dummy_v2_device(top_dir)
+    temp_dir = flysight_device / "TEMP"
+    temp_dir.mkdir()
+    for f in ("RAW.UBX", "SENSOR.CSV", "TRACK.CSV"):
+        (temp_dir / f).touch()
+
+    return flysight_device
+
+
 def test_get_v1_device_metadata(tmp_path: Path) -> None:
     flysight_device = _build_dummy_v1_device(tmp_path)
 
@@ -143,18 +153,33 @@ def test_get_v1_device_metadata(tmp_path: Path) -> None:
         serial="1234567890",
         firmware="v123abc",
         n_logs=3,
+        n_temp_logs=0,  # V1 hardware should always have 0 temporary logs
     )
     assert get_device_metadata(flysight_device) == truth_metadata
     assert FlysightMetadata.from_drive(flysight_device) == truth_metadata
 
 
-def test_get_v2_device_metadata(tmp_path: Path) -> None:
+def test_get_v2_device_metadata_no_temp(tmp_path: Path) -> None:
     flysight_device = _build_dummy_v2_device(tmp_path)
     truth_metadata = FlysightMetadata(
         flysight_type=FlysightType.VERSION_2,
         serial="1234567890",
         firmware="v123abc",
         n_logs=2,
+        n_temp_logs=0,
+    )
+    assert get_device_metadata(flysight_device) == truth_metadata
+    assert FlysightMetadata.from_drive(flysight_device) == truth_metadata
+
+
+def test_get_v2_device_metadata_with_temp(tmp_path: Path) -> None:
+    flysight_device = _build_dummy_v2_device_with_temp(tmp_path)
+    truth_metadata = FlysightMetadata(
+        flysight_type=FlysightType.VERSION_2,
+        serial="1234567890",
+        firmware="v123abc",
+        n_logs=2,
+        n_temp_logs=1,
     )
     assert get_device_metadata(flysight_device) == truth_metadata
     assert FlysightMetadata.from_drive(flysight_device) == truth_metadata

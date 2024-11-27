@@ -53,6 +53,10 @@ def _print_connected_drives(flysight_drives: t.Iterable[Path]) -> None:
             f"    Serial: {md.serial}\n"
             f"    Firmware: {md.firmware}"
         )
+
+        if md.n_temp_logs != 0:
+            md_str += f"\n    TEMP Logs: {md.n_temp_logs}"
+
         print(md_str)
 
 
@@ -110,7 +114,7 @@ def _try_write_config(device_root: Path, config: FlysightConfig, backup_existing
 @config_app.command()
 def write_default(
     flysight_root: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
-    backup_existing: bool = typer.Option(True),
+    backup_existing: bool = True,
 ) -> None:  # pragma: no cover
     """
     Write default configuration.
@@ -136,7 +140,7 @@ def write_default(
 def write_from_json(
     flysight_root: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
     config_source: Path = typer.Option(None, exists=True, file_okay=True, dir_okay=False),
-    backup_existing: bool = typer.Option(True),
+    backup_existing: bool = True,
 ) -> None:  # pragma: no cover
     """
     Write previously serialized paramters.
@@ -171,7 +175,7 @@ def write_from_json(
 def write_from_other(
     flysight_root: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
     config_source: Path = typer.Option(None, exists=True, file_okay=True, dir_okay=False),
-    backup_existing: bool = typer.Option(True),
+    backup_existing: bool = True,
 ) -> None:  # pragma: no cover
     """
     Copy configuration from file.
@@ -206,22 +210,31 @@ def write_from_other(
 @log_app.command()
 def copy(
     flysight_root: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
+    include_temp: bool = False,
     dest: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
-    exist_ok: bool = typer.Option(True),
+    exist_ok: bool = True,
 ) -> None:  # pragma: no cover
     """Copy all logs on device to the specified destination."""
     if flysight_root is None:
         flysight_root = _ask_select_flysight()
 
     drive_metadata = get_device_metadata(flysight_root)
-    if drive_metadata.n_logs == 0:
+    if not include_temp and drive_metadata.n_logs == 0:
         _abort_with_message("No logs on device to copy.")
+
+    if include_temp:
+        if (drive_metadata.n_logs == 0) and (drive_metadata.n_temp_logs == 0):
+            _abort_with_message("No logs or temporary logs on device to copy.")
 
     if dest is None:
         dest = prompt_for_dir(title="Select Log Destination")
 
     copy_status = copy_logs(
-        device_root=flysight_root, dest=dest, exist_ok=exist_ok, remove_after=False
+        device_root=flysight_root,
+        dest=dest,
+        include_temp=include_temp,
+        exist_ok=exist_ok,
+        remove_after=False,
     )
     print(f"Copied {copy_status.n_dirs_copied} log directories to {dest}")
 
@@ -229,7 +242,8 @@ def copy(
 @log_app.command()
 def clear(
     flysight_root: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
-    force: bool = typer.Option(False),
+    include_temp: bool = False,
+    force: bool = False,
 ) -> None:  # pragma: no cover
     """
     Clear all logs on device.
@@ -242,8 +256,12 @@ def clear(
         flysight_root = _ask_select_flysight()
 
     drive_metadata = get_device_metadata(flysight_root)
-    if drive_metadata.n_logs == 0:
+    if not include_temp and drive_metadata.n_logs == 0:
         _abort_with_message("No logs on device to erase.")
+
+    if include_temp:
+        if (drive_metadata.n_logs == 0) and (drive_metadata.n_temp_logs == 0):
+            _abort_with_message("No logs or temporary logs on device to erase.")
 
     if not force:
         confirm_clear = typer.confirm(f"This will erase {drive_metadata.n_logs} logs. Confirm?")
@@ -251,7 +269,7 @@ def clear(
             raise typer.Abort()
 
     try:
-        erase_logs(flysight_root)
+        erase_logs(flysight_root, include_temp=include_temp)
     except PermissionError:
         _abort_with_message("Error: FlySight device is write protected. ")
 
@@ -304,7 +322,7 @@ def _try_resolve_single_log(top_dir: Path, flysight_type: FlysightType) -> Path:
 @trim_app.command()
 def single(
     log_dir: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
-    normalize_gps: bool = typer.Option(False),
+    normalize_gps: bool = False,
 ) -> None:  # pragma: no cover
     """
     Trim single flight log.
@@ -323,7 +341,7 @@ def single(
 @trim_app.command()
 def batch(
     log_dir: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
-    normalize_gps: bool = typer.Option(False),
+    normalize_gps: bool = False,
 ) -> None:  # pragma: no cover
     """
     Batch trim a directory of flight logs.
@@ -351,7 +369,7 @@ def _v2_log_parse2csv_pipeline(log_dir: Path, normalize_gps: bool) -> None:
 @v2_log_convert_app.command(name="single")
 def single_convert(
     log_dir: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
-    normalize_gps: bool = typer.Option(False),
+    normalize_gps: bool = False,
 ) -> None:  # pragma: no cover
     """
     Parse a single FlySight V2 flight log into a user-friendly CSV collection.
@@ -370,7 +388,7 @@ def single_convert(
 @v2_log_convert_app.command(name="batch")
 def batch_convert(
     log_dir: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
-    normalize_gps: bool = typer.Option(False),
+    normalize_gps: bool = False,
 ) -> None:  # pragma: no cover
     """
     Batch parse a directory of FlySight V2 flight logs into a user-friendly CSV collection.

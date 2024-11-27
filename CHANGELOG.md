@@ -1,6 +1,13 @@
 # Changelog
 Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (`<major>`.`<minor>`.`<patch>`)
 
+## [0.9.0]
+### Changed
+* #44 Add optional consideration for the `./TEMP` log directory on FlySight V2 hardware. This directory contains log sessions that have not yet been finalized and may contain the entire flight log of interest in certain situations (e.g. battery has depleted)
+
+### Fixed
+* #45 Enhance error message for mismatched series dimensions when parsing raw log files. This is typically encountered when the device is interrupted while finalizing log data and does not finish writing out one or more data rows
+
 ## [0.8.0]
 ### Added
 * #35 Add a `prefer_processed` kwarg to the `pyflysight.flysight_proc.parse_v2_log_directory` helper pipeline to prefer loading a serialized `pyflysight.flysight_proc.FlysightV2FlightLog` instance, if detected, rather than parsing the raw data files

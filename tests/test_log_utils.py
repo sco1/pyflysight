@@ -114,7 +114,7 @@ ITER_DIR_STRUCTURE = {
     "24-04-20": ("04-20-00.CSV",),
     "12-34-00": ("RAW.UBX", "SENSOR.CSV", "TRACK.CSV"),
     "abc123": ("BARO.CSV", "IMU.CSV", "TRACK.CSV", "device_info.json"),
-    "TEMP/0000": ("RAW.UBX", "SENSOR.CSV", "TRACK.CSV"),  # TEMP dir should be ignored
+    "TEMP/0000": ("RAW.UBX", "SENSOR.CSV", "TRACK.CSV"),
 }
 
 ITER_DIR_TEST_CASES = (
@@ -125,7 +125,7 @@ ITER_DIR_TEST_CASES = (
 
 
 @pytest.mark.parametrize(("hw_type", "truth_parent_dirnames"), ITER_DIR_TEST_CASES)
-def test_iter_dir(
+def test_iter_dir_ignore_temp(
     tmp_path: Path, hw_type: FlysightType | None, truth_parent_dirnames: set[str]
 ) -> None:
     for log_dirname, filenames in ITER_DIR_STRUCTURE.items():
@@ -135,7 +135,23 @@ def test_iter_dir(
         for name in filenames:
             (log_dir / name).touch()
 
-    found_dirs = iter_log_dirs(top_dir=tmp_path, flysight_type=hw_type)
+    found_dirs = iter_log_dirs(top_dir=tmp_path, flysight_type=hw_type, include_temp=False)
+    found_dirnames = {ld.log_dir.name for ld in found_dirs}
+    assert found_dirnames == truth_parent_dirnames
+
+
+def test_iter_dir_include_temp(tmp_path: Path) -> None:
+    for log_dirname, filenames in ITER_DIR_STRUCTURE.items():
+        log_dir = tmp_path / log_dirname
+        log_dir.mkdir(parents=True)
+
+        for name in filenames:
+            (log_dir / name).touch()
+
+    # iter_log_dir doesn't currently have any logic related to the temp directory that includes a
+    # hardware type filter so won't bother iterating through again
+    truth_parent_dirnames = {"24-04-20", "12-34-00", "0000"}
+    found_dirs = iter_log_dirs(top_dir=tmp_path, flysight_type=None, include_temp=True)
     found_dirnames = {ld.log_dir.name for ld in found_dirs}
     assert found_dirnames == truth_parent_dirnames
 

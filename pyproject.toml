@@ -1,6 +1,6 @@
 [project]
 name = "pyflysight"
-version = "0.8.0"
+version = "0.9.0"
 description = "Helper library for processing FlySight GPS flight logs."
 authors = [
     {name = "sco1", email = "sco1.git@gmail.com"}

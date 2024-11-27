@@ -1,0 +1,21 @@
+$FLYS,1
+$VAR,FIRMWARE_VER,v2024.05.25.pairing_request
+$VAR,DEVICE_ID,003e0038484e501420353131
+$VAR,SESSION_ID,3e10c2f6b1ea4604758b8926
+$COL,BARO,time,pressure,temperature
+$UNIT,BARO,s,Pa,deg C
+$COL,HUM,time,humidity,temperature
+$UNIT,HUM,s,percent,deg C
+$COL,MAG,time,x,y,z,temperature
+$UNIT,MAG,s,gauss,gauss,gauss,deg C
+$COL,IMU,time,wx,wy,wz,ax,ay,az,temperature
+$UNIT,IMU,s,deg/s,deg/s,deg/s,g,g,g,deg C
+$COL,TIME,time,tow,week
+$UNIT,TIME,s,s,
+$COL,VBAT,time,voltage
+$UNIT,VBAT,s,volt
+$DATA
+$BARO,777709.568,96585.20,14.86
+$IMU,777709.568,0.366,248.291,11.596,-0.49169,-0.32031,-0.61962,13.27
+$IMU,777709.571,-4.089,218.444,16.174,1.26269,-1.54492,0.11914,13.27
+$IMU,777709.574,-10.498,236.755,19.165,-0.20996,-2.00878,-2
