@@ -43,11 +43,11 @@ pyflysight = "pyflysight.cli:pyflysight_cli"
 
 [tool.uv]
 dev-dependencies = [
-    "black~=24.8",
+    "black~=25.0",
     "cogapp~=3.4",
     "flake8~=7.1",
     "flake8-annotations~=3.1",
-    "isort~=5.13",
+    "isort~=6.0",
     "mkdocs-click~=0.8",
     "mkdocs~=1.6",
     "mkdocstrings-python~=1.10",
