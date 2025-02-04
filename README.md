@@ -31,8 +31,8 @@ Options:
 
 Commands:
   device       FlySight device utilities.
-  log_convert  FlySight V2 log conversion.
   logs         FlySight device log utilities.
+  log_convert  FlySight V2 log conversion.
   trim         FlySight log trimming.
 ```
 <!-- [[[end]]] -->
