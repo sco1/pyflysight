@@ -353,7 +353,7 @@ def test_v2_flightlog_normalize_gps() -> None:
 def test_time_sync_delta_calculation() -> None:
     track_data = polars.DataFrame(
         {
-            "time": [dt.datetime(year=2024, month=4, day=20)],
+            "time": [dt.datetime(year=2024, month=4, day=20, tzinfo=dt.UTC)],
         }
     )
     time_sensor = polars.DataFrame(

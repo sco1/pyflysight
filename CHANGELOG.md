@@ -1,6 +1,10 @@
 # Changelog
 Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (`<major>`.`<minor>`.`<patch>`)
 
+## [0.9.1]
+### Fixed
+* #50 fix tz-awareness issue from `calculate_sync_delta`
+
 ## [0.9.0]
 ### Changed
 * #44 Add optional consideration for the `./TEMP` log directory on FlySight V2 hardware. This directory contains log sessions that have not yet been finalized and may contain the entire flight log of interest in certain situations (e.g. battery has depleted)
