@@ -2,10 +2,9 @@
 name = "pyflysight"
 version = "0.9.0"
 description = "Helper library for processing FlySight GPS flight logs."
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [
-    {name = "sco1", email = "sco1.git@gmail.com"}
-]
-maintainers = [
     {name = "sco1", email = "sco1.git@gmail.com"}
 ]
 
@@ -13,20 +12,20 @@ readme = "README.md"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Typing :: Typed",
 ]
 
 requires-python = ">=3.11"
 dependencies = [
     "matplotlib-window~=1.0",
-    "polars[timezone]~=1.1",
-    "psutil~=6.0",
+    "polars[timezone]~=1.33",
+    "psutil~=7.0",
     "sco1-misc~=0.1",
     "typer-slim~=0.12",
 ]
@@ -34,19 +33,20 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/sco1/"
 Documentation = "https://sco1.github.io/pyflysight/"
-Repository = "https://github.com/sco1/pyflysight"
+Repository = "https://github.com/sco1/pyflysight.git"
 Issues = "https://github.com/sco1/pyflysight/issues"
 Changelog = "https://github.com/sco1/pyflysight/blob/main/CHANGELOG.md"
 
 [project.scripts]
 pyflysight = "pyflysight.cli:pyflysight_cli"
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "black~=25.0",
     "cogapp~=3.4",
     "flake8~=7.1",
     "flake8-annotations~=3.1",
+    "flake8-define-class-attributes~=0.2",
     "isort~=6.0",
     "mkdocs-click~=0.8",
     "mkdocs~=1.6",
@@ -55,12 +55,12 @@ dev-dependencies = [
     "pre-commit~=4.0",
     "pymdown-extensions~=10.9",
     "pytest-check~=2.4",
-    "pytest-cov~=6.0",
+    "pytest-cov~=7.0",
     "pytest-mock~=3.14",
-    "pytest-randomly~=3.15",
+    "pytest-randomly~=4.0",
     "pytest~=8.3",
     "ruff~=0.6",
-    "sco1-bumper~=1.0",
+    "sco1-bumper~=2.0",
     "tox~=4.18",
     "tox-uv~=1.11",
 ]
@@ -81,6 +81,7 @@ disallow_incomplete_defs = true
 disallow_untyped_calls = true
 disallow_untyped_decorators = true
 disallow_untyped_defs = true
+enable_error_code = "exhaustive-match"
 ignore_missing_imports = true
 no_implicit_optional = true
 show_error_codes = true
@@ -89,6 +90,10 @@ warn_return_any = true
 warn_unused_configs = true
 warn_unused_ignores = true
 
+[tool.uv.build-backend]
+module-name = "pyflysight"
+module-root = ""
+
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv_build"]
+build-backend = "uv_build"
