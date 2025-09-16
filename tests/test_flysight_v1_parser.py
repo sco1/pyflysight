@@ -30,7 +30,7 @@ def test_log_parse() -> None:
             "groundspeed": [1.165],
         }
     )
-    assert_frame_equal(flight_log.track_data.select(DERIVED_COLS), TRUTH_DERIVED, rtol=1e-3)
+    assert_frame_equal(flight_log.track_data.select(DERIVED_COLS), TRUTH_DERIVED, rel_tol=1e-3)
 
 
 def test_device_info_parse() -> None:

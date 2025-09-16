@@ -19,7 +19,7 @@ from pyflysight.exceptions import (
 )
 from pyflysight.log_utils import get_idx, normalize_gps_location
 
-GPS_EPOCH = dt.datetime(year=1980, month=1, day=6)
+GPS_EPOCH = dt.datetime(year=1980, month=1, day=6, tzinfo=dt.UTC)
 
 GroupedSensorData: t.TypeAlias = dict[str, list[list[float]]]
 SensorDataFrames: t.TypeAlias = dict[str, polars.DataFrame]
