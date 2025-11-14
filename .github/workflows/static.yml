@@ -1,6 +1,7 @@
 name: Deploy static content to Pages
 
 on:
+  workflow_dispatch:
   push:
     branches: ["main"]
 
@@ -28,9 +29,9 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
         with:
-          version: "0.8.x"
+          version: "0.9.x"
           enable-cache: true
           cache-dependency-glob: "uv.lock"
 

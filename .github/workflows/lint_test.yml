@@ -21,9 +21,9 @@ jobs:
         python-version-file: "pyproject.toml"
 
     - name: Install uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v7
       with:
-        version: "0.8.x"
+        version: "0.9.x"
         enable-cache: true
         cache-dependency-glob: "uv.lock"
 
@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11", "3.12", "3.13", "3.14-dev"]
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
       fail-fast: false
 
     steps:
@@ -63,9 +63,9 @@ jobs:
         tk: true
 
     - name: Install uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v7
       with:
-        version: "0.8.x"
+        version: "0.9.x"
         enable-cache: true
         cache-dependency-glob: "uv.lock"
 
@@ -79,7 +79,7 @@ jobs:
         uv run tox -e ${{ steps.get-pyver.outputs.PYVER }}
 
     - name: Cache coverage for ${{ matrix.python-version }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: cov_py${{ matrix.python-version }}
         path: .coverage
@@ -99,7 +99,7 @@ jobs:
         python-version-file: "pyproject.toml"
 
     - name: Pull coverage workflow artifacts
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v6
       with:
         path: cov_cache/
 
@@ -117,7 +117,7 @@ jobs:
         coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
 
     - name: Publish cov HTML
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         path: htmlcov/
         name: cov_report_html
