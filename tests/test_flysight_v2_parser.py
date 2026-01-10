@@ -53,6 +53,17 @@ SAMPLE_HEADER_ONE_SENSOR = dedent(
     """
 ).splitlines()
 
+SAMPLE_HEADER_ONE_SENSOR_TRAILING_COMMAS = dedent(
+    """\
+    $FLYS,1,,,,,,,,
+    $VAR,FIRMWARE_VER,v2023.09.22,,,,,,,
+    $VAR,DEVICE_ID,003f0033484e501420353131,,,,,,,
+    $VAR,SESSION_ID,7e67d0e71a53d9d6486b0114,,,,,,,
+    $COL,BARO,time,pressure,temperature,,,,,
+    $UNIT,BARO,s,Pa,deg C,,,,,
+    """
+).splitlines()
+
 TRUTH_SENSOR_INFO = SensorInfo(
     columns=["time", "pressure", "temperature"],
     units=["s", "Pa", "deg C"],
@@ -62,6 +73,16 @@ TRUTH_SENSOR_INFO = SensorInfo(
 
 def test_header_parse_one_sensor() -> None:
     flysight = _parse_header(SAMPLE_HEADER_ONE_SENSOR)
+    assert flysight.firmware_version == "v2023.09.22"
+    assert flysight.device_id == "003f0033484e501420353131"
+    assert flysight.session_id == "7e67d0e71a53d9d6486b0114"
+
+    assert "BARO" in flysight.sensor_info
+    assert flysight.sensor_info["BARO"] == TRUTH_SENSOR_INFO
+
+
+def test_header_parse_one_sensor_trailing_commas() -> None:
+    flysight = _parse_header(SAMPLE_HEADER_ONE_SENSOR_TRAILING_COMMAS)
     assert flysight.firmware_version == "v2023.09.22"
     assert flysight.device_id == "003f0033484e501420353131"
     assert flysight.session_id == "7e67d0e71a53d9d6486b0114"
@@ -152,9 +173,32 @@ SAMPLE_SENSOR_DATA_SINGLE_LINES = dedent(
     """
 ).splitlines()
 
+SAMPLE_SENSOR_DATA_SINGLE_LINES_TRAILING_COMMAS = dedent(
+    """\
+    $IMU,1,2,3,4,,,,,,
+    $BARO,5,6,7,8,,,,,,
+    """
+).splitlines()
+
 
 def test_sensor_data_partition() -> None:
     sensor_data, initial_timestamp = _partition_sensor_data(SAMPLE_SENSOR_DATA_SINGLE_LINES)
+
+    assert initial_timestamp == pytest.approx(1)
+
+    assert not (sensor_data.keys() - {"IMU", "BARO"})
+
+    assert len(sensor_data["IMU"]) == 1
+    assert sensor_data["IMU"][0] == pytest.approx([1, 2, 3, 4])
+
+    assert len(sensor_data["BARO"]) == 1
+    assert sensor_data["BARO"][0] == pytest.approx([5, 6, 7, 8])
+
+
+def test_sensor_data_partition_trailing_commas() -> None:
+    sensor_data, initial_timestamp = _partition_sensor_data(
+        SAMPLE_SENSOR_DATA_SINGLE_LINES_TRAILING_COMMAS
+    )
 
     assert initial_timestamp == pytest.approx(1)
 

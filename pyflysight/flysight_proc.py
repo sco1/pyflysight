@@ -250,6 +250,7 @@ def _parse_header(header_lines: t.Sequence[str]) -> FlysightV2:
     device_id = ""
     session_id = ""
     for idx, line in enumerate(header_lines):  # noqa: B007
+        line = line.rstrip(",")
         if line.startswith("$COL"):
             break
 
@@ -277,7 +278,7 @@ def _parse_header(header_lines: t.Sequence[str]) -> FlysightV2:
 
     sensor_info = {}
     while sensor_lines:
-        sensor_header, sensor_units = [sensor_lines.popleft() for _ in range(2)]
+        sensor_header, sensor_units = [sensor_lines.popleft().rstrip(",") for _ in range(2)]
         _, sensor_id, *column_strings = sensor_header.split(",")
         _, _, *unit_strings = sensor_units.split(",")
 
@@ -325,6 +326,7 @@ def _partition_sensor_data(data_lines: t.Sequence[str]) -> tuple[GroupedSensorDa
 
     sensor_data = defaultdict(list)
     for line in data_lines:
+        line = line.rstrip(",")
         key, *data = line.split(",")
         key = key.removeprefix("$")
         sensor_data[key].append([float(v) for v in data])
@@ -478,6 +480,7 @@ def _raw_v2_track_to_dataframe(
     """
     split_log_lines = []
     for line in sensor_data:
+        line = line.rstrip(",")
         _, raw_timestamp, *rest, raw_n_satellites = line.split(",")
         split_log_lines.append(
             [
