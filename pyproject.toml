@@ -1,6 +1,6 @@
 [project]
 name = "pyflysight"
-version = "0.9.1"
+version = "0.9.2"
 description = "Helper library for processing FlySight GPS flight logs."
 license = "MIT"
 license-files = ["LICENSE"]
