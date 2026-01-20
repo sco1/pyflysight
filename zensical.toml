@@ -1,0 +1,65 @@
+[project]
+site_name = "PyFlySight"
+site_author = "sco1"
+copyright = "&copy; 2023 - Present S. Co1"
+site_url = "https://sco1.github.io/pyflysight/"
+repo_url = "https://github.com/sco1/pyflysight"
+
+nav = [
+    {"Home" = "index.md"},
+    {"User Guide" = [
+        {"CLI" = "user_guide/cli.md"},
+        {"Log Parsing" = "user_guide/log_parsing.md"},
+        {"Flysight Log Format" = "user_guide/data_format.md"},
+        {"Device Configuration" = "user_guide/device_configuration.md"},
+        {"Device Interaction" = "user_guide/device_interaction.md"},
+        {"Log Utilities" = "user_guide/log_utilities.md"},
+        {"Trim App" = "user_guide/trim_app.md"},
+    ]},
+    {"About" = [
+        {"Issue Tracker" = "https://github.com/sco1/pyflysight/issues"},
+        {"Release Notes" = "about/changelog.md"},
+        {"Contributing" = "about/contributing.md"},
+        {"License" = "about/license.md"},
+    ]}
+]
+
+[project.markdown_extensions.admonition]
+
+[project.markdown_extensions.toc]
+permalink = true
+
+[project.mkdocs-click]
+
+[project.markdown_extensions.pymdownx.details]
+
+[project.markdown_extensions.pymdownx.highlight]
+
+[project.markdown_extensions.pymdownx.magiclink]
+repo_url_shorthand = true
+repo_url_shortener = true
+normalize_issue_symbols = true
+user = "sco1"
+repo = "pyflysight"
+
+[project.markdown_extensions.pymdownx.saneheaders]
+
+[project.markdown_extensions.pymdownx.smartsymbols]
+
+[project.markdown_extensions.pymdownx.snippets]
+check_paths = true
+
+[project.markdown_extensions.pymdownx.superfences]
+
+[project.plugins.mkdocstrings.handlers.python]
+paths = ["pyflysight"]
+
+[project.plugins.mkdocstrings.handlers.python.options]
+show_root_heading = true
+show_symbol_type_heading = true
+show_signature_annotations = true
+separate_signature = true
+line_length = 100
+show_source = false
+show_if_no_docstring = true
+merge_init_into_class = true

@@ -42,18 +42,16 @@ pyflysight = "pyflysight.cli:pyflysight_cli"
 
 [dependency-groups]
 dev = [
-    "black~=25.0",
+    "black~=26.1",
     "cogapp~=3.4",
     "flake8~=7.1",
     "flake8-annotations~=3.1",
     "flake8-define-class-attributes~=0.2",
     "isort~=7.0",
     "mkdocs-click~=0.8",
-    "mkdocs~=1.6",
     "mkdocstrings-python~=2.0",
     "mypy~=1.11",
     "pre-commit~=4.0",
-    "pymdown-extensions~=10.9",
     "pytest-check~=2.4",
     "pytest-cov~=7.0",
     "pytest-mock~=3.14",
@@ -63,6 +61,7 @@ dev = [
     "sco1-bumper~=2.0",
     "tox~=4.18",
     "tox-uv~=1.11",
+    "zensical~=0.0.15",
 ]
 
 [tool.black]
