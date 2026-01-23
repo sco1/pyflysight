@@ -552,6 +552,12 @@ class FlysightV2FlightLog:  # noqa: D101
         Trim the sensor & track logs to data between the provided start and end elapsed times.
 
         Note:
+            `elapsed_start` is assumed to be in the sensor data's elapsed time frame of reference.
+            The track & sensor data streams do not share a common time column; it is assumed that
+            the upstream parser has added an `"elapsed_time_sensor"` to the track dataframe to
+            provide a common time reference.
+
+        Note:
             The elapsed time column is re-normalized to the provided trim window.
         """
         for sensor, df in self.sensor_data.items():
@@ -559,20 +565,26 @@ class FlysightV2FlightLog:  # noqa: D101
             r_idx = get_idx(df, elapsed_end)
             self.sensor_data[sensor] = df[l_idx:r_idx]
 
-            # Re-normalize elapsed time
+            # Re-normalize elapsed sensor time
             new_elapsed_start = self.sensor_data[sensor]["elapsed_time"][0]
             new_time = self.sensor_data[sensor]["elapsed_time"] - new_elapsed_start
             self.sensor_data[sensor] = self.sensor_data[sensor].with_columns(elapsed_time=new_time)
 
         # Trim track data since it's stored separately
-        l_idx = get_idx(self.track_data, elapsed_start)
-        r_idx = get_idx(self.track_data, elapsed_end)
+        # Assume our query times are in the time sensor's frame of reference
+        l_idx = get_idx(self.track_data, elapsed_start, ref_col="elapsed_time_sensor")
+        r_idx = get_idx(self.track_data, elapsed_end, ref_col="elapsed_time_sensor")
         self.track_data = self.track_data[l_idx:r_idx]
 
-        # Re-normalize elapsed time
+        # Re-normalize elapsed track time
         new_elapsed_start = self.track_data["elapsed_time"][0]
         new_time = self.track_data["elapsed_time"] - new_elapsed_start
         self.track_data = self.track_data.with_columns(elapsed_time=new_time)
+
+        # Re-normalized elapsed sensor column
+        new_elapsed_sensor_start = self.track_data["elapsed_time_sensor"][0]
+        new_sensor_time = self.track_data["elapsed_time_sensor"] - new_elapsed_sensor_start
+        self.track_data = self.track_data.with_columns(elapsed_time_sensor=new_sensor_time)
 
         self._is_trimmed = True
 

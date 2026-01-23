@@ -22,13 +22,11 @@ from pyflysight.flysight_proc import (
 )
 from tests import SAMPLE_DATA_DIR
 
-SAMPLE_SPLIT_FILE = dedent(
-    """\
+SAMPLE_SPLIT_FILE = dedent("""\
     $UNIT,VBAT,s,volt
     $DATA
     $IMU,59970.376,-0.427,1.770,1.953,-0.01464,-0.00732,0.94287,25.64
-    """
-).splitlines()
+    """).splitlines()
 
 
 def test_v2_data_split() -> None:
@@ -42,27 +40,23 @@ def test_data_split_no_partition_raises() -> None:
         _ = _split_sensor_data(SAMPLE_SPLIT_FILE, partition_keyword="$HELLO")
 
 
-SAMPLE_HEADER_ONE_SENSOR = dedent(
-    """\
+SAMPLE_HEADER_ONE_SENSOR = dedent("""\
     $FLYS,1
     $VAR,FIRMWARE_VER,v2023.09.22
     $VAR,DEVICE_ID,003f0033484e501420353131
     $VAR,SESSION_ID,7e67d0e71a53d9d6486b0114
     $COL,BARO,time,pressure,temperature
     $UNIT,BARO,s,Pa,deg C
-    """
-).splitlines()
+    """).splitlines()
 
-SAMPLE_HEADER_ONE_SENSOR_TRAILING_COMMAS = dedent(
-    """\
+SAMPLE_HEADER_ONE_SENSOR_TRAILING_COMMAS = dedent("""\
     $FLYS,1,,,,,,,,
     $VAR,FIRMWARE_VER,v2023.09.22,,,,,,,
     $VAR,DEVICE_ID,003f0033484e501420353131,,,,,,,
     $VAR,SESSION_ID,7e67d0e71a53d9d6486b0114,,,,,,,
     $COL,BARO,time,pressure,temperature,,,,,
     $UNIT,BARO,s,Pa,deg C,,,,,
-    """
-).splitlines()
+    """).splitlines()
 
 TRUTH_SENSOR_INFO = SensorInfo(
     columns=["time", "pressure", "temperature"],
@@ -91,13 +85,11 @@ def test_header_parse_one_sensor_trailing_commas() -> None:
     assert flysight.sensor_info["BARO"] == TRUTH_SENSOR_INFO
 
 
-SAMPLE_HEADER_NO_FIRMWARE = dedent(
-    """\
+SAMPLE_HEADER_NO_FIRMWARE = dedent("""\
     $FLYS,1
     $VAR,DEVICE_ID,003f0033484e501420353131
     $VAR,SESSION_ID,7e67d0e71a53d9d6486b0114
-    """
-).splitlines()
+    """).splitlines()
 
 
 def test_header_missing_firmware_raises() -> None:
@@ -105,13 +97,11 @@ def test_header_missing_firmware_raises() -> None:
         _parse_header(SAMPLE_HEADER_NO_FIRMWARE)
 
 
-SAMPLE_HEADER_NO_DEVICE_ID = dedent(
-    """\
+SAMPLE_HEADER_NO_DEVICE_ID = dedent("""\
     $FLYS,1
     $VAR,FIRMWARE_VER,v2023.09.22
     $VAR,SESSION_ID,7e67d0e71a53d9d6486b0114
-    """
-).splitlines()
+    """).splitlines()
 
 
 def test_header_missing_device_raises() -> None:
@@ -119,13 +109,11 @@ def test_header_missing_device_raises() -> None:
         _parse_header(SAMPLE_HEADER_NO_DEVICE_ID)
 
 
-SAMPLE_HEADER_NO_SESSION_ID = dedent(
-    """\
+SAMPLE_HEADER_NO_SESSION_ID = dedent("""\
     $FLYS,1
     $VAR,FIRMWARE_VER,v2023.09.22
     $VAR,DEVICE_ID,003f0033484e501420353131
-    """
-).splitlines()
+    """).splitlines()
 
 
 def test_header_missing_session_raises() -> None:
@@ -133,15 +121,13 @@ def test_header_missing_session_raises() -> None:
         _parse_header(SAMPLE_HEADER_NO_SESSION_ID)
 
 
-SAMPLE_HEADER_MISMATCHED_SENSOR_INFO = dedent(
-    """\
+SAMPLE_HEADER_MISMATCHED_SENSOR_INFO = dedent("""\
     $FLYS,1
     $VAR,FIRMWARE_VER,v2023.09.22
     $VAR,DEVICE_ID,003f0033484e501420353131
     $VAR,SESSION_ID,7e67d0e71a53d9d6486b0114
     $COL,BARO,time,pressure,temperature
-    """
-).splitlines()
+    """).splitlines()
 
 
 def test_header_partial_missing_sensor_info_raises() -> None:
@@ -149,16 +135,14 @@ def test_header_partial_missing_sensor_info_raises() -> None:
         _parse_header(SAMPLE_HEADER_MISMATCHED_SENSOR_INFO)
 
 
-SAMPLE_HEADER_GNSS_INFO = dedent(
-    """\
+SAMPLE_HEADER_GNSS_INFO = dedent("""\
     $FLYS,1
     $VAR,FIRMWARE_VER,v2023.09.22
     $VAR,DEVICE_ID,003f0033484e501420353131
     $VAR,SESSION_ID,7e67d0e71a53d9d6486b0114
     $COL,GNSS,time,lat,lon,hMSL,velN,velE,velD,hAcc,vAcc,sAcc,numSV
     $UNIT,GNSS,,deg,deg,m,m/s,m/s,m/s,m,m,m/s,
-    """
-).splitlines()
+    """).splitlines()
 
 
 def test_header_gnss_datetime_unit_fill() -> None:
@@ -166,19 +150,15 @@ def test_header_gnss_datetime_unit_fill() -> None:
     assert "datetime" in flysight.sensor_info["GNSS"].units
 
 
-SAMPLE_SENSOR_DATA_SINGLE_LINES = dedent(
-    """\
+SAMPLE_SENSOR_DATA_SINGLE_LINES = dedent("""\
     $IMU,1,2,3,4
     $BARO,5,6,7,8
-    """
-).splitlines()
+    """).splitlines()
 
-SAMPLE_SENSOR_DATA_SINGLE_LINES_TRAILING_COMMAS = dedent(
-    """\
+SAMPLE_SENSOR_DATA_SINGLE_LINES_TRAILING_COMMAS = dedent("""\
     $IMU,1,2,3,4,,,,,,
     $BARO,5,6,7,8,,,,,,
-    """
-).splitlines()
+    """).splitlines()
 
 
 def test_sensor_data_partition() -> None:
@@ -211,13 +191,11 @@ def test_sensor_data_partition_trailing_commas() -> None:
     assert sensor_data["BARO"][0] == pytest.approx([5, 6, 7, 8])
 
 
-SAMPLE_SENSOR_DATA_MULTI_LINES = dedent(
-    """\
+SAMPLE_SENSOR_DATA_MULTI_LINES = dedent("""\
     $IMU,1,2
     $BARO,3,4
     $IMU,5,6
-    """
-).splitlines()
+    """).splitlines()
 
 
 def test_sensor_data_partition_multi_line() -> None:
