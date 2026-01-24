@@ -12,14 +12,16 @@ SAMPLE_DEVICE_INFO = FlysightV2(
 
 SAMPLE_TRACK_DF = polars.DataFrame(
     {
-        "elapsed_time": [0, 1, 2, 3, 4, 5],
+        "elapsed_time": [10, 11, 12, 13, 14, 15],
         "a": [0, 1, 2, 3, 4, 5],
+        "elapsed_time_sensor": [0, 1, 2, 3, 4, 5],
     }
 )
 TRUTH_TRACK_TRIMMED = polars.DataFrame(
     {
         "elapsed_time": [0, 1],
         "a": [2, 3],
+        "elapsed_time_sensor": [0, 1],
     }
 )
 

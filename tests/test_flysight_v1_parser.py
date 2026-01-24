@@ -94,13 +94,11 @@ def test_batch_log_parse_normalize_gps() -> None:
         assert fl.track_data["lon"][0] == pytest.approx(0)
 
 
-SAMPLE_DATA_TO_SPLIT = dedent(
-    """\
+SAMPLE_DATA_TO_SPLIT = dedent("""\
     a,b,c
     d,e,f
     1,2,3
-    """
-)
+    """)
 
 
 def test_v1_data_split() -> None:
