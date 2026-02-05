@@ -1,5 +1,5 @@
 [tool.bumper]
-current_version = "0.9.2"
+current_version = "0.9.3"
 versioning_type = "semver"
 
 [[tool.bumper.files]]

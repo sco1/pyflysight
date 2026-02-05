@@ -1,6 +1,10 @@
 # Changelog
 Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (`<major>`.`<minor>`.`<patch>`)
 
+## `[0.9.3]`
+### Fixed
+* #62 Fix incorrect track data trim boundary calculation
+
 ## `[0.9.2]`
 ### Fixed
 * Add guarding for trailing commas (empty columns) in rows when ingesting CSV data files that may have accidentally been saved over by an external program
