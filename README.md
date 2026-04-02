@@ -17,7 +17,7 @@ You can confirm proper installation via the `pyflysight` CLI:
 <!-- [[[cog
 import cog
 from subprocess import PIPE, run
-out = run(["pyflysight", "--help"], stdout=PIPE, encoding="ascii")
+out = run(["pyflysight", "--help"], stdout=PIPE, encoding="ascii", env={"TYPER_USE_RICH": "0"})
 cog.out(
     f"```bash\n$ pyflysight --help\n{out.stdout.rstrip()}\n```"
 )

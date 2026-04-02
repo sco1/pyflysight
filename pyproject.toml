@@ -27,7 +27,7 @@ dependencies = [
     "polars[timezone]~=1.33",
     "psutil~=7.0",
     "sco1-misc~=0.1",
-    "typer-slim~=0.12",
+    "typer~=0.24",
 ]
 
 [project.urls]
@@ -47,7 +47,7 @@ dev = [
     "flake8~=7.1",
     "flake8-annotations~=3.1",
     "flake8-define-class-attributes~=0.2",
-    "isort~=7.0",
+    "isort~=8.0",
     "mypy~=1.11",
     "pre-commit~=4.0",
     "pytest-check~=2.4",
@@ -100,5 +100,5 @@ module-name = "pyflysight"
 module-root = ""
 
 [build-system]
-requires = ["uv_build"]
+requires = ["uv_build>=0.11.2,<0.12"]
 build-backend = "uv_build"
