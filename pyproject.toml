@@ -30,6 +30,17 @@ dependencies = [
     "typer~=0.24",
 ]
 
+[project.optional-dependencies]
+docs = [
+    "mkdocs~=1.6",
+    "mkdocs-click~=0.8",
+    "mkdocstrings-python~=2.0",
+    "pymdown-extensions~=11.0",
+]
+fw_api = [
+    "niquests~=3.18",
+]
+
 [project.urls]
 Homepage = "https://github.com/sco1/"
 Documentation = "https://sco1.github.io/pyflysight/"
@@ -54,21 +65,12 @@ dev = [
     "pytest-cov~=7.0",
     "pytest-mock~=3.14",
     "pytest-randomly~=4.0",
-    "pytest~=9.0",
+    "pytest~=9.1",
     "ruff~=0.6",
     "sco1-bumper~=2.0",
     "tox~=4.18",
     "tox-uv~=1.11",
 ]
-
-[project.optional-dependencies]
-docs = [
-    "mkdocs~=1.6",
-    "mkdocs-click~=0.8",
-    "mkdocstrings-python~=2.0",
-    "pymdown-extensions~=10.9",
-]
-
 
 [tool.black]
 line-length = 100
@@ -100,5 +102,5 @@ module-name = "pyflysight"
 module-root = ""
 
 [build-system]
-requires = ["uv_build>=0.11.2,<0.12"]
+requires = ["uv_build>=0.11.28,<0.12"]
 build-backend = "uv_build"
