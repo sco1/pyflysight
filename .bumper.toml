@@ -9,3 +9,7 @@ search = 'version = "{current_version}"'
 [[tool.bumper.files]]
 file = "./README.md"
 search = "pyflysight/{current_version}"
+
+[[tool.bumper.files]]
+file = "./pyflysight/__init__.py"
+search = '__version__ = "{current_version}"'

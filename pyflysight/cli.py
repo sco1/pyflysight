@@ -19,6 +19,7 @@ from pyflysight.flysight_utils import (
     wait_for_flysight,
     write_config,
 )
+from pyflysight.fw_api import fetch_available_firmware
 from pyflysight.log_utils import classify_log_dir, iter_log_dirs, locate_log_subdir
 from pyflysight.trim_app import windowtrim_flight_log
 
@@ -99,6 +100,23 @@ def list(wait_for: int = typer.Option(0, min=0)) -> None:  # pragma: no cover
         return
 
     _print_connected_drives(flysight_drives)
+
+
+@device_app.command()
+def check_fw(
+    flysight_root: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
+    include_beta: bool = typer.Option(False),
+) -> None:
+    """Check for available firmware/stack updates for the specified device."""
+    if flysight_root is None:
+        flysight_root = _ask_select_flysight()
+
+    flysight_metadata = flysight_root / "FLYSIGHT.TXT"
+    if not flysight_metadata.exists():
+        _abort_with_message("Error: Could not locate FLYSIGHT.TXT on device root.")
+
+    raise NotImplementedError
+    _ = fetch_available_firmware(flysight_metadata, include_beta=include_beta)
 
 
 def _try_write_config(device_root: Path, config: FlysightConfig, backup_existing: bool) -> None:
