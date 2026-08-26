@@ -1,0 +1,88 @@
+{
+    "device": {
+        "firmware_version": "v2024.12.30.8",
+        "stack_version": "1.19.0",
+        "stack_version_unknown": false,
+        "pubkey_x": "abc123",
+        "legacy": false
+    },
+    "include_beta": true,
+    "recommended": {
+        "version": "v2026.07.13.develop",
+        "release_date": "2027-07-13",
+        "is_beta": true,
+        "release_notes_url": null,
+        "firmware": {
+            "url": "https://url.one",
+            "target_path": "FW/APP.SFB",
+            "size_bytes": 1,
+            "sha256": "sha1"
+        },
+        "stack": {
+            "required_version": "1.19.0",
+            "current_version": "1.19.0",
+            "current_version_unknown": false,
+            "update_required": false,
+            "file": null
+        }
+    },
+    "firmwares": [
+        {
+            "version": "v2026.07.13.develop",
+            "release_date": "2027-07-13",
+            "is_beta": true,
+            "release_notes_url": null,
+            "firmware": {
+                "url": "https://url.two",
+                "target_path": "FW/APP.SFB",
+                "size_bytes": 12,
+                "sha256": "sha2"
+            },
+            "stack": {
+                "required_version": "1.19.0",
+                "current_version": "1.19.0",
+                "current_version_unknown": false,
+                "update_required": false,
+                "file": null
+            }
+        },
+        {
+            "version": "v2024.12.30.10",
+            "release_date": "2026-05-13",
+            "is_beta": false,
+            "release_notes_url": "https://url.three",
+            "firmware": {
+                "url": "https://url.four",
+                "target_path": "FW/APP.SFB",
+                "size_bytes": 123,
+                "sha256": "sha3"
+            },
+            "stack": {
+                "required_version": "1.19.0",
+                "current_version": "1.19.0",
+                "current_version_unknown": false,
+                "update_required": false,
+                "file": null
+            }
+        },
+        {
+            "version": "v2024.12.30.8",
+            "release_date": "2026-03-06",
+            "is_beta": false,
+            "release_notes_url": "https://url.five",
+            "firmware": {
+                "url": "https://url.six",
+                "target_path": "FW/APP.SFB",
+                "size_bytes": 1234,
+                "sha256": "sha4"
+            },
+            "stack": {
+                "required_version": "1.19.0",
+                "current_version": "1.19.0",
+                "current_version_unknown": false,
+                "update_required": false,
+                "file": null
+            }
+        }
+    ]
+}
