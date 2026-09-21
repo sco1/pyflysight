@@ -1,4 +1,3 @@
-import functools
 import hashlib
 import json
 import platform
@@ -150,7 +149,7 @@ class FileObject(t.NamedTuple):
                 async for chunk in await r.iter_raw():
                     await f.write(chunk)
 
-        if not _check_sha256(dl_filepath, self.sha256):
+        if check_sha and not _check_sha256(dl_filepath, self.sha256):
             raise RuntimeError("SHA256 Mismatch")
 
         return dl_filepath
@@ -202,7 +201,7 @@ class Stack(t.NamedTuple):
             file=stack_file,
         )
 
-    @functools.cached_property
+    @property
     def _dl_prefix(self) -> str:
         """Build a unique parent directory name based on `self.required_version`."""
         return f"stack_{self.required_version.replace('.', '_')}"
@@ -300,7 +299,7 @@ class Firmware(t.NamedTuple):
             stack=Stack.from_raw(raw_json["stack"]),
         )
 
-    @functools.cached_property
+    @property
     def _fw_dl_prefix(self) -> str:
         """Build a unique parent directory name based on `self.version`."""
         return f"fw_{self.version.replace('.', '_')}"
