@@ -565,6 +565,12 @@ class FlysightV2FlightLog:  # noqa: D101
             r_idx = get_idx(df, elapsed_end)
             self.sensor_data[sensor] = df[l_idx:r_idx]
 
+            # There is a possibility that we have trimmed entirely outside the range of an
+            # individual sensor, so we end up with an empty dataframe. In this case, normalizing the
+            # elapsed time vector would fail, so we skip that step
+            if len(self.sensor_data[sensor]) == 0:
+                continue
+
             # Re-normalize elapsed sensor time
             new_elapsed_start = self.sensor_data[sensor]["elapsed_time"][0]
             new_time = self.sensor_data[sensor]["elapsed_time"] - new_elapsed_start

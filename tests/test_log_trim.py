@@ -51,3 +51,30 @@ def test_log_trim() -> None:
     assert_frame_equal(flight_log.sensor_data["SENSOR"], TRUTH_SENSOR_TRIMMED)
 
     assert flight_log._is_trimmed is True
+
+
+SAMPLE_LAGGED_SENSOR_DF = polars.DataFrame(
+    {
+        "elapsed_time": [6, 7, 8, 9, 10, 11],
+        "b": [0, 1, 2, 3, 4, 5],
+    }
+)
+TRUTH_LAGGED_SENSOR_TRIMMED = polars.DataFrame(
+    {
+        "elapsed_time": [],
+        "b": [],
+    }
+)
+
+
+def test_empty_log_trim() -> None:
+    flight_log = FlysightV2FlightLog(
+        track_data=SAMPLE_TRACK_DF,
+        sensor_data={"SENSOR": SAMPLE_LAGGED_SENSOR_DF},
+        device_info=SAMPLE_DEVICE_INFO,
+    )
+    flight_log.trim_log(2, 4)
+
+    assert_frame_equal(
+        flight_log.sensor_data["SENSOR"], TRUTH_LAGGED_SENSOR_TRIMMED, check_dtypes=False
+    )
