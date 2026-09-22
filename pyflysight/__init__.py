@@ -14,5 +14,5 @@ class FlysightType(IntEnum):
     VERSION_2 = 2
 
 
-__version__ = "1.0.1"
+__version__ = "0.10.0"
 __url__ = "https://github.com/sco1/pyflysight"
