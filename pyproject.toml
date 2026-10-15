@@ -18,13 +18,14 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Typing :: Typed",
 ]
 
 requires-python = ">=3.11"
 dependencies = [
     "matplotlib-window~=1.0",
-    "polars[timezone]~=1.33",
+    "polars[timezone]~=2.0",
     "psutil~=7.0",
     "sco1-misc~=0.1",
     "typer~=0.24",
@@ -63,7 +64,7 @@ dev = [
     "mypy~=2.2",
     "pre-commit~=4.0",
     "pytest-asyncio~=1.4",
-    "pytest-check~=2.4",
+    "pytest-check~=3.0",
     "pytest-cov~=7.0",
     "pytest-mock~=3.14",
     "pytest-randomly~=5.0",
@@ -104,5 +105,5 @@ module-name = "pyflysight"
 module-root = ""
 
 [build-system]
-requires = ["uv_build>=0.12,<0.13"]
+requires = ["uv_build>=0.13.0,<0.14"]
 build-backend = "uv_build"

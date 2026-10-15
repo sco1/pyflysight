@@ -1,6 +1,13 @@
 # Changelog
 Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (`<major>`.`<minor>`.`<patch>`)
 
+## `[0.10.0]`
+### Added
+* #65 Add functionality to interact with the FlySight firmware API
+
+### Fixed
+* #69 Add guard for cases where a sensor's dataframe is empty after trimming
+
 ## `[0.9.3]`
 ### Fixed
 * #62 Fix incorrect track data trim boundary calculation
