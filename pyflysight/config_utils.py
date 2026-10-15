@@ -61,7 +61,7 @@ def _remap_fields(
         if inspect.isclass(factory_map[k]):
             # Non-windowed config fields will have a default factory that's just the config class,
             # so we can pass the args directly
-            converted_fields[k] = factory_map[k](**v)  # type: ignore[misc]
+            converted_fields[k] = factory_map[k](**v)  # type: ignore[operator]
         elif inspect.ismethod(factory_map[k]):  # pragma: no branch
             # Config window fields use a classmethod as the default factory to initialize a list
             # with the default window config, so we have to grab the parent class from this method

@@ -19,6 +19,7 @@ from pyflysight.flysight_utils import (
     wait_for_flysight,
     write_config,
 )
+from pyflysight.fw_api import APIResult, Firmware, fetch_available_firmware
 from pyflysight.log_utils import classify_log_dir, iter_log_dirs, locate_log_subdir
 from pyflysight.trim_app import windowtrim_flight_log
 
@@ -99,6 +100,107 @@ def list(wait_for: int = typer.Option(0, min=0)) -> None:  # pragma: no cover
         return
 
     _print_connected_drives(flysight_drives)
+
+
+def _format_size(n_bytes: int) -> str:
+    """Format a byte count as a human-readable string."""
+    size = float(n_bytes)
+    for unit in ("B", "KB", "MB"):
+        if size < 1024:
+            return f"{size:.1f}{unit}"
+        size /= 1024
+
+    return f"{size:.1f}GB"
+
+
+def _format_firmware_entry(
+    fw: Firmware, marker: str = "", installed_version: str | None = None
+) -> str:
+    """Build a plaintext block describing a single firmware release."""
+    header = f"{marker}v{fw.version} ({fw.release_date})"
+    if fw.is_beta:
+        header += " [BETA]"
+    if installed_version is not None and fw.version == installed_version:
+        header += " [INSTALLED]"
+
+    lines = [
+        header,
+        f"    Firmware: {fw.firmware.target_path} ({_format_size(fw.firmware.size_bytes)})",
+    ]
+
+    if fw.stack.update_required:
+        lines.append(
+            f"    Stack: {fw.stack.current_version} -> {fw.stack.required_version} "
+            f"(update required)"
+        )
+    else:
+        stack_str = "unknown" if fw.stack.current_version_unknown else fw.stack.current_version
+        lines.append(f"    Stack: {stack_str} (up to date)")
+
+    if fw.release_notes_url:
+        lines.append(f"    Release Notes: {fw.release_notes_url}")
+
+    return "\n".join(lines)
+
+
+def _print_firmware_report(result: APIResult, n_recent: int | None = None) -> None:
+    """
+    Print a plaintext summary of available firmware for the connected device.
+
+    `firmwares` is returned by the API sorted newest first, with `recommended` as its first
+    entry. If `n_recent` is provided, only the `n_recent` most recent non-recommended versions
+    are shown; the recommended firmware is always included regardless of this limit.
+    """
+    d = result.device
+    stack_str = "unknown" if d.stack_version_unknown else d.stack_version
+    print(f"Current Firmware: {d.firmware_version}")
+    print(f"Current Stack: {stack_str}")
+    print()
+
+    print("Recommended:")
+    print(
+        _format_firmware_entry(
+            result.recommended, marker="  * ", installed_version=d.firmware_version
+        )
+    )
+
+    others = result.firmwares[1:]  # `recommended` should always be firmwares[0]
+
+    n_omitted = 0
+    if n_recent is not None:
+        n_omitted = max(len(others) - n_recent, 0)
+        others = others[:n_recent]
+
+    if others:
+        count_str = f"{len(others)} of {len(others) + n_omitted}" if n_omitted else f"{len(others)}"
+        print(f"\nOther Available Versions ({count_str}):")
+        for fw in others:
+            print(_format_firmware_entry(fw, marker="  - ", installed_version=d.firmware_version))
+
+    if n_omitted:
+        print(f"\n...{n_omitted} older version(s) omitted, adjust --n-recent to show more")
+
+
+@device_app.command()
+def check_fw(
+    flysight_root: Path = typer.Option(None, exists=True, file_okay=False, dir_okay=True),
+    include_beta: bool = typer.Option(False),
+    n_recent: int = typer.Option(
+        3,
+        min=1,
+        help="Limit output to the n most recent versions (recommended is always shown)",
+    ),
+) -> None:
+    """Check for available firmware/stack updates for the specified device."""
+    if flysight_root is None:
+        flysight_root = _ask_select_flysight()
+
+    flysight_metadata = flysight_root / "FLYSIGHT.TXT"
+    if not flysight_metadata.exists():
+        _abort_with_message("Error: Could not locate FLYSIGHT.TXT on device root.")
+
+    result = fetch_available_firmware(flysight_metadata.read_text(), include_beta=include_beta)
+    _print_firmware_report(result, n_recent=n_recent)
 
 
 def _try_write_config(device_root: Path, config: FlysightConfig, backup_existing: bool) -> None:
